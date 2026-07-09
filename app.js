@@ -756,6 +756,11 @@ function renderQr(joinUrl) {
   const fallback = document.getElementById("qrFallback");
   if (!canvas || !joinUrl) return;
 
+  const existingImage = document.getElementById("qrFallbackImage");
+  if (existingImage) existingImage.remove();
+
+  canvas.hidden = false;
+
   if (window.QRCode && typeof window.QRCode.toCanvas === "function") {
     window.QRCode.toCanvas(canvas, joinUrl, {
       width: 230,
@@ -765,13 +770,42 @@ function renderQr(joinUrl) {
         light: "#FFFFFF"
       }
     }, error => {
-      if (fallback) {
-        fallback.textContent = error ? "QR code could not be generated. Use the join link." : "Scan to join.";
+      if (error) {
+        renderQrImageFallback(joinUrl, canvas, fallback);
+      } else if (fallback) {
+        fallback.textContent = "Scan to join.";
       }
     });
-  } else if (fallback) {
-    fallback.textContent = "QR library unavailable. Use the join link.";
+  } else {
+    renderQrImageFallback(joinUrl, canvas, fallback);
   }
+}
+
+function renderQrImageFallback(joinUrl, canvas, fallback) {
+  canvas.hidden = true;
+
+  const image = document.createElement("img");
+  image.id = "qrFallbackImage";
+  image.src = "https://api.qrserver.com/v1/create-qr-code/?size=230x230&margin=10&data=" + encodeURIComponent(joinUrl);
+  image.alt = "QR code for the student join link";
+  image.width = 230;
+  image.height = 230;
+  image.style.width = "230px";
+  image.style.height = "230px";
+  image.style.maxWidth = "100%";
+  image.style.borderRadius = "12px";
+
+  image.addEventListener("load", () => {
+    if (fallback) fallback.textContent = "Scan to join.";
+  });
+
+  image.addEventListener("error", () => {
+    if (fallback) {
+      fallback.textContent = "QR code could not load. Use the copy join link button.";
+    }
+  });
+
+  canvas.parentElement.insertBefore(image, fallback);
 }
 
 function renderInstructorRoom(roomState) {
