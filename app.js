@@ -16,6 +16,7 @@ import {
 const firebaseConfig = {
   apiKey: "AIzaSyDT4b9oMiVuowe9eDAtRA0x6LgKc2S6LP4",
   authDomain: "stransky-classroom.firebaseapp.com",
+  databaseURL: "https://stransky-classroom-default-rtdb.firebaseio.com/",
   projectId: "stransky-classroom",
   storageBucket: "stransky-classroom.firebasestorage.app",
   messagingSenderId: "192133852270",
