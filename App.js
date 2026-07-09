@@ -14,14 +14,14 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "REPLACE_WITH_FIREBASE_API_KEY",
-  authDomain: "REPLACE_WITH_PROJECT_ID.firebaseapp.com",
-  databaseURL: "https://REPLACE_WITH_DATABASE_NAME.REGION.firebasedatabase.app",
-  projectId: "REPLACE_WITH_PROJECT_ID",
-  storageBucket: "REPLACE_WITH_PROJECT_ID.appspot.com",
-  messagingSenderId: "REPLACE_WITH_SENDER_ID",
-  appId: "REPLACE_WITH_APP_ID"
+  apiKey: "AIzaSyDT4b9oMiVuowe9eDAtRA0x6LgKc2S6LP4",
+  authDomain: "stransky-classroom.firebaseapp.com",
+  projectId: "stransky-classroom",
+  storageBucket: "stransky-classroom.firebasestorage.app",
+  messagingSenderId: "192133852270",
+  appId: "1:192133852270:web:f00ee5c08803cc174b0a7f"
 };
+
 
 const APP_VERSION = "1.0.0";
 const STORAGE_KEY = "ritClassroomEngagementState.v1";
