@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Entropy Balance Sandbox: Control Volume Feasibility</title>
+<style>
+  :root {
+    --bg: #f7f9fc;
+    --panel: #ffffff;
+    --text: #18202a;
+    --muted: #526070;
+    --border: #cfd7e3;
+    --accent: #1f5f99;
+    --good: #1d6b3a;
+    --bad: #9b1c1c;
+    --warn: #8a5a00;
+  }
+
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  h1 {
+    font-size: 1.7rem;
+    margin: 0 0 8px;
+  }
+
+  .guidance {
+    max-width: 850px;
+    color: var(--muted);
+    line-height: 1.45;
+    margin-bottom: 18px;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 18px;
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  label {
+    display: block;
+    font-weight: 650;
+    margin-top: 16px;
+  }
+
+  input[type="range"] {
+    width: 100%;
+  }
+
+  .value {
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .readouts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(150px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .readout {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    background: #fbfdff;
+  }
+
+  .readout span {
+    display: block;
+    color: var(--muted);
+    font-size: 0.88rem;
+  }
+
+  .readout strong {
+    font-size: 1.15rem;
+  }
+
+  .status {
+    margin-top: 16px;
+    padding: 14px;
+    border-radius: 10px;
+    font-weight: 750;
+    border: 2px solid;
+  }
+
+  .possible {
+    color: var(--good);
+    border-color: var(--good);
+    background: #eef8f1;
+  }
+
+  .impossible {
+    color: var(--bad);
+    border-color: var(--bad);
+    background: #fff1f1;
+  }
+
+  button {
+    margin-top: 16px;
+    width: 100%;
+    padding: 11px 14px;
+    border: none;
+    border-radius: 10px;
+    background: var(--accent);
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  button:focus,
+  input:focus {
+    outline: 3px solid #ffbf47;
+    outline-offset: 2px;
+  }
+
+  canvas {
+    width: 100%;
+    max-width: 700px;
+    height: 430px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: white;
+  }
+
+  .note {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-top: 12px;
+    line-height: 1.4;
+  }
+
+  @media (max-width: 850px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Entropy Balance Sandbox: Control Volume Feasibility</h1>
+  <p class="guidance">
+    Adjust the control-volume entropy terms and observe whether the process satisfies the increase of entropy principle.
+    A real process must have entropy generation greater than or equal to zero.
+  </p>
+
+  <section class="layout">
+    <div class="panel">
+      <label for="sIn">Entropy entering with mass flow, ṁs<sub>in</sub>: <span class="value" id="sInVal"></span> kW/K</label>
+      <input id="sIn" type="range" min="0" max="20" step="0.5" value="8" />
+
+      <label for="sOut">Entropy leaving with mass flow, ṁs<sub>out</sub>: <span class="value" id="sOutVal"></span> kW/K</label>
+      <input id="sOut" type="range" min="0" max="20" step="0.5" value="11" />
+
+      <label for="qOverT">Entropy transfer by heat, Q̇/T<sub>b</sub>: <span class="value" id="qOverTVal"></span> kW/K</label>
+      <input id="qOverT" type="range" min="-10" max="10" step="0.5" value="2" />
+
+      <label for="storage">Entropy storage rate, dS<sub>CV</sub>/dt: <span class="value" id="storageVal"></span> kW/K</label>
+      <input id="storage" type="range" min="-10" max="10" step="0.5" value="0" />
+
+      <div class="readouts">
+        <div class="readout">
+          <span>Entropy generated</span>
+          <strong id="sGenOut"></strong>
+        </div>
+        <div class="readout">
+          <span>Feasibility</span>
+          <strong id="feasOut"></strong>
+        </div>
+      </div>
+
+      <div id="status" class="status"></div>
+
+      <button id="copyBtn">Copy results</button>
+
+      <p class="note">
+        Balance used: Ṡ<sub>gen</sub> = dS<sub>CV</sub>/dt + Σṁs<sub>out</sub> − Σṁs<sub>in</sub> − ΣQ̇/T<sub>b</sub>.
+      </p>
+    </div>
+
+    <div class="panel">
+      <canvas id="canvas" width="700" height="430" aria-label="Canvas diagram showing entropy balance terms for a control volume"></canvas>
+      <p class="note">
+        Bar direction shows whether each term increases or decreases required entropy generation. The dashed zero line separates feasible and impossible cases.
+      </p>
+    </div>
+  </section>
+</main>
+
+<script>
+  const sIn = document.getElementById("sIn");
+  const sOut = document.getElementById("sOut");
+  const qOverT = document.getElementById("qOverT");
+  const storage = document.getElementById("storage");
+
+  const sInVal = document.getElementById("sInVal");
+  const sOutVal = document.getElementById("sOutVal");
+  const qOverTVal = document.getElementById("qOverTVal");
+  const storageVal = document.getElementById("storageVal");
+
+  const sGenOut = document.getElementById("sGenOut");
+  const feasOut = document.getElementById("feasOut");
+  const statusBox = document.getElementById("status");
+  const copyBtn = document.getElementById("copyBtn");
+
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+
+  function fmt(x) {
+    return Number(x).toFixed(1);
+  }
+
+  function getState() {
+    const Sin = Number(sIn.value);
+    const Sout = Number(sOut.value);
+    const QoverT = Number(qOverT.value);
+    const Storage = Number(storage.value);
+    const Sgen = Storage + Sout - Sin - QoverT;
+
+    return { Sin, Sout, QoverT, Storage, Sgen };
+  }
+
+  function drawArrow(x1, y1, x2, y2, label, value) {
+    ctx.strokeStyle = "#18202a";
+    ctx.fillStyle = "#18202a";
+    ctx.lineWidth = 3;
+
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+
+    const angle = Math.atan2(y2 - y1, x2 - x1);
+    const head = 10;
+    ctx.beginPath();
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 - head * Math.cos(angle - Math.PI / 6), y2 - head * Math.sin(angle - Math.PI / 6));
+    ctx.lineTo(x2 - head * Math.cos(angle + Math.PI / 6), y2 - head * Math.sin(angle + Math.PI / 6));
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.font = "15px system-ui";
+    ctx.textAlign = "center";
+    ctx.fillText(label, (x1 + x2) / 2, y1 - 14);
+    ctx.fillText(value + " kW/K", (x1 + x2) / 2, y1 + 24);
+  }
+
+  function drawBar(label, contribution, x, y, scale) {
+    const zeroX = x + 120;
+    const width = contribution * scale;
+    const barY = y - 13;
+
+    ctx.fillStyle = contribution >= 0 ? "#1d6b3a" : "#9b1c1c";
+    ctx.fillRect(zeroX, barY, width, 26);
+
+    ctx.strokeStyle = "#18202a";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(zeroX, y - 24);
+    ctx.lineTo(zeroX, y + 24);
+    ctx.stroke();
+
+    ctx.fillStyle = "#18202a";
+    ctx.font = "14px system-ui";
+    ctx.textAlign = "right";
+    ctx.fillText(label, x + 105, y + 5);
+
+    ctx.textAlign = contribution >= 0 ? "left" : "right";
+    ctx.fillText(fmt(contribution), zeroX + width + (contribution >= 0 ? 8 : -8), y + 5);
+  }
+
+  function update() {
+    const state = getState();
+
+    sInVal.textContent = fmt(state.Sin);
+    sOutVal.textContent = fmt(state.Sout);
+    qOverTVal.textContent = fmt(state.QoverT);
+    storageVal.textContent = fmt(state.Storage);
+
+    sGenOut.textContent = fmt(state.Sgen) + " kW/K";
+
+    const feasible = state.Sgen >= 0;
+    feasOut.textContent = feasible ? "Possible" : "Impossible";
+    statusBox.className = "status " + (feasible ? "possible" : "impossible");
+    statusBox.textContent = feasible
+      ? "Possible: Ṡgen ≥ 0, so the process does not violate the increase of entropy principle."
+      : "Impossible: Ṡgen < 0, so this process would violate the increase of entropy principle.";
+
+    draw(state);
+  }
+
+  function draw(state) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.strokeStyle = "#1f5f99";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(260, 75, 180, 130);
+
+    ctx.fillStyle = "#eef5fb";
+    ctx.fillRect(264, 79, 172, 122);
+
+    ctx.fillStyle = "#18202a";
+    ctx.font = "bold 18px system-ui";
+    ctx.textAlign = "center";
+    ctx.fillText("Control Volume", 350, 135);
+    ctx.font = "14px system-ui";
+    ctx.fillText("Entropy Balance", 350, 162);
+
+    drawArrow(95, 140, 260, 140, "Mass entropy in", fmt(state.Sin));
+    drawArrow(440, 140, 610, 140, "Mass entropy out", fmt(state.Sout));
+
+    ctx.strokeStyle = state.QoverT >= 0 ? "#8a5a00" : "#9b1c1c";
+    ctx.fillStyle = ctx.strokeStyle;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(350, state.QoverT >= 0 ? 250 : 205);
+    ctx.lineTo(350, state.QoverT >= 0 ? 205 : 250);
+    ctx.stroke();
+
+    ctx.beginPath();
+    const arrowY = state.QoverT >= 0 ? 205 : 250;
+    ctx.moveTo(350, arrowY);
+    ctx.lineTo(342, state.QoverT >= 0 ? 217 : 238);
+    ctx.lineTo(358, state.QoverT >= 0 ? 217 : 238);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = "#18202a";
+    ctx.font = "15px system-ui";
+    ctx.fillText("Heat entropy transfer Q̇/Tb", 350, 285);
+    ctx.fillText(fmt(state.QoverT) + " kW/K", 350, 307);
+
+    ctx.font = "bold 16px system-ui";
+    ctx.textAlign = "left";
+    ctx.fillText("Contributions to Ṡgen", 36, 338);
+
+    ctx.strokeStyle = "#526070";
+    ctx.setLineDash([6, 5]);
+    ctx.beginPath();
+    ctx.moveTo(300, 350);
+    ctx.lineTo(300, 416);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    const scale = 8;
+    drawBar("Storage", state.Storage, 180, 365, scale);
+    drawBar("Mass out", state.Sout, 180, 390, scale);
+    drawBar("Mass in", -state.Sin, 180, 415, scale);
+    drawBar("Heat transfer", -state.QoverT, 480, 365, scale);
+
+    ctx.fillStyle = state.Sgen >= 0 ? "#1d6b3a" : "#9b1c1c";
+    ctx.font = "bold 18px system-ui";
+    ctx.textAlign = "center";
+    ctx.fillText("Ṡgen = " + fmt(state.Sgen) + " kW/K", 540, 410);
+  }
+
+  copyBtn.addEventListener("click", async function () {
+    const state = getState();
+    const text =
+      "Entropy Balance Sandbox Results\n" +
+      "Entropy entering with mass flow: " + fmt(state.Sin) + " kW/K\n" +
+      "Entropy leaving with mass flow: " + fmt(state.Sout) + " kW/K\n" +
+      "Entropy transfer by heat Qdot/Tb: " + fmt(state.QoverT) + " kW/K\n" +
+      "Entropy storage rate dS_CV/dt: " + fmt(state.Storage) + " kW/K\n" +
+      "Entropy generation: " + fmt(state.Sgen) + " kW/K\n" +
+      "Feasibility: " + (state.Sgen >= 0 ? "Possible" : "Impossible");
+
+    try {
+      await navigator.clipboard.writeText(text);
+      copyBtn.textContent = "Copied";
+      setTimeout(() => copyBtn.textContent = "Copy results", 1200);
+    } catch (err) {
+      alert(text);
+    }
+  });
+
+  [sIn, sOut, qOverT, storage].forEach(input => input.addEventListener("input", update));
+
+  update();
+</script>
+</body>
+</html>
