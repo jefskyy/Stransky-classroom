@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Instructor Dashboard | RIT Classroom Engagement</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+  <script type="module" src="app.js"></script>
+</head>
+<body data-page="instructor">
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">RIT Classroom Engagement</div>
+      <h1>Instructor Dashboard</h1>
+    </div>
+    <div class="connection-pill" id="connectionStatus" role="status" aria-live="polite">Initializing</div>
+  </header>
+
+  <main class="dashboard-grid">
+    <section class="card room-card">
+      <div class="section-heading-row">
+        <div>
+          <h2>Room</h2>
+          <p class="muted">Students join with the QR code or link.</p>
+        </div>
+        <button class="secondary-button" id="newRoomBtn" type="button">New room</button>
+      </div>
+
+      <div class="room-id-box">
+        <span>Room ID</span>
+        <strong id="roomIdText">Not connected</strong>
+      </div>
+
+      <div class="join-layout">
+        <div class="qr-wrap">
+          <canvas id="qrCanvas" width="230" height="230" aria-label="QR code for the student join link"></canvas>
+          <p class="qr-fallback" id="qrFallback">QR loads after the room is created.</p>
+        </div>
+        <div class="join-link-block">
+          <label for="joinLink">Student join link</label>
+          <input id="joinLink" type="text" readonly value="" />
+          <button id="copyJoinLinkBtn" type="button">Copy join link</button>
+        </div>
+      </div>
+
+      <form id="openRoomForm" class="inline-form" autocomplete="off">
+        <label for="existingRoomInput">Open existing room</label>
+        <div class="inline-controls">
+          <input id="existingRoomInput" type="text" inputmode="latin" maxlength="12" placeholder="Example: A7K4Q9" />
+          <button class="secondary-button" type="submit">Open</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card module-card">
+      <h2>Active Module</h2>
+      <p class="muted">Changing the module updates every connected student screen.</p>
+      <div class="module-button-grid" role="group" aria-label="Active module selector">
+        <button class="module-button" id="modeSigninBtn" type="button" data-mode="signin">Name Sign-In</button>
+        <button class="module-button" id="modeAiBtn" type="button" data-mode="ai">AI Problem</button>
+        <button class="module-button" id="modeGroupsBtn" type="button" data-mode="groups">Groups</button>
+        <button class="module-button" id="modeHtmlBtn" type="button" data-mode="html">HTML Viewer</button>
+      </div>
+      <div class="active-module-banner" id="activeModuleBanner">No room loaded.</div>
+    </section>
+
+    <section class="card roster-card wide-card">
+      <div class="section-heading-row">
+        <div>
+          <h2>Live Roster</h2>
+          <p class="muted"><span id="rosterCount">0</span> signed in · <span id="onlineCount">0</span> currently connected</p>
+        </div>
+        <button class="secondary-button" id="clearRosterBtn" type="button">Clear roster</button>
+      </div>
+      <div id="rosterGrid" class="roster-grid" aria-live="polite"></div>
+    </section>
+
+    <section class="card config-card">
+      <h2>Randomized Group Formation</h2>
+      <p class="muted">Students are shuffled with Fisher-Yates and distributed evenly.</p>
+
+      <label for="groupModeSelect">Configuration mode</label>
+      <select id="groupModeSelect">
+        <option value="size">Fixed group size</option>
+        <option value="count">Fixed number of groups</option>
+        <option value="auto">Auto-assign</option>
+      </select>
+
+      <div id="groupSizeBlock">
+        <label for="groupSizeInput">Maximum students per group</label>
+        <input id="groupSizeInput" type="number" min="2" max="12" step="1" value="4" />
+      </div>
+
+      <div id="groupCountBlock" class="hidden">
+        <label for="groupCountInput">Exact number of groups</label>
+        <input id="groupCountInput" type="number" min="1" max="40" step="1" value="5" />
+      </div>
+
+      <button id="assignGroupsBtn" type="button">Randomize and assign groups</button>
+      <div id="groupSummary" class="summary-stack"></div>
+    </section>
+
+    <section class="card config-card">
+      <h2>AI Problem Engagement</h2>
+      <p class="muted">Paste AI-generated problem payloads as JSON or one problem per line. Each student receives one payload.</p>
+
+      <label for="aiTitleInput">Activity title</label>
+      <input id="aiTitleInput" type="text" value="AI Problem Engagement" />
+
+      <label for="aiInstructionsInput">Student instructions</label>
+      <textarea id="aiInstructionsInput" rows="3">Read your assigned problem variation. Make a prediction, justify it, and submit a brief response.</textarea>
+
+      <label for="aiPayloadInput">Problem payloads</label>
+      <textarea id="aiPayloadInput" rows="9">[{"title":"Variation A","body":"A system undergoes a process with specified inlet and outlet states. Predict whether entropy generation will be positive, zero, or impossible before calculating."},{"title":"Variation B","body":"A device rejects heat to a boundary while mass flows through it. Identify which entropy terms increase or decrease the required entropy generation."},{"title":"Variation C","body":"A control volume has steady mass flow but nonzero heat transfer. Determine what would make the proposed process infeasible."}]</textarea>
+
+      <button id="startAiBtn" type="button">Distribute problems and start</button>
+    </section>
+
+    <section class="card config-card wide-card">
+      <div class="section-heading-row">
+        <div>
+          <h2>Dynamic HTML Viewer</h2>
+          <p class="muted">Broadcast a snippet that runs inside a sandboxed iframe on each student device. Student interactions remain local.</p>
+        </div>
+        <button class="secondary-button" id="loadSampleHtmlBtn" type="button">Load sample</button>
+      </div>
+
+      <label for="htmlTitleInput">Viewer title</label>
+      <input id="htmlTitleInput" type="text" value="Interactive HTML Sandbox" />
+
+      <label for="htmlInput">HTML snippet</label>
+      <textarea id="htmlInput" rows="14" spellcheck="false"></textarea>
+
+      <div class="split-actions">
+        <button id="broadcastHtmlBtn" type="button">Broadcast HTML and start</button>
+        <button class="secondary-button" id="previewHtmlBtn" type="button">Preview locally</button>
+      </div>
+
+      <div class="preview-shell">
+        <iframe id="htmlPreviewFrame" title="Instructor preview of the HTML snippet" sandbox="allow-scripts allow-forms"></iframe>
+      </div>
+    </section>
+
+    <section class="card wide-card">
+      <h2>Recent Student Submissions</h2>
+      <p class="muted">Submissions write only when students press submit.</p>
+      <div id="submissionList" class="submission-list"></div>
+    </section>
+  </main>
+</body>
+</html>

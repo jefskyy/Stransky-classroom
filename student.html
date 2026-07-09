@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Portal | RIT Classroom Engagement</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script type="module" src="app.js"></script>
+</head>
+<body data-page="student">
+  <header class="student-topbar">
+    <div>
+      <div class="eyebrow">RIT Classroom Engagement</div>
+      <h1 id="studentHeaderTitle">Student Portal</h1>
+    </div>
+    <div class="connection-pill" id="studentConnectionStatus" role="status" aria-live="polite">Initializing</div>
+  </header>
+
+  <main class="student-shell">
+    <section class="card narrow-card" id="joinPanel">
+      <div class="brand-mark" aria-hidden="true">RIT</div>
+      <h2>Join the room</h2>
+      <p class="muted">Enter your display name. Your device will remember this room for reconnecting.</p>
+      <form id="studentJoinForm" autocomplete="off">
+        <label for="studentNameInput">Your name</label>
+        <input id="studentNameInput" type="text" maxlength="40" required placeholder="First name or preferred name" />
+
+        <label for="studentRoomInput">Room ID</label>
+        <input id="studentRoomInput" type="text" maxlength="12" required placeholder="Room ID" />
+
+        <button type="submit">Join room</button>
+      </form>
+      <p class="form-message" id="joinMessage" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="student-app hidden" id="studentApp">
+      <div class="student-context-card card">
+        <div>
+          <span class="context-label">Signed in as</span>
+          <strong id="studentNameLabel">Student</strong>
+        </div>
+        <div>
+          <span class="context-label">Room</span>
+          <strong id="studentRoomLabel">—</strong>
+        </div>
+        <div>
+          <span class="context-label">Active module</span>
+          <strong id="studentModuleLabel">Waiting</strong>
+        </div>
+      </div>
+
+      <section class="card activity-card" id="waitingView">
+        <h2>Waiting for the instructor</h2>
+        <p class="muted">Keep this page open. It will update automatically when the instructor starts an activity.</p>
+      </section>
+
+      <section class="card activity-card hidden" id="signinView">
+        <h2>You are signed in</h2>
+        <p>The instructor can see your name on the live roster. Keep this tab open for the next activity.</p>
+      </section>
+
+      <section class="card activity-card hidden" id="aiView">
+        <h2 id="aiStudentTitle">AI Problem Engagement</h2>
+        <p id="aiStudentInstructions" class="muted"></p>
+        <article class="problem-card" id="studentProblemCard"></article>
+
+        <label for="aiAnswerInput">Your response</label>
+        <textarea id="aiAnswerInput" rows="6" placeholder="Write your prediction, reasoning, or answer here."></textarea>
+        <button id="submitAiAnswerBtn" type="button">Submit response</button>
+        <p class="form-message" id="aiSubmitMessage" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="card activity-card hidden" id="groupsView">
+        <h2>Your Group</h2>
+        <div class="group-number" id="studentGroupNumber">Not assigned yet</div>
+        <div>
+          <h3>Teammates</h3>
+          <ul id="studentTeammatesList" class="teammate-list"></ul>
+        </div>
+      </section>
+
+      <section class="card activity-card hidden" id="htmlView">
+        <h2 id="htmlStudentTitle">Interactive HTML Sandbox</h2>
+        <p class="muted">Use the sandbox below on your own device. Your sliders, typing, and local interactions do not change anyone else's screen.</p>
+        <div class="student-iframe-shell">
+          <iframe id="studentHtmlFrame" title="Student interactive HTML sandbox" sandbox="allow-scripts allow-forms"></iframe>
+        </div>
+        <label for="htmlResponseInput">Optional response or observation</label>
+        <textarea id="htmlResponseInput" rows="4" placeholder="Record an observation, result, or question."></textarea>
+        <button id="submitHtmlResponseBtn" type="button">Submit observation</button>
+        <p class="form-message" id="htmlSubmitMessage" role="status" aria-live="polite"></p>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
