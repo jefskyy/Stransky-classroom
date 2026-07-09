@@ -3,6 +3,9 @@
     {
       "title": "Entropy Control Volume Slider",
       "file": "entropy-control-volume.html"
+
+      "title": "Entropy balance demo",
+      "file": "Entropy_Balance.html"
     }
   ]
 }
