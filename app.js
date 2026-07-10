@@ -752,33 +752,25 @@ function showOnly(ids, activeId) {
 }
 
 function renderQr(joinUrl) {
-  const canvas = document.getElementById("qrCanvas");
+  const image = document.getElementById("qrImage");
   const fallback = document.getElementById("qrFallback");
-  if (!canvas || !joinUrl) return;
+  if (!image || !joinUrl) return;
 
-  const existingImage = document.getElementById("qrFallbackImage");
-  if (existingImage) existingImage.remove();
+  const qrUrl =
+    "https://api.qrserver.com/v1/create-qr-code/?size=230x230&margin=10&data=" +
+    encodeURIComponent(joinUrl);
 
-  canvas.hidden = false;
+  image.src = qrUrl;
 
-  if (window.QRCode && typeof window.QRCode.toCanvas === "function") {
-    window.QRCode.toCanvas(canvas, joinUrl, {
-      width: 230,
-      margin: 1,
-      color: {
-        dark: "#000000",
-        light: "#FFFFFF"
-      }
-    }, error => {
-      if (error) {
-        renderQrImageFallback(joinUrl, canvas, fallback);
-      } else if (fallback) {
-        fallback.textContent = "Scan to join.";
-      }
-    });
-  } else {
-    renderQrImageFallback(joinUrl, canvas, fallback);
-  }
+  image.onload = () => {
+    if (fallback) fallback.textContent = "Scan to join.";
+  };
+
+  image.onerror = () => {
+    if (fallback) {
+      fallback.textContent = "QR image could not load. Use the copy join link button.";
+    }
+  };
 }
 
 function renderQrImageFallback(joinUrl, canvas, fallback) {
