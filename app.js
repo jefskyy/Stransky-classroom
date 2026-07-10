@@ -29,7 +29,8 @@ const MODULE_LABELS = {
   signin: "Name Sign-In",
   ai: "AI Problem Engagement",
   groups: "Randomized Groups",
-  html: "Dynamic HTML Viewer"
+  html: "Dynamic HTML Viewer",
+  closed: "Room Closed"
 };
 
 const configured = isFirebaseConfigured(firebaseConfig);
@@ -201,6 +202,7 @@ function makeEmptyRoom(roomId) {
       roomId: safeRoom,
       appVersion: APP_VERSION,
       joinUrl: getJoinUrl(safeRoom),
+      status: "open",
       createdAt: serverTimestamp(),
       createdLocalAt: Date.now()
     },
@@ -242,14 +244,32 @@ async function createRoom() {
     exists = snapshot.exists();
     attempts += 1;
   }
+async function closeRoom(roomId) {
+  const safeRoom = normalizeRoomId(roomId);
+  if (!safeRoom) return;
 
+  try {
+    await update(roomRef(safeRoom), {
+      "meta/status": "closed",
+      "meta/closedAt": serverTimestamp(),
+      activeModule: "closed",
+      updatedAt: serverTimestamp()
+    });
+  } catch {
+    undefined;
+  }
+}
+  
   if (exists) {
     throw new Error("Could not create a unique room ID. Try again.");
   }
 
-  await set(roomRef(roomId), makeEmptyRoom(roomId));
-  patchStore({ instructorRoomId: roomId });
-  return roomId;
+const previousRoomId = readStore().instructorRoomId || currentRoomId || "";
+await closeRoom(previousRoomId);
+
+await set(roomRef(roomId), makeEmptyRoom(roomId));
+patchStore({ instructorRoomId: roomId });
+return roomId;
 }
 
 async function openOrCreateInstructorRoom(requestedRoomId) {
@@ -493,9 +513,16 @@ async function joinRoom(roomId, studentId, name) {
   if (!safeRoom) throw new Error("Room ID is required.");
   if (!safeName) throw new Error("Name is required.");
 
-  const roomSnapshot = await get(roomRef(safeRoom, "meta"));
-  if (!roomSnapshot.exists()) throw new Error("Room not found. Check the room ID or ask the instructor for a new link.");
+const roomSnapshot = await get(roomRef(safeRoom, "meta"));
+if (!roomSnapshot.exists()) {
+  throw new Error("Room not found. Check the room ID or ask the instructor for a new link.");
+}
 
+const roomMeta = roomSnapshot.val();
+if (roomMeta && roomMeta.status === "closed") {
+  localStorage.removeItem(STORAGE_KEY);
+  throw new Error("This room has expired. Ask the instructor for the current QR code.");
+}
   const safeStudentId = studentId || generateId("student");
   const studentReference = roomRef(safeRoom, `students/${safeStudentId}`);
 
@@ -1144,6 +1171,24 @@ async function startStudentSession(room, studentId, name) {
 
 function renderStudentRoom(roomState) {
   if (!roomState) return;
+
+  if (roomState.meta && roomState.meta.status === "closed") {
+    localStorage.removeItem(STORAGE_KEY);
+    currentRoomId = "";
+    currentStudentId = "";
+    currentStudentName = "";
+
+    document.getElementById("studentApp")?.classList.add("hidden");
+    document.getElementById("joinPanel")?.classList.remove("hidden");
+    document.getElementById("studentRoomInput").value = "";
+    setMessage(
+      document.getElementById("joinMessage"),
+      "That room has expired. Scan the current QR code or enter the new room ID.",
+      "error"
+    );
+    return;
+  }
+  
   const activeMode = roomState.activeModule || "signin";
   document.getElementById("studentModuleLabel").textContent = MODULE_LABELS[activeMode] || activeMode;
 
