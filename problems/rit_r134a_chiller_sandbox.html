@@ -1,0 +1,2460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RIT Hockey Chiller Decision Sandbox</title>
+
+  <style>
+    :root {
+      --rit-orange: #f76902;
+      --rit-orange-dark: #a83f00;
+      --ink: #17202a;
+      --muted: #52606d;
+      --paper: #ffffff;
+      --page: #f3f5f7;
+      --line: #bcc6cf;
+      --soft: #eef2f5;
+      --known: #e8f1ff;
+      --assumed: #fff3d6;
+      --solved: #e8f7ec;
+      --warning: #fff1cc;
+      --danger: #b42318;
+      --success: #1f6b38;
+      --focus: #005fcc;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--page);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.45;
+    }
+
+    header {
+      background: #111111;
+      color: white;
+      border-bottom: 7px solid var(--rit-orange);
+      padding: 1.2rem max(1rem, calc((100vw - 1280px) / 2));
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: clamp(1.45rem, 3vw, 2.25rem);
+    }
+
+    header p {
+      max-width: 900px;
+      margin: 0.5rem 0 0;
+      color: #f1f1f1;
+    }
+
+    main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    h2,
+    h3 {
+      line-height: 1.2;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 1.35rem;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+    }
+
+    .notice {
+      background: #fff7ed;
+      border: 2px solid var(--rit-orange);
+      padding: 0.8rem 1rem;
+      border-radius: 0.55rem;
+      margin-bottom: 1rem;
+    }
+
+    .guidance {
+      background: var(--paper);
+      border-left: 6px solid var(--rit-orange);
+      padding: 0.9rem 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 0.8fr);
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 0.65rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    }
+
+    fieldset {
+      border: 1px solid var(--line);
+      border-radius: 0.5rem;
+      margin: 0 0 1rem;
+      padding: 0.85rem;
+    }
+
+    legend {
+      font-weight: 700;
+      padding: 0 0.35rem;
+    }
+
+    label {
+      font-weight: 700;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+      font: inherit;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid #7d8995;
+      border-radius: 0.35rem;
+      padding: 0.55rem;
+      background: white;
+      color: var(--ink);
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus,
+    button:focus {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    button {
+      border: 2px solid #111;
+      border-radius: 0.4rem;
+      padding: 0.65rem 1rem;
+      cursor: pointer;
+      background: white;
+      color: #111;
+      font-weight: 700;
+    }
+
+    button.primary {
+      background: var(--rit-orange);
+      color: #111;
+      border-color: #111;
+    }
+
+    button:hover {
+      filter: brightness(0.96);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      align-items: center;
+      margin: 1rem 0;
+    }
+
+    .variable-table,
+    .state-table,
+    .assumption-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .variable-table th,
+    .variable-table td,
+    .state-table th,
+    .state-table td,
+    .assumption-table th,
+    .assumption-table td {
+      border: 1px solid var(--line);
+      padding: 0.55rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .variable-table th,
+    .state-table th,
+    .assumption-table th {
+      background: #e9edf1;
+    }
+
+    .variable-table tr[data-mode="known"] {
+      background: var(--known);
+    }
+
+    .variable-table tr[data-mode="assume"] {
+      background: var(--assumed);
+    }
+
+    .variable-table tr[data-mode="solve"] {
+      background: var(--solved);
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .symbol {
+      font-family: "Courier New", monospace;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .unit-box {
+      display: grid;
+      grid-template-columns: minmax(80px, 1fr) auto;
+      gap: 0.4rem;
+      align-items: center;
+    }
+
+    .range-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.35rem;
+      margin-top: 0.4rem;
+    }
+
+    .range-fields[hidden] {
+      display: none;
+    }
+
+    .solved-readout {
+      display: block;
+      font-weight: 700;
+      margin-top: 0.35rem;
+    }
+
+    .status {
+      border-radius: 0.45rem;
+      padding: 0.75rem;
+      margin: 0.7rem 0;
+      border: 1px solid var(--line);
+      background: var(--soft);
+    }
+
+    .status.good {
+      border-color: var(--success);
+      background: #edf8f0;
+    }
+
+    .status.warn {
+      border-color: #9a6700;
+      background: var(--warning);
+    }
+
+    .status.bad {
+      border-color: var(--danger);
+      background: #fff0ef;
+    }
+
+    .message-list {
+      margin: 0.35rem 0 0 1.2rem;
+      padding: 0;
+    }
+
+    .output-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .readout {
+      border: 1px solid var(--line);
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      background: #fafbfc;
+      min-height: 95px;
+    }
+
+    .readout strong {
+      display: block;
+      font-size: 1.35rem;
+      margin-top: 0.35rem;
+    }
+
+    .equation {
+      background: #f6f8fa;
+      border-left: 4px solid #3d4b58;
+      padding: 0.7rem;
+      margin: 0.55rem 0;
+      font-family: "Courier New", monospace;
+      overflow-wrap: anywhere;
+    }
+
+    .tag {
+      display: inline-block;
+      border: 1px solid #4a5560;
+      border-radius: 99px;
+      padding: 0.12rem 0.55rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      background: white;
+    }
+
+    .tag.known::before {
+      content: "K ";
+    }
+
+    .tag.assume::before {
+      content: "A ";
+    }
+
+    .tag.solve::before {
+      content: "S ";
+    }
+
+    .cycle-wrap {
+      overflow-x: auto;
+    }
+
+    svg {
+      width: 100%;
+      min-width: 520px;
+      max-height: 430px;
+      background: #fbfcfd;
+      border: 1px solid var(--line);
+      border-radius: 0.55rem;
+    }
+
+    .sensitivity-row {
+      display: grid;
+      grid-template-columns: minmax(130px, 0.8fr) minmax(150px, 2fr) auto;
+      gap: 0.6rem;
+      align-items: center;
+      margin: 0.55rem 0;
+    }
+
+    .bar-track {
+      height: 20px;
+      background: #e1e6ea;
+      border: 1px solid #7a8792;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .bar {
+      height: 100%;
+      background: repeating-linear-gradient(
+        45deg,
+        var(--rit-orange),
+        var(--rit-orange) 8px,
+        #111 8px,
+        #111 11px
+      );
+      min-width: 2px;
+    }
+
+    .decision-options {
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .decision-option {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.55rem;
+      align-items: start;
+      border: 1px solid var(--line);
+      border-radius: 0.4rem;
+      padding: 0.6rem;
+    }
+
+    .decision-option input {
+      width: auto;
+      margin-top: 0.2rem;
+    }
+
+    .decision-option label {
+      margin: 0;
+      font-weight: 400;
+    }
+
+    .decision-option strong {
+      display: block;
+    }
+
+    .assumption-table input[type="checkbox"] {
+      width: auto;
+      transform: scale(1.25);
+      margin: 0.4rem;
+    }
+
+    .solution-map {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .solution-map li {
+      border-bottom: 1px solid #d7dde2;
+      padding: 0.45rem 0;
+    }
+
+    .solution-map li:last-child {
+      border-bottom: 0;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 0.4rem;
+      padding: 0.55rem;
+      margin-top: 0.55rem;
+      background: #fafbfc;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .inline-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .copy-confirmation {
+      min-height: 1.4rem;
+      font-weight: 700;
+      color: var(--success);
+    }
+
+    .nowrap {
+      white-space: nowrap;
+    }
+
+    .screen-reader-only {
+      position: absolute;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+
+    @media (max-width: 920px) {
+      .grid-two {
+        grid-template-columns: 1fr;
+      }
+
+      .variable-table,
+      .variable-table thead,
+      .variable-table tbody,
+      .variable-table th,
+      .variable-table td,
+      .variable-table tr {
+        display: block;
+      }
+
+      .variable-table thead {
+        position: absolute;
+        left: -9999px;
+      }
+
+      .variable-table tr {
+        margin-bottom: 0.8rem;
+        border: 1px solid var(--line);
+      }
+
+      .variable-table td {
+        border: 0;
+        border-bottom: 1px solid #d7dde2;
+      }
+
+      .variable-table td:last-child {
+        border-bottom: 0;
+      }
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      button,
+      .guidance {
+        display: none;
+      }
+
+      .panel {
+        box-shadow: none;
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>RIT Hockey Chiller Decision Sandbox</h1>
+    <p>
+      Use a simplified R-134a refrigeration-cycle model to decide whether the
+      institution should host a championship hockey game.
+    </p>
+  </header>
+
+  <main>
+    <div class="notice">
+      <strong>Instructional model:</strong>
+      The embedded R-134a data and compressor model are simplified for classroom
+      use. They must not be used for actual equipment design, maintenance, or
+      safety decisions.
+    </div>
+
+    <div class="guidance">
+      Classify information as known, assumed, or to be solved. Use the calculations
+      as evidence, then define what would make your recommendation defensible.
+    </div>
+
+    <section class="grid-two" aria-label="Scenario and refrigeration cycle">
+      <div class="panel">
+        <h2>1. Inspect the cycle</h2>
+
+        <div class="cycle-wrap">
+          <svg
+            viewBox="0 0 760 430"
+            role="img"
+            aria-labelledby="cycleTitle cycleDesc"
+          >
+            <title id="cycleTitle">Four-state vapor-compression refrigeration cycle</title>
+            <desc id="cycleDesc">
+              State 1 enters the compressor. State 2 enters the condenser. State 3
+              enters the expansion valve. State 4 enters the evaporator. The cycle
+              then returns to State 1.
+            </desc>
+
+            <defs>
+              <marker
+                id="arrow"
+                markerWidth="10"
+                markerHeight="10"
+                refX="8"
+                refY="3"
+                orient="auto"
+                markerUnits="strokeWidth"
+              >
+                <path d="M0,0 L0,6 L9,3 z" fill="#111"></path>
+              </marker>
+            </defs>
+
+            <rect x="55" y="160" width="145" height="95" rx="12"
+              fill="#fff3d6" stroke="#111" stroke-width="3"></rect>
+            <text x="127" y="195" text-anchor="middle" font-size="20" font-weight="700">
+              Evaporator
+            </text>
+            <text x="127" y="222" text-anchor="middle" font-size="15">
+              Heat absorbed
+            </text>
+            <text x="127" y="243" text-anchor="middle" font-size="15">
+              Q̇L
+            </text>
+
+            <polygon points="305,145 400,175 400,240 305,270"
+              fill="#e8f1ff" stroke="#111" stroke-width="3"></polygon>
+            <text x="350" y="195" text-anchor="middle" font-size="20" font-weight="700">
+              Compressor
+            </text>
+            <text x="350" y="222" text-anchor="middle" font-size="15">
+              Work input Ẇc
+            </text>
+
+            <rect x="520" y="160" width="170" height="95" rx="12"
+              fill="#ffe7e4" stroke="#111" stroke-width="3"></rect>
+            <text x="605" y="195" text-anchor="middle" font-size="20" font-weight="700">
+              Condenser
+            </text>
+            <text x="605" y="222" text-anchor="middle" font-size="15">
+              Heat rejected
+            </text>
+            <text x="605" y="243" text-anchor="middle" font-size="15">
+              Q̇H
+            </text>
+
+            <polygon points="370,340 415,380 370,420 325,380"
+              fill="#e8f7ec" stroke="#111" stroke-width="3"></polygon>
+            <text x="370" y="374" text-anchor="middle" font-size="18" font-weight="700">
+              Expansion
+            </text>
+            <text x="370" y="397" text-anchor="middle" font-size="18" font-weight="700">
+              valve
+            </text>
+
+            <line x1="200" y1="185" x2="302" y2="185"
+              stroke="#111" stroke-width="4" marker-end="url(#arrow)"></line>
+            <line x1="402" y1="185" x2="518" y2="185"
+              stroke="#111" stroke-width="4" marker-end="url(#arrow)"></line>
+            <line x1="605" y1="255" x2="605" y2="380"
+              stroke="#111" stroke-width="4"></line>
+            <line x1="605" y1="380" x2="418" y2="380"
+              stroke="#111" stroke-width="4" marker-end="url(#arrow)"></line>
+            <line x1="322" y1="380" x2="127" y2="380"
+              stroke="#111" stroke-width="4"></line>
+            <line x1="127" y1="380" x2="127" y2="258"
+              stroke="#111" stroke-width="4" marker-end="url(#arrow)"></line>
+
+            <circle cx="245" cy="185" r="22" fill="white" stroke="#111" stroke-width="3"></circle>
+            <text x="245" y="192" text-anchor="middle" font-size="20" font-weight="700">1</text>
+
+            <circle cx="460" cy="185" r="22" fill="white" stroke="#111" stroke-width="3"></circle>
+            <text x="460" y="192" text-anchor="middle" font-size="20" font-weight="700">2</text>
+
+            <circle cx="605" cy="315" r="22" fill="white" stroke="#111" stroke-width="3"></circle>
+            <text x="605" y="322" text-anchor="middle" font-size="20" font-weight="700">3</text>
+
+            <circle cx="235" cy="380" r="22" fill="white" stroke="#111" stroke-width="3"></circle>
+            <text x="235" y="387" text-anchor="middle" font-size="20" font-weight="700">4</text>
+
+            <line x1="350" y1="95" x2="350" y2="142"
+              stroke="#111" stroke-width="4" marker-end="url(#arrow)"></line>
+            <text x="350" y="72" text-anchor="middle" font-size="17" font-weight="700">
+              Electrical power
+            </text>
+          </svg>
+        </div>
+
+        <details>
+          <summary>What the four states represent</summary>
+          <ol>
+            <li>State 1: evaporator outlet and compressor inlet</li>
+            <li>State 2: compressor outlet and condenser inlet</li>
+            <li>State 3: condenser outlet and expansion-valve inlet</li>
+            <li>State 4: expansion-valve outlet and evaporator inlet</li>
+          </ol>
+        </details>
+      </div>
+
+      <div class="panel">
+        <h2>Scenario</h2>
+        <p>
+          RIT is scheduled to host a championship hockey game tomorrow. Facilities
+          personnel report that the rink chiller has been “acting up.” Institutional
+          leadership wants a recommendation before committing to the event.
+        </p>
+
+        <label for="initialDecision">Initial recommendation</label>
+        <select id="initialDecision">
+          <option value="">Choose before calculating</option>
+          <option>Go</option>
+          <option>Conditional go</option>
+          <option>Test before deciding</option>
+          <option>No-go</option>
+        </select>
+
+        <label for="initialReason" style="margin-top:0.8rem;">
+          What information initially seems most important?
+        </label>
+        <textarea id="initialReason"></textarea>
+
+        <h3>Decision question</h3>
+        <p>
+          <strong>Should RIT proceed with hosting the championship game?</strong>
+        </p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>2. Classify the information</h2>
+      <p class="small">
+        <span class="tag known">Known</span> supplied or trusted evidence;
+        <span class="tag assume">Assume</span> an estimate that should be tested;
+        <span class="tag solve">Solve</span> a value the program should calculate if possible.
+      </p>
+
+      <div id="variableContainer"></div>
+    </section>
+
+    <section class="panel">
+      <h2>3. State your modeling assumptions</h2>
+      <p>
+        Check an assumption only when your group is willing to use it. Add a reason
+        and identify what you would verify if the assumption were questionable.
+      </p>
+
+      <div style="overflow-x:auto;">
+        <table class="assumption-table">
+          <thead>
+            <tr>
+              <th scope="col">Use?</th>
+              <th scope="col">Assumption</th>
+              <th scope="col">Why reasonable?</th>
+              <th scope="col">If wrong, what changes or how would you check?</th>
+            </tr>
+          </thead>
+          <tbody id="assumptionBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="grid-two">
+      <div class="panel">
+        <h2>4. Investigate an incomplete report</h2>
+
+        <label for="rumorSelect">Rumor or observation</label>
+        <select id="rumorSelect">
+          <option value="">Select a group rumor</option>
+          <option value="soft">
+            Ice crew reports soft ice in one corner after resurfacing
+          </option>
+          <option value="power">
+            Electrician reports compressor power was about 12% higher
+          </option>
+          <option value="cycling">
+            Operator reports unusually frequent compressor cycling
+          </option>
+          <option value="weather">
+            Event staff expect warm weather and frequent door openings
+          </option>
+          <option value="bubbles">
+            Student employee reports bubbles in a sight glass
+          </option>
+          <option value="history">
+            Longtime employee says the chiller has never failed before
+          </option>
+        </select>
+
+        <label for="rumorClass" style="margin-top:0.75rem;">Evidence classification</label>
+        <select id="rumorClass">
+          <option value="">Choose</option>
+          <option>Potentially relevant</option>
+          <option>Currently unsupported</option>
+          <option>Contradicted by other evidence</option>
+          <option>Not relevant to the simplified model</option>
+        </select>
+
+        <label for="rumorMechanism" style="margin-top:0.75rem;">
+          Possible physical mechanism
+        </label>
+        <textarea id="rumorMechanism"></textarea>
+
+        <label for="rumorVariable">
+          Which variable or assumption might it affect?
+        </label>
+        <input id="rumorVariable" type="text" />
+
+        <label for="rumorVerify">
+          How would you verify or reject the report?
+        </label>
+        <textarea id="rumorVerify"></textarea>
+
+        <label for="rumorImpact">
+          Should it change the recommendation? Why?
+        </label>
+        <textarea id="rumorImpact"></textarea>
+      </div>
+
+      <div class="panel">
+        <h2>5. Define what “solved” means</h2>
+
+        <label for="solvedDefinition">
+          We consider this problem sufficiently solved when…
+        </label>
+        <textarea
+          id="solvedDefinition"
+          placeholder="Example: the lower-bound capacity exceeds the upper-bound load by at least 10%, or a specific monitoring plan manages the remaining risk."
+        ></textarea>
+
+        <label for="measurementRequest">
+          One measurement that would most improve confidence
+        </label>
+        <textarea id="measurementRequest"></textarea>
+
+        <label for="decisionThresholdReason">
+          Why is your selected reserve-capacity threshold appropriate?
+        </label>
+        <textarea id="decisionThresholdReason"></textarea>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>6. Analyze the cycle</h2>
+
+      <div class="button-row">
+        <button id="analyzeButton" class="primary" type="button">
+          Analyze current model
+        </button>
+        <button id="hintButton" type="button">Show next hint</button>
+        <button id="resetButton" type="button">Reset activity</button>
+      </div>
+
+      <div id="statusBox" class="status" aria-live="polite">
+        Enter or classify values, then select <strong>Analyze current model</strong>.
+      </div>
+
+      <div id="hintBox" class="status" hidden aria-live="polite"></div>
+    </section>
+
+    <section class="grid-two">
+      <div class="panel">
+        <h2>Calculated states</h2>
+        <div style="overflow-x:auto;">
+          <table class="state-table">
+            <thead>
+              <tr>
+                <th scope="col">State</th>
+                <th scope="col">Location</th>
+                <th scope="col">Pressure</th>
+                <th scope="col">Enthalpy</th>
+                <th scope="col">Model description</th>
+              </tr>
+            </thead>
+            <tbody id="stateResults">
+              <tr>
+                <td colspan="5">No analysis completed.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Performance readouts</h2>
+        <div class="output-grid" id="outputGrid">
+          <div class="readout">
+            Refrigeration capacity
+            <strong>—</strong>
+          </div>
+          <div class="readout">
+            Compressor power
+            <strong>—</strong>
+          </div>
+          <div class="readout">
+            COP
+            <strong>—</strong>
+          </div>
+          <div class="readout">
+            Actual capacity margin
+            <strong>—</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid-two">
+      <div class="panel">
+        <h2>Governing equations and substitutions</h2>
+        <div id="equationResults">
+          <p>No active equations yet.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Solution path</h2>
+        <ul id="solutionMap" class="solution-map">
+          <li>No solution path generated.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>7. Test uncertainty</h2>
+      <p>
+        The bars show how much each assumed input changes the decision cushion
+        across the selected minimum–maximum range.
+      </p>
+      <div id="sensitivityResults">
+        <p>No sensitivity analysis completed.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>8. Make and defend a recommendation</h2>
+
+      <fieldset>
+        <legend>Final recommendation</legend>
+        <div class="decision-options">
+          <div class="decision-option">
+            <input type="radio" id="decisionGo" name="decision" value="Go" />
+            <label for="decisionGo">
+              <strong>Go</strong>
+              Available evidence supports normal operation.
+            </label>
+          </div>
+
+          <div class="decision-option">
+            <input
+              type="radio"
+              id="decisionConditional"
+              name="decision"
+              value="Conditional go"
+            />
+            <label for="decisionConditional">
+              <strong>Conditional go</strong>
+              Proceed only under identified monitoring or operating conditions.
+            </label>
+          </div>
+
+          <div class="decision-option">
+            <input
+              type="radio"
+              id="decisionTest"
+              name="decision"
+              value="Test before deciding"
+            />
+            <label for="decisionTest">
+              <strong>Test before deciding</strong>
+              Obtain one specific measurement before committing.
+            </label>
+          </div>
+
+          <div class="decision-option">
+            <input type="radio" id="decisionNo" name="decision" value="No-go" />
+            <label for="decisionNo">
+              <strong>No-go</strong>
+              Remaining risk is unacceptable with the available evidence.
+            </label>
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="inline-grid">
+        <div>
+          <label for="strongestEvidence">Strongest technical evidence</label>
+          <textarea id="strongestEvidence"></textarea>
+        </div>
+
+        <div>
+          <label for="criticalAssumption">Most important assumption</label>
+          <textarea id="criticalAssumption"></textarea>
+        </div>
+
+        <div>
+          <label for="greatestRisk">Greatest remaining risk</label>
+          <textarea id="greatestRisk"></textarea>
+        </div>
+
+        <div>
+          <label for="changeCondition">
+            A finding that would change the recommendation
+          </label>
+          <textarea id="changeCondition"></textarea>
+        </div>
+      </div>
+
+      <label for="ambiguityReflection">
+        How did your group make progress without complete information?
+      </label>
+      <textarea id="ambiguityReflection"></textarea>
+
+      <div class="button-row">
+        <button id="copyButton" class="primary" type="button">
+          Copy results
+        </button>
+        <button id="printButton" type="button">Print decision brief</button>
+      </div>
+
+      <div id="copyConfirmation" class="copy-confirmation" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script>
+    "use strict";
+
+    const variableDefinitions = [
+      {
+        key: "te",
+        label: "Evaporating temperature",
+        symbol: "T_evap",
+        unit: "°C",
+        value: -10,
+        min: -15,
+        max: -5,
+        step: 1,
+        mode: "known",
+        note: "Sets the approximate saturated condition at State 1."
+      },
+      {
+        key: "tc",
+        label: "Condensing temperature",
+        symbol: "T_cond",
+        unit: "°C",
+        value: 30,
+        min: 25,
+        max: 38,
+        step: 1,
+        mode: "assume",
+        note: "Sets the approximate condenser pressure and State 3 condition."
+      },
+      {
+        key: "mdot",
+        label: "Refrigerant mass-flow rate",
+        symbol: "m_dot",
+        unit: "kg/s",
+        value: 2.4,
+        min: 2.15,
+        max: 2.55,
+        step: 0.01,
+        mode: "known",
+        note: "Capacity changes approximately in direct proportion to mass flow."
+      },
+      {
+        key: "eta",
+        label: "Compressor isentropic efficiency",
+        symbol: "eta_c",
+        unit: "%",
+        value: 72,
+        min: 65,
+        max: 78,
+        step: 1,
+        mode: "assume",
+        note: "Used to estimate the actual compressor outlet state."
+      },
+      {
+        key: "qload",
+        label: "Championship-event cooling load",
+        symbol: "Q_load",
+        unit: "kW",
+        value: 350,
+        min: 330,
+        max: 390,
+        step: 1,
+        mode: "assume",
+        note: "Represents heat entering the rink system during the event."
+      },
+      {
+        key: "mreq",
+        label: "Required reserve-capacity margin",
+        symbol: "M_required",
+        unit: "%",
+        value: 10,
+        min: 5,
+        max: 15,
+        step: 1,
+        mode: "assume",
+        note: "A decision threshold chosen by the team, not a thermodynamic law."
+      },
+      {
+        key: "wmeas",
+        label: "Measured compressor power",
+        symbol: "W_measured",
+        unit: "kW",
+        value: 132,
+        min: 120,
+        max: 145,
+        step: 1,
+        mode: "known",
+        note: "Can be compared with the model or used to estimate efficiency."
+      }
+    ];
+
+    const assumptionDefinitions = [
+      {
+        id: "steady",
+        label: "Steady-state operation",
+        checked: true,
+        reason: "Provides a first estimate during stable operation.",
+        consequence: "Cycling, startup, or ice pull-down behavior may not be represented."
+      },
+      {
+        id: "kepe",
+        label: "Negligible kinetic- and potential-energy changes",
+        checked: true,
+        reason: "Velocity and elevation changes are small relative to enthalpy changes.",
+        consequence: "Component energy balances could contain a small additional term."
+      },
+      {
+        id: "adiabatic",
+        label: "Compressor is approximately adiabatic",
+        checked: true,
+        reason: "Shaft work dominates the simplified compressor energy balance.",
+        consequence: "Predicted outlet enthalpy and power may differ from measurements."
+      },
+      {
+        id: "satvapor",
+        label: "Saturated vapor leaves the evaporator",
+        checked: true,
+        reason: "Creates a simple State 1 baseline and avoids modeled liquid ingestion.",
+        consequence: "Superheat or wet compression would change capacity and compressor behavior."
+      },
+      {
+        id: "satliquid",
+        label: "Saturated liquid leaves the condenser",
+        checked: true,
+        reason: "Creates a simple State 3 baseline.",
+        consequence: "Subcooling or incomplete condensation changes refrigeration effect."
+      },
+      {
+        id: "throttle",
+        label: "Expansion valve is isenthalpic",
+        checked: true,
+        reason: "A throttling valve is commonly modeled with h3 = h4.",
+        consequence: "A malfunctioning device could produce different downstream conditions."
+      },
+      {
+        id: "pressure",
+        label: "Negligible pressure loss in piping and heat exchangers",
+        checked: true,
+        reason: "Keeps evaporator and condenser pressure levels uniform.",
+        consequence: "Actual compressor pressure ratio and capacity could differ."
+      }
+    ];
+
+    /*
+      Simplified R-134a saturation data.
+      Values are intentionally approximate and limited to the instructional range.
+      T in °C, p in kPa, hf and hg in kJ/kg.
+    */
+    const r134aData = [
+      { t: -20, p: 133, hf: 173, hg: 386 },
+      { t: -15, p: 164, hf: 180, hg: 390 },
+      { t: -10, p: 201, hf: 187, hg: 395 },
+      { t: -5,  p: 243, hf: 194, hg: 398 },
+      { t: 0,   p: 293, hf: 201, hg: 401 },
+      { t: 5,   p: 350, hf: 208, hg: 404 },
+      { t: 10,  p: 414, hf: 215, hg: 407 },
+      { t: 15,  p: 488, hf: 222, hg: 410 },
+      { t: 20,  p: 572, hf: 228, hg: 413 },
+      { t: 25,  p: 665, hf: 235, hg: 416 },
+      { t: 30,  p: 770, hf: 241, hg: 419 },
+      { t: 35,  p: 887, hf: 248, hg: 421 },
+      { t: 40,  p: 1018, hf: 255, hg: 423 },
+      { t: 45,  p: 1160, hf: 262, hg: 424 }
+    ];
+
+    let lastResult = null;
+    let hintLevel = 0;
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function formatNumber(value, digits = 2) {
+      if (value === null || value === undefined || !Number.isFinite(value)) {
+        return "—";
+      }
+      return Number(value).toFixed(digits);
+    }
+
+    function renderVariables() {
+      const container = document.getElementById("variableContainer");
+
+      let html = `
+        <div style="overflow-x:auto;">
+          <table class="variable-table">
+            <thead>
+              <tr>
+                <th scope="col">Quantity</th>
+                <th scope="col">Classification</th>
+                <th scope="col">Value and unit</th>
+                <th scope="col">Assumed range</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      variableDefinitions.forEach((item) => {
+        html += `
+          <tr id="row-${item.key}" data-mode="${item.mode}">
+            <td>
+              <label for="mode-${item.key}">${escapeHtml(item.label)}</label>
+              <span class="symbol">${escapeHtml(item.symbol)}</span>
+              <div class="small">${escapeHtml(item.note)}</div>
+            </td>
+
+            <td>
+              <select id="mode-${item.key}" data-key="${item.key}" class="mode-control">
+                <option value="known" ${item.mode === "known" ? "selected" : ""}>
+                  Known
+                </option>
+                <option value="assume" ${item.mode === "assume" ? "selected" : ""}>
+                  Assume / estimate
+                </option>
+                <option value="solve" ${item.mode === "solve" ? "selected" : ""}>
+                  Solve for
+                </option>
+              </select>
+            </td>
+
+            <td>
+              <div class="unit-box">
+                <input
+                  id="value-${item.key}"
+                  type="number"
+                  value="${item.value}"
+                  step="${item.step}"
+                  aria-label="${escapeHtml(item.label)} value"
+                />
+                <span class="nowrap">${escapeHtml(item.unit)}</span>
+              </div>
+            </td>
+
+            <td>
+              <div
+                id="range-${item.key}"
+                class="range-fields"
+                ${item.mode === "assume" ? "" : "hidden"}
+              >
+                <div>
+                  <label class="small" for="min-${item.key}">Minimum</label>
+                  <input
+                    id="min-${item.key}"
+                    type="number"
+                    value="${item.min}"
+                    step="${item.step}"
+                  />
+                </div>
+                <div>
+                  <label class="small" for="max-${item.key}">Maximum</label>
+                  <input
+                    id="max-${item.key}"
+                    type="number"
+                    value="${item.max}"
+                    step="${item.step}"
+                  />
+                </div>
+              </div>
+              <span class="small">${escapeHtml(item.unit)}</span>
+            </td>
+
+            <td>
+              <span id="solved-${item.key}" class="solved-readout">
+                ${item.mode === "solve" ? "Pending" : "Entered by student"}
+              </span>
+            </td>
+          </tr>
+        `;
+      });
+
+      html += `
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      container.innerHTML = html;
+
+      document.querySelectorAll(".mode-control").forEach((control) => {
+        control.addEventListener("change", () => {
+          updateVariableMode(control.dataset.key);
+        });
+      });
+    }
+
+    function updateVariableMode(key) {
+      const mode = document.getElementById(`mode-${key}`).value;
+      const row = document.getElementById(`row-${key}`);
+      const valueInput = document.getElementById(`value-${key}`);
+      const range = document.getElementById(`range-${key}`);
+      const solvedReadout = document.getElementById(`solved-${key}`);
+
+      row.dataset.mode = mode;
+
+      if (mode === "solve") {
+        valueInput.disabled = true;
+        range.hidden = true;
+        solvedReadout.textContent = "Pending analysis";
+      } else if (mode === "assume") {
+        valueInput.disabled = false;
+        range.hidden = false;
+        solvedReadout.textContent = "Student estimate";
+      } else {
+        valueInput.disabled = false;
+        range.hidden = true;
+        solvedReadout.textContent = "Entered as known";
+      }
+    }
+
+    function renderAssumptions() {
+      const body = document.getElementById("assumptionBody");
+
+      body.innerHTML = assumptionDefinitions.map((item) => `
+        <tr>
+          <td>
+            <input
+              type="checkbox"
+              id="assume-${item.id}"
+              ${item.checked ? "checked" : ""}
+              aria-label="Use assumption: ${escapeHtml(item.label)}"
+            />
+          </td>
+          <td>
+            <label for="assume-${item.id}">${escapeHtml(item.label)}</label>
+          </td>
+          <td>
+            <textarea
+              id="reason-${item.id}"
+              aria-label="Reason for assumption: ${escapeHtml(item.label)}"
+            >${escapeHtml(item.reason)}</textarea>
+          </td>
+          <td>
+            <textarea
+              id="consequence-${item.id}"
+              aria-label="Consequence or verification for assumption: ${escapeHtml(item.label)}"
+            >${escapeHtml(item.consequence)}</textarea>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function getFormState() {
+      const modes = {};
+      const values = {};
+      const ranges = {};
+
+      variableDefinitions.forEach((item) => {
+        modes[item.key] = document.getElementById(`mode-${item.key}`).value;
+        values[item.key] = Number(document.getElementById(`value-${item.key}`).value);
+        ranges[item.key] = {
+          min: Number(document.getElementById(`min-${item.key}`).value),
+          max: Number(document.getElementById(`max-${item.key}`).value)
+        };
+      });
+
+      return { modes, values, ranges };
+    }
+
+    function interpolateProperty(temp) {
+      if (!Number.isFinite(temp)) {
+        return null;
+      }
+
+      if (temp < r134aData[0].t || temp > r134aData[r134aData.length - 1].t) {
+        return null;
+      }
+
+      for (let i = 0; i < r134aData.length - 1; i += 1) {
+        const lower = r134aData[i];
+        const upper = r134aData[i + 1];
+
+        if (temp >= lower.t && temp <= upper.t) {
+          const fraction = (temp - lower.t) / (upper.t - lower.t || 1);
+
+          return {
+            t: temp,
+            p: lower.p + fraction * (upper.p - lower.p),
+            hf: lower.hf + fraction * (upper.hf - lower.hf),
+            hg: lower.hg + fraction * (upper.hg - lower.hg)
+          };
+        }
+      }
+
+      return null;
+    }
+
+    function evaluateModel(formState, overrides = {}) {
+      const modes = { ...formState.modes };
+      const values = { ...formState.values, ...overrides };
+      const errors = [];
+      const warnings = [];
+      const solved = {};
+      const path = [];
+
+      const supplied = (key) => {
+        if (modes[key] === "solve") return null;
+        return Number.isFinite(values[key]) ? values[key] : null;
+      };
+
+      let te = supplied("te");
+      let tc = supplied("tc");
+      let mdot = supplied("mdot");
+      let etaPercent = supplied("eta");
+      let qload = supplied("qload");
+      let requiredMargin = supplied("mreq");
+      let measuredPower = supplied("wmeas");
+
+      if (modes.te === "solve") {
+        errors.push(
+          "Evaporating temperature cannot be solved from the currently selected equations. Add a pressure or another independent State 1 property."
+        );
+      }
+
+      if (modes.tc === "solve") {
+        errors.push(
+          "Condensing temperature cannot be solved from the currently selected equations. Add a pressure or another independent State 3 property."
+        );
+      }
+
+      if (te !== null && (te < -20 || te > 45)) {
+        errors.push(
+          "Evaporating temperature is outside the embedded instructional R-134a range of -20°C to 45°C."
+        );
+      }
+
+      if (tc !== null && (tc < -20 || tc > 45)) {
+        errors.push(
+          "Condensing temperature is outside the embedded instructional R-134a range of -20°C to 45°C."
+        );
+      }
+
+      if (te !== null && tc !== null && tc <= te) {
+        errors.push(
+          "Condensing temperature must exceed evaporating temperature for this refrigeration model."
+        );
+      }
+
+      if (mdot !== null && mdot <= 0) {
+        errors.push("Refrigerant mass-flow rate must be greater than zero.");
+      }
+
+      if (etaPercent !== null && (etaPercent <= 0 || etaPercent > 100)) {
+        errors.push("Compressor isentropic efficiency must be above 0% and no more than 100%.");
+      }
+
+      if (qload !== null && qload <= 0) {
+        errors.push("Cooling load must be greater than zero.");
+      }
+
+      if (measuredPower !== null && measuredPower <= 0) {
+        errors.push("Measured compressor power must be greater than zero.");
+      }
+
+      const evap = te !== null ? interpolateProperty(te) : null;
+      const cond = tc !== null ? interpolateProperty(tc) : null;
+
+      let h1 = null;
+      let h2s = null;
+      let h2 = null;
+      let h3 = null;
+      let h4 = null;
+      let qL = null;
+      let qcap = null;
+      let compressorPower = null;
+      let cop = null;
+      let actualMargin = null;
+      let pRatio = null;
+      let idealSpecificWork = null;
+
+      if (evap && cond) {
+        h1 = evap.hg;
+        h3 = cond.hf;
+        h4 = h3;
+        qL = h1 - h4;
+        pRatio = cond.p / evap.p;
+
+        const cpVapor = 0.88;
+        const k = 1.12;
+        const inletKelvin = te + 273.15;
+
+        idealSpecificWork =
+          cpVapor *
+          inletKelvin *
+          (Math.pow(pRatio, (k - 1) / k) - 1);
+
+        h2s = h1 + idealSpecificWork;
+
+        path.push(
+          `State 1 estimated from saturated-vapor R-134a data at ${formatNumber(te, 1)}°C.`
+        );
+        path.push(
+          `State 3 estimated from saturated-liquid R-134a data at ${formatNumber(tc, 1)}°C.`
+        );
+        path.push("Expansion valve modeled as h3 = h4.");
+
+        if (qL <= 0) {
+          errors.push(
+            "The calculated refrigeration effect is zero or negative. Check evaporating and condensing conditions."
+          );
+        }
+      }
+
+      for (let pass = 0; pass < 6; pass += 1) {
+        if (
+          mdot === null &&
+          modes.mdot === "solve" &&
+          qload !== null &&
+          requiredMargin !== null &&
+          qL !== null &&
+          qL > 0
+        ) {
+          mdot = qload * (1 + requiredMargin / 100) / qL;
+          solved.mdot = mdot;
+        }
+
+        if (
+          qload === null &&
+          modes.qload === "solve" &&
+          mdot !== null &&
+          requiredMargin !== null &&
+          qL !== null
+        ) {
+          qcap = mdot * qL;
+          qload = qcap / (1 + requiredMargin / 100);
+          solved.qload = qload;
+        }
+
+        if (
+          etaPercent === null &&
+          modes.eta === "solve" &&
+          mdot !== null &&
+          measuredPower !== null &&
+          idealSpecificWork !== null
+        ) {
+          etaPercent = 100 * mdot * idealSpecificWork / measuredPower;
+          solved.eta = etaPercent;
+        }
+
+        if (
+          measuredPower === null &&
+          modes.wmeas === "solve" &&
+          mdot !== null &&
+          etaPercent !== null &&
+          idealSpecificWork !== null
+        ) {
+          measuredPower = mdot * idealSpecificWork / (etaPercent / 100);
+          solved.wmeas = measuredPower;
+        }
+
+        if (mdot !== null && qL !== null) {
+          qcap = mdot * qL;
+        }
+
+        if (
+          requiredMargin === null &&
+          modes.mreq === "solve" &&
+          qcap !== null &&
+          qload !== null
+        ) {
+          requiredMargin = 100 * (qcap - qload) / qload;
+          solved.mreq = requiredMargin;
+        }
+      }
+
+      if (etaPercent !== null && h1 !== null && h2s !== null) {
+        h2 = h1 + (h2s - h1) / (etaPercent / 100);
+      }
+
+      if (mdot !== null && h2 !== null && h1 !== null) {
+        compressorPower = mdot * (h2 - h1);
+      }
+
+      if (
+        modes.wmeas === "solve" &&
+        compressorPower !== null
+      ) {
+        measuredPower = compressorPower;
+        solved.wmeas = measuredPower;
+      }
+
+      if (qL !== null && h2 !== null && h1 !== null) {
+        const specificWork = h2 - h1;
+
+        if (specificWork > 0) {
+          cop = qL / specificWork;
+        } else {
+          errors.push("Calculated compressor work is zero or negative.");
+        }
+      }
+
+      if (qcap !== null && qload !== null) {
+        actualMargin = 100 * (qcap - qload) / qload;
+      }
+
+      if (modes.mdot === "solve" && mdot === null) {
+        errors.push(
+          "Mass flow cannot be solved. A cooling load, reserve-margin criterion, and refrigeration effect are required."
+        );
+      }
+
+      if (modes.qload === "solve" && qload === null) {
+        errors.push(
+          "Cooling load cannot be solved. Mass flow, refrigeration effect, and a reserve-margin criterion are required."
+        );
+      }
+
+      if (modes.eta === "solve" && etaPercent === null) {
+        errors.push(
+          "Compressor efficiency cannot be solved. Mass flow, measured power, and the compressor pressure ratio are required."
+        );
+      }
+
+      if (modes.mreq === "solve" && requiredMargin === null) {
+        errors.push(
+          "Reserve margin cannot be solved. Refrigeration capacity and cooling load are required."
+        );
+      }
+
+      if (modes.wmeas === "solve" && measuredPower === null) {
+        errors.push(
+          "Compressor power cannot be solved. Mass flow, pressure ratio, and compressor efficiency are required."
+        );
+      }
+
+      if (etaPercent !== null && (etaPercent < 40 || etaPercent > 90)) {
+        warnings.push(
+          "The compressor efficiency is mathematically usable but outside a typical instructional expectation. Verify the inputs."
+        );
+      }
+
+      if (actualMargin !== null && actualMargin < 0) {
+        warnings.push(
+          "Nominal modeled capacity is below the entered event cooling load."
+        );
+      } else if (
+        actualMargin !== null &&
+        requiredMargin !== null &&
+        actualMargin < requiredMargin
+      ) {
+        warnings.push(
+          "Nominal capacity exceeds the load, but it does not meet the selected reserve-margin criterion."
+        );
+      }
+
+      if (
+        compressorPower !== null &&
+        measuredPower !== null &&
+        modes.wmeas !== "solve"
+      ) {
+        const difference =
+          100 * (measuredPower - compressorPower) / compressorPower;
+
+        if (Math.abs(difference) > 10) {
+          warnings.push(
+            `Measured power differs from modeled power by ${formatNumber(Math.abs(difference), 1)}%. Investigate model assumptions or measurement quality.`
+          );
+        }
+      }
+
+      if (pRatio !== null && pRatio > 8) {
+        warnings.push(
+          "The compressor pressure ratio is high for this simplified single-stage model."
+        );
+      }
+
+      if (evap && cond) {
+        path.push(
+          `Refrigeration effect calculated as h1 - h4 = ${formatNumber(qL)} kJ/kg.`
+        );
+      }
+
+      if (qcap !== null) {
+        path.push(
+          `Refrigeration capacity calculated as m_dot × qL = ${formatNumber(qcap)} kW.`
+        );
+      }
+
+      if (compressorPower !== null) {
+        path.push(
+          `Compressor power calculated as m_dot × (h2 - h1) = ${formatNumber(compressorPower)} kW.`
+        );
+      }
+
+      if (actualMargin !== null) {
+        path.push(
+          `Actual capacity margin calculated as ${formatNumber(actualMargin, 1)}%.`
+        );
+      }
+
+      const criterionMet =
+        actualMargin !== null &&
+        requiredMargin !== null &&
+        actualMargin >= requiredMargin;
+
+      const decisionCushion =
+        actualMargin !== null && requiredMargin !== null
+          ? actualMargin - requiredMargin
+          : actualMargin;
+
+      return {
+        errors,
+        warnings,
+        solved,
+        path,
+        values: {
+          te,
+          tc,
+          mdot,
+          etaPercent,
+          qload,
+          requiredMargin,
+          measuredPower
+        },
+        states: {
+          evap,
+          cond,
+          h1,
+          h2s,
+          h2,
+          h3,
+          h4
+        },
+        outputs: {
+          qL,
+          qcap,
+          compressorPower,
+          cop,
+          actualMargin,
+          criterionMet,
+          decisionCushion,
+          pRatio
+        }
+      };
+    }
+
+    function validateAssumedRanges(formState) {
+      const messages = [];
+
+      variableDefinitions.forEach((item) => {
+        if (formState.modes[item.key] === "assume") {
+          const range = formState.ranges[item.key];
+
+          if (!Number.isFinite(range.min) || !Number.isFinite(range.max)) {
+            messages.push(`${item.label} needs a valid minimum and maximum.`);
+          } else if (range.min > range.max) {
+            messages.push(`${item.label} has a minimum greater than its maximum.`);
+          } else if (
+            Number.isFinite(formState.values[item.key]) &&
+            (
+              formState.values[item.key] < range.min ||
+              formState.values[item.key] > range.max
+            )
+          ) {
+            messages.push(
+              `${item.label} nominal value is outside the selected uncertainty range.`
+            );
+          }
+        }
+      });
+
+      return messages;
+    }
+
+    function analyze() {
+      const formState = getFormState();
+      const result = evaluateModel(formState);
+      const rangeMessages = validateAssumedRanges(formState);
+
+      rangeMessages.forEach((message) => result.warnings.push(message));
+
+      lastResult = {
+        formState,
+        result
+      };
+
+      renderStatus(result);
+      renderSolvedValues(result);
+      renderStates(result);
+      renderOutputs(result);
+      renderEquations(result);
+      renderSolutionMap(result);
+      renderSensitivity(formState, result);
+
+      hintLevel = 0;
+      document.getElementById("hintBox").hidden = true;
+    }
+
+    function renderStatus(result) {
+      const box = document.getElementById("statusBox");
+
+      if (result.errors.length > 0) {
+        box.className = "status bad";
+        box.innerHTML = `
+          <strong>The current model is not fully solvable.</strong>
+          <ul class="message-list">
+            ${result.errors.map((message) => `<li>${escapeHtml(message)}</li>`).join("")}
+          </ul>
+          ${
+            result.warnings.length
+              ? `
+                <strong>Additional cautions:</strong>
+                <ul class="message-list">
+                  ${result.warnings.map((message) => `<li>${escapeHtml(message)}</li>`).join("")}
+                </ul>
+              `
+              : ""
+          }
+        `;
+        return;
+      }
+
+      if (result.warnings.length > 0) {
+        box.className = "status warn";
+        box.innerHTML = `
+          <strong>The model calculated results, but engineering cautions remain.</strong>
+          <ul class="message-list">
+            ${result.warnings.map((message) => `<li>${escapeHtml(message)}</li>`).join("")}
+          </ul>
+        `;
+        return;
+      }
+
+      box.className = "status good";
+      box.innerHTML = `
+        <strong>The selected model is mathematically solvable.</strong>
+        No automatic warning means the equations are internally consistent; it does
+        not mean the institutional decision is risk-free.
+      `;
+    }
+
+    function renderSolvedValues(result) {
+      variableDefinitions.forEach((item) => {
+        const mode = document.getElementById(`mode-${item.key}`).value;
+        const readout = document.getElementById(`solved-${item.key}`);
+
+        if (mode !== "solve") {
+          readout.textContent =
+            mode === "known" ? "Entered as known" : "Student estimate";
+          return;
+        }
+
+        const valueMap = {
+          te: result.values.te,
+          tc: result.values.tc,
+          mdot: result.values.mdot,
+          eta: result.values.etaPercent,
+          qload: result.values.qload,
+          mreq: result.values.requiredMargin,
+          wmeas: result.values.measuredPower
+        };
+
+        const value = valueMap[item.key];
+
+        if (Number.isFinite(value)) {
+          readout.textContent = `${formatNumber(value, 2)} ${item.unit}`;
+        } else {
+          readout.textContent = "Not solvable";
+        }
+      });
+    }
+
+    function renderStates(result) {
+      const body = document.getElementById("stateResults");
+      const s = result.states;
+
+      if (!s.evap || !s.cond) {
+        body.innerHTML = `
+          <tr>
+            <td colspan="5">State properties cannot yet be established.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      body.innerHTML = `
+        <tr>
+          <td><strong>1</strong></td>
+          <td>Evaporator outlet / compressor inlet</td>
+          <td>${formatNumber(s.evap.p, 1)} kPa</td>
+          <td>${formatNumber(s.h1)} kJ/kg</td>
+          <td>Saturated vapor assumption</td>
+        </tr>
+        <tr>
+          <td><strong>2s</strong></td>
+          <td>Ideal isentropic compressor outlet</td>
+          <td>${formatNumber(s.cond.p, 1)} kPa</td>
+          <td>${formatNumber(s.h2s)} kJ/kg</td>
+          <td>Approximate ideal-gas compressor relation</td>
+        </tr>
+        <tr>
+          <td><strong>2</strong></td>
+          <td>Actual compressor outlet</td>
+          <td>${formatNumber(s.cond.p, 1)} kPa</td>
+          <td>${formatNumber(s.h2)} kJ/kg</td>
+          <td>Calculated using isentropic efficiency</td>
+        </tr>
+        <tr>
+          <td><strong>3</strong></td>
+          <td>Condenser outlet</td>
+          <td>${formatNumber(s.cond.p, 1)} kPa</td>
+          <td>${formatNumber(s.h3)} kJ/kg</td>
+          <td>Saturated liquid assumption</td>
+        </tr>
+        <tr>
+          <td><strong>4</strong></td>
+          <td>Expansion-valve outlet</td>
+          <td>${formatNumber(s.evap.p, 1)} kPa</td>
+          <td>${formatNumber(s.h4)} kJ/kg</td>
+          <td>Isenthalpic throttling: h4 = h3</td>
+        </tr>
+      `;
+    }
+
+    function renderOutputs(result) {
+      const o = result.outputs;
+      const requiredMargin = result.values.requiredMargin;
+
+      let marginNote = "Load or capacity unresolved.";
+
+      if (Number.isFinite(o.actualMargin)) {
+        if (Number.isFinite(requiredMargin)) {
+          marginNote = o.criterionMet
+            ? `Meets the selected ${formatNumber(requiredMargin, 1)}% threshold.`
+            : `Below the selected ${formatNumber(requiredMargin, 1)}% threshold.`;
+        } else {
+          marginNote = "Actual margin calculated; no separate threshold selected.";
+        }
+      }
+
+      document.getElementById("outputGrid").innerHTML = `
+        <div class="readout">
+          Refrigeration capacity
+          <strong>${formatNumber(o.qcap, 1)} kW</strong>
+          <span class="small">Rate of heat removal</span>
+        </div>
+
+        <div class="readout">
+          Compressor power
+          <strong>${formatNumber(o.compressorPower, 1)} kW</strong>
+          <span class="small">Modeled shaft-power input</span>
+        </div>
+
+        <div class="readout">
+          COP
+          <strong>${formatNumber(o.cop, 2)}</strong>
+          <span class="small">Cooling delivered per unit of work</span>
+        </div>
+
+        <div class="readout">
+          Actual capacity margin
+          <strong>${formatNumber(o.actualMargin, 1)}%</strong>
+          <span class="small">${escapeHtml(marginNote)}</span>
+        </div>
+
+        <div class="readout">
+          Pressure ratio
+          <strong>${formatNumber(o.pRatio, 2)}</strong>
+          <span class="small">Condenser pressure ÷ evaporator pressure</span>
+        </div>
+
+        <div class="readout">
+          Decision cushion
+          <strong>${formatNumber(o.decisionCushion, 1)} points</strong>
+          <span class="small">Actual margin minus required margin</span>
+        </div>
+      `;
+    }
+
+    function renderEquations(result) {
+      const r = result;
+      const s = r.states;
+      const o = r.outputs;
+      const v = r.values;
+      const equations = [];
+
+      if (s.h1 !== null && s.h3 !== null) {
+        equations.push(`
+          <div class="equation">
+            Expansion valve: h4 = h3 = ${formatNumber(s.h4)} kJ/kg
+          </div>
+          <div class="equation">
+            Refrigeration effect:
+            qL = h1 - h4 =
+            ${formatNumber(s.h1)} - ${formatNumber(s.h4)}
+            = ${formatNumber(o.qL)} kJ/kg
+          </div>
+        `);
+      }
+
+      if (s.h2s !== null && s.h2 !== null && v.etaPercent !== null) {
+        equations.push(`
+          <div class="equation">
+            Compressor efficiency:
+            eta_c = (h2s - h1) / (h2 - h1)
+            <br />
+            h2 = h1 + (h2s - h1) / eta_c
+            = ${formatNumber(s.h2)} kJ/kg
+          </div>
+        `);
+      }
+
+      if (o.qcap !== null && v.mdot !== null) {
+        equations.push(`
+          <div class="equation">
+            Refrigeration capacity:
+            Q_dot_L = m_dot × qL =
+            ${formatNumber(v.mdot)} × ${formatNumber(o.qL)}
+            = ${formatNumber(o.qcap)} kW
+          </div>
+        `);
+      }
+
+      if (o.compressorPower !== null && v.mdot !== null) {
+        equations.push(`
+          <div class="equation">
+            Compressor power:
+            W_dot_c = m_dot × (h2 - h1)
+            = ${formatNumber(v.mdot)} ×
+            (${formatNumber(s.h2)} - ${formatNumber(s.h1)})
+            = ${formatNumber(o.compressorPower)} kW
+          </div>
+        `);
+      }
+
+      if (o.cop !== null) {
+        equations.push(`
+          <div class="equation">
+            COP_R = Q_dot_L / W_dot_c
+            = ${formatNumber(o.qcap)} / ${formatNumber(o.compressorPower)}
+            = ${formatNumber(o.cop, 2)}
+          </div>
+        `);
+      }
+
+      if (o.actualMargin !== null && v.qload !== null) {
+        equations.push(`
+          <div class="equation">
+            Capacity margin =
+            (Q_dot_L - Q_load) / Q_load × 100%
+            = (${formatNumber(o.qcap)} - ${formatNumber(v.qload)})
+            / ${formatNumber(v.qload)} × 100%
+            = ${formatNumber(o.actualMargin, 1)}%
+          </div>
+        `);
+      }
+
+      document.getElementById("equationResults").innerHTML =
+        equations.length > 0
+          ? equations.join("")
+          : "<p>The selected information is not sufficient to activate the cycle equations.</p>";
+    }
+
+    function renderSolutionMap(result) {
+      const map = document.getElementById("solutionMap");
+      const entries = [];
+
+      entries.push(
+        `<li><strong>Entered or assumed:</strong> T_evap = ${formatNumber(result.values.te, 1)}°C; T_cond = ${formatNumber(result.values.tc, 1)}°C.</li>`
+      );
+
+      Object.entries(result.solved).forEach(([key, value]) => {
+        const definition = variableDefinitions.find((item) => item.key === key);
+        entries.push(
+          `<li><strong>Solved:</strong> ${escapeHtml(definition.label)} = ${formatNumber(value, 2)} ${escapeHtml(definition.unit)}.</li>`
+        );
+      });
+
+      result.path.forEach((entry) => {
+        entries.push(`<li>${escapeHtml(entry)}</li>`);
+      });
+
+      result.errors.forEach((entry) => {
+        entries.push(`<li><strong>Unresolved:</strong> ${escapeHtml(entry)}</li>`);
+      });
+
+      result.warnings.forEach((entry) => {
+        entries.push(`<li><strong>Caution:</strong> ${escapeHtml(entry)}</li>`);
+      });
+
+      map.innerHTML = entries.length
+        ? entries.join("")
+        : "<li>No solution path generated.</li>";
+    }
+
+    function renderSensitivity(formState, baseline) {
+      const container = document.getElementById("sensitivityResults");
+      const candidates = [];
+
+      variableDefinitions.forEach((item) => {
+        if (formState.modes[item.key] !== "assume") {
+          return;
+        }
+
+        const range = formState.ranges[item.key];
+
+        if (
+          !Number.isFinite(range.min) ||
+          !Number.isFinite(range.max) ||
+          range.min === range.max
+        ) {
+          return;
+        }
+
+        const low = evaluateModel(formState, { [item.key]: range.min });
+        const high = evaluateModel(formState, { [item.key]: range.max });
+
+        const lowMetric = low.outputs.decisionCushion;
+        const highMetric = high.outputs.decisionCushion;
+
+        if (!Number.isFinite(lowMetric) || !Number.isFinite(highMetric)) {
+          return;
+        }
+
+        candidates.push({
+          key: item.key,
+          label: item.label,
+          unit: item.unit,
+          min: range.min,
+          max: range.max,
+          lowMetric,
+          highMetric,
+          impact: Math.abs(highMetric - lowMetric)
+        });
+      });
+
+      if (candidates.length === 0) {
+        container.innerHTML = `
+          <p>
+            No usable assumed ranges are available. Mark one or more variables as
+            <strong>Assume / estimate</strong> and enter minimum and maximum values.
+          </p>
+        `;
+        return;
+      }
+
+      candidates.sort((a, b) => b.impact - a.impact);
+      const largest = Math.max(...candidates.map((item) => item.impact), 0.0001);
+
+      container.innerHTML = `
+        <p>
+          <strong>Most influential current assumption:</strong>
+          ${escapeHtml(candidates[0].label)}
+        </p>
+
+        ${candidates.map((item) => {
+          const width = 100 * item.impact / largest;
+
+          return `
+            <div class="sensitivity-row">
+              <div>
+                <strong>${escapeHtml(item.label)}</strong>
+                <div class="small">
+                  ${formatNumber(item.min, 2)}–${formatNumber(item.max, 2)}
+                  ${escapeHtml(item.unit)}
+                </div>
+              </div>
+
+              <div
+                class="bar-track"
+                role="img"
+                aria-label="${escapeHtml(item.label)} changes the decision cushion by ${formatNumber(item.impact, 1)} percentage points"
+              >
+                <div class="bar" style="width:${width}%"></div>
+              </div>
+
+              <div class="nowrap">
+                ${formatNumber(item.impact, 1)} points
+              </div>
+            </div>
+          `;
+        }).join("")}
+
+        <p class="small">
+          “Decision cushion” equals actual capacity margin minus the team’s required
+          reserve margin. A negative value indicates that the selected threshold is
+          not met.
+        </p>
+      `;
+    }
+
+    function showHint() {
+      const box = document.getElementById("hintBox");
+      const hints = [
+        "Start by checking whether the evaporating and condensing temperatures establish two different pressure levels.",
+        "A complete state normally requires two independent intensive properties. This activity supplies a saturation assumption to establish States 1 and 3.",
+        "The expansion valve does not reduce enthalpy in the simplified model: use h4 = h3.",
+        "Capacity depends on both refrigeration effect and mass flow. A positive nominal margin may still be smaller than the team’s required margin.",
+        "Ask which uncertain input could reverse the recommendation. Testing that input may be more valuable than performing another calculation."
+      ];
+
+      box.hidden = false;
+      box.className = "status";
+      box.textContent = hints[Math.min(hintLevel, hints.length - 1)];
+      hintLevel += 1;
+    }
+
+    function getSelectedDecision() {
+      const selected = document.querySelector('input[name="decision"]:checked');
+      return selected ? selected.value : "";
+    }
+
+    function collectAssumptionsText() {
+      return assumptionDefinitions.map((item) => {
+        const used = document.getElementById(`assume-${item.id}`).checked;
+        const reason = document.getElementById(`reason-${item.id}`).value.trim();
+        const consequence = document
+          .getElementById(`consequence-${item.id}`)
+          .value.trim();
+
+        return [
+          `${used ? "[USED]" : "[NOT USED]"} ${item.label}`,
+          `Reason: ${reason || "Not provided"}`,
+          `If wrong / verification: ${consequence || "Not provided"}`
+        ].join("\n");
+      }).join("\n\n");
+    }
+
+    function createResultsText() {
+      if (!lastResult) {
+        return "No analysis has been completed.";
+      }
+
+      const { formState, result } = lastResult;
+      const variableLines = variableDefinitions.map((item) => {
+        const mode = formState.modes[item.key];
+        let value = formState.values[item.key];
+
+        if (mode === "solve") {
+          const solvedMap = {
+            te: result.values.te,
+            tc: result.values.tc,
+            mdot: result.values.mdot,
+            eta: result.values.etaPercent,
+            qload: result.values.qload,
+            mreq: result.values.requiredMargin,
+            wmeas: result.values.measuredPower
+          };
+          value = solvedMap[item.key];
+        }
+
+        const range =
+          mode === "assume"
+            ? `; range ${formState.ranges[item.key].min} to ${formState.ranges[item.key].max} ${item.unit}`
+            : "";
+
+        return `${item.label}: ${formatNumber(value, 2)} ${item.unit} [${mode}]${range}`;
+      });
+
+      const rumorText =
+        document.getElementById("rumorSelect").selectedOptions[0]?.text || "";
+
+      return `
+RIT HOCKEY CHILLER DECISION BRIEF
+=================================
+
+Initial recommendation:
+${document.getElementById("initialDecision").value || "Not selected"}
+
+Initial reasoning:
+${document.getElementById("initialReason").value.trim() || "Not provided"}
+
+MODEL INPUTS
+------------
+${variableLines.join("\n")}
+
+CALCULATED RESULTS
+------------------
+Refrigeration effect: ${formatNumber(result.outputs.qL, 2)} kJ/kg
+Refrigeration capacity: ${formatNumber(result.outputs.qcap, 2)} kW
+Compressor power: ${formatNumber(result.outputs.compressorPower, 2)} kW
+COP: ${formatNumber(result.outputs.cop, 2)}
+Actual capacity margin: ${formatNumber(result.outputs.actualMargin, 2)}%
+Required margin: ${formatNumber(result.values.requiredMargin, 2)}%
+Decision cushion: ${formatNumber(result.outputs.decisionCushion, 2)} percentage points
+Pressure ratio: ${formatNumber(result.outputs.pRatio, 2)}
+
+MODEL WARNINGS
+--------------
+${result.errors.concat(result.warnings).length
+  ? result.errors.concat(result.warnings).join("\n")
+  : "No automatic warnings."}
+
+ASSUMPTION REGISTER
+-------------------
+${collectAssumptionsText()}
+
+DEFINITION OF SOLVED
+--------------------
+${document.getElementById("solvedDefinition").value.trim() || "Not provided"}
+
+Measurement that would improve confidence:
+${document.getElementById("measurementRequest").value.trim() || "Not provided"}
+
+Reason for reserve threshold:
+${document.getElementById("decisionThresholdReason").value.trim() || "Not provided"}
+
+RUMOR ASSESSMENT
+----------------
+Report: ${rumorText || "None selected"}
+Classification: ${document.getElementById("rumorClass").value || "Not selected"}
+Possible mechanism:
+${document.getElementById("rumorMechanism").value.trim() || "Not provided"}
+
+Affected variable or assumption:
+${document.getElementById("rumorVariable").value.trim() || "Not provided"}
+
+Verification:
+${document.getElementById("rumorVerify").value.trim() || "Not provided"}
+
+Effect on recommendation:
+${document.getElementById("rumorImpact").value.trim() || "Not provided"}
+
+FINAL RECOMMENDATION
+--------------------
+Decision: ${getSelectedDecision() || "Not selected"}
+
+Strongest evidence:
+${document.getElementById("strongestEvidence").value.trim() || "Not provided"}
+
+Critical assumption:
+${document.getElementById("criticalAssumption").value.trim() || "Not provided"}
+
+Greatest remaining risk:
+${document.getElementById("greatestRisk").value.trim() || "Not provided"}
+
+Finding that would change the decision:
+${document.getElementById("changeCondition").value.trim() || "Not provided"}
+
+REFLECTION
+----------
+${document.getElementById("ambiguityReflection").value.trim() || "Not provided"}
+
+Instructional-use disclaimer:
+The R-134a data and compressor relations in this sandbox are simplified and are not suitable for actual equipment or safety decisions.
+      `.trim();
+    }
+
+    async function copyResults() {
+      const text = createResultsText();
+      const confirmation = document.getElementById("copyConfirmation");
+
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const temporary = document.createElement("textarea");
+          temporary.value = text;
+          temporary.setAttribute("readonly", "");
+          temporary.style.position = "fixed";
+          temporary.style.left = "-9999px";
+          document.body.appendChild(temporary);
+          temporary.select();
+
+          const successful = document.execCommand("copy");
+          document.body.removeChild(temporary);
+
+          if (!successful) {
+            throw new Error("Clipboard command was unavailable.");
+          }
+        }
+
+        confirmation.textContent = "Results copied to the clipboard.";
+      } catch (error) {
+        confirmation.textContent =
+          "Automatic copying was unavailable. Select and copy the text from the print view.";
+        console.error(error);
+      }
+    }
+
+    function resetActivity() {
+      const confirmed = window.confirm(
+        "Reset all inputs, assumptions, analysis, and written responses?"
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
+      renderVariables();
+      renderAssumptions();
+
+      [
+        "initialDecision",
+        "initialReason",
+        "rumorSelect",
+        "rumorClass",
+        "rumorMechanism",
+        "rumorVariable",
+        "rumorVerify",
+        "rumorImpact",
+        "solvedDefinition",
+        "measurementRequest",
+        "decisionThresholdReason",
+        "strongestEvidence",
+        "criticalAssumption",
+        "greatestRisk",
+        "changeCondition",
+        "ambiguityReflection"
+      ].forEach((id) => {
+        const element = document.getElementById(id);
+
+        if (element) {
+          element.value = "";
+        }
+      });
+
+      document.querySelectorAll('input[name="decision"]').forEach((radio) => {
+        radio.checked = false;
+      });
+
+      document.getElementById("statusBox").className = "status";
+      document.getElementById("statusBox").innerHTML =
+        'Enter or classify values, then select <strong>Analyze current model</strong>.';
+
+      document.getElementById("hintBox").hidden = true;
+
+      document.getElementById("stateResults").innerHTML = `
+        <tr>
+          <td colspan="5">No analysis completed.</td>
+        </tr>
+      `;
+
+      document.getElementById("outputGrid").innerHTML = `
+        <div class="readout">Refrigeration capacity<strong>—</strong></div>
+        <div class="readout">Compressor power<strong>—</strong></div>
+        <div class="readout">COP<strong>—</strong></div>
+        <div class="readout">Actual capacity margin<strong>—</strong></div>
+      `;
+
+      document.getElementById("equationResults").innerHTML =
+        "<p>No active equations yet.</p>";
+
+      document.getElementById("solutionMap").innerHTML =
+        "<li>No solution path generated.</li>";
+
+      document.getElementById("sensitivityResults").innerHTML =
+        "<p>No sensitivity analysis completed.</p>";
+
+      document.getElementById("copyConfirmation").textContent = "";
+
+      lastResult = null;
+      hintLevel = 0;
+    }
+
+    function initialize() {
+      renderVariables();
+      renderAssumptions();
+
+      document
+        .getElementById("analyzeButton")
+        .addEventListener("click", analyze);
+
+      document
+        .getElementById("hintButton")
+        .addEventListener("click", showHint);
+
+      document
+        .getElementById("resetButton")
+        .addEventListener("click", resetActivity);
+
+      document
+        .getElementById("copyButton")
+        .addEventListener("click", copyResults);
+
+      document
+        .getElementById("printButton")
+        .addEventListener("click", () => window.print());
+    }
+
+    initialize();
+  </script>
+</body>
+</html>
