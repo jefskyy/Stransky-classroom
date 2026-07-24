@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Build or Reject the Thermal Device</title>
+  <style>
+    :root {
+      --ink: #171717;
+      --muted: #555;
+      --paper: #fff;
+      --panel: #f4f4f1;
+      --line: #2b2b2b;
+      --accent: #174f70;
+      --ok: #176b3a;
+      --warn: #8a4b00;
+      --bad: #8a1f1f;
+      --focus: #ffbf47;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: #e9e9e5;
+      line-height: 1.35;
+    }
+
+    button, select, input, textarea { font: inherit; }
+
+    button:focus-visible,
+    select:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    [tabindex]:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    .app {
+      width: min(1180px, calc(100% - 24px));
+      margin: 12px auto;
+      background: var(--paper);
+      border: 2px solid var(--line);
+      box-shadow: 0 4px 16px rgba(0,0,0,.12);
+    }
+
+    header {
+      padding: 14px 18px 10px;
+      border-bottom: 2px solid var(--line);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: end;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.45rem, 2.4vw, 2.05rem);
+      line-height: 1.1;
+    }
+
+    .progress {
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .orientation {
+      margin: 0;
+      padding: 10px 18px;
+      background: var(--panel);
+      border-bottom: 1px solid #aaa;
+      font-size: .95rem;
+    }
+
+    main { padding: 14px 16px 18px; }
+
+    .scenario-shell,
+    .build-shell {
+      display: grid;
+      grid-template-columns: minmax(340px, .92fr) minmax(440px, 1.08fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .card {
+      border: 1.5px solid var(--line);
+      background: var(--paper);
+      padding: 12px;
+    }
+
+    .card h2,
+    .card h3,
+    .card h4 { margin-top: 0; }
+
+    .scenario-title {
+      margin-bottom: 5px;
+      font-size: 1.28rem;
+    }
+
+    .scenario-desc {
+      margin: 0 0 10px;
+      color: #222;
+    }
+
+    .diagram-wrap {
+      background: #fafafa;
+      border: 1px solid #777;
+      padding: 8px;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 420px;
+    }
+
+    .svg-box {
+      fill: #fff;
+      stroke: #111;
+      stroke-width: 2.2;
+    }
+
+    .svg-device {
+      fill: #ececec;
+      stroke: #111;
+      stroke-width: 2.6;
+    }
+
+    .heat-arrow {
+      stroke: #111;
+      stroke-width: 3;
+      fill: none;
+      marker-end: url(#arrowSolid);
+    }
+
+    .work-arrow {
+      stroke: #111;
+      stroke-width: 3;
+      stroke-dasharray: 8 5;
+      fill: none;
+      marker-end: url(#arrowSolid);
+    }
+
+    .none-line {
+      stroke: #777;
+      stroke-width: 2;
+      stroke-dasharray: 3 5;
+    }
+
+    .svg-label { font-size: 17px; font-weight: 700; }
+    .svg-small { font-size: 14px; }
+    .svg-value { font-size: 15px; font-weight: 650; }
+
+    .legend {
+      margin: 7px 0 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: .85rem;
+      color: var(--muted);
+    }
+
+    .legend span::before {
+      content: "";
+      display: inline-block;
+      width: 28px;
+      border-top: 3px solid #111;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .legend .work-key::before { border-top-style: dashed; }
+
+    .steps {
+      display: grid;
+      gap: 8px;
+    }
+
+    fieldset {
+      margin: 0;
+      border: 1.5px solid #777;
+      padding: 8px 10px 9px;
+      min-width: 0;
+    }
+
+    fieldset[disabled] {
+      opacity: .52;
+      background: #f5f5f5;
+    }
+
+    legend {
+      font-weight: 800;
+      padding: 0 5px;
+    }
+
+    .direction-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 8px;
+    }
+
+    .direction-group {
+      border: 1px solid #aaa;
+      padding: 6px;
+    }
+
+    .direction-group strong { display: block; margin-bottom: 4px; }
+
+    .option-list {
+      display: grid;
+      gap: 5px;
+    }
+
+    label.choice {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 7px;
+      align-items: start;
+      cursor: pointer;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 9px;
+    }
+
+    button {
+      border: 2px solid #222;
+      background: #fff;
+      padding: 7px 12px;
+      font-weight: 750;
+      cursor: pointer;
+      min-height: 38px;
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: #0c3348;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: .48;
+    }
+
+    .hint,
+    .feedback,
+    .build-feedback,
+    .discussion {
+      margin-top: 10px;
+      border: 1.5px solid #555;
+      padding: 9px 10px;
+      background: #fbfbf7;
+    }
+
+    .hint[hidden],
+    .feedback[hidden],
+    .build-feedback[hidden],
+    .discussion[hidden],
+    .view[hidden] { display: none; }
+
+    .feedback h3,
+    .build-feedback h3,
+    .discussion h3 { margin-bottom: 7px; }
+
+    .feedback-list {
+      margin: 0;
+      padding-left: 22px;
+      display: grid;
+      gap: 7px;
+    }
+
+    .response-note {
+      display: block;
+      margin-top: 2px;
+      font-size: .92rem;
+    }
+
+    .correct { color: var(--ok); font-weight: 750; }
+    .incorrect { color: var(--bad); font-weight: 750; }
+    .caution { color: var(--warn); font-weight: 750; }
+
+    .status-banner {
+      margin: 0 0 8px;
+      padding: 7px 9px;
+      border-left: 7px solid #333;
+      background: #eee;
+      font-weight: 750;
+    }
+
+    .status-banner.ok { border-left-color: var(--ok); }
+    .status-banner.bad { border-left-color: var(--bad); }
+
+    .build-task {
+      margin: 0 0 9px;
+      padding: 8px 10px;
+      background: var(--panel);
+      border: 1px solid #888;
+    }
+
+    .control-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 8px 10px;
+    }
+
+    .control-grid label {
+      display: grid;
+      gap: 3px;
+      font-weight: 700;
+    }
+
+    select, textarea {
+      width: 100%;
+      border: 1.5px solid #444;
+      background: #fff;
+      padding: 7px;
+    }
+
+    .arrow-controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 8px;
+      margin-top: 9px;
+    }
+
+    .arrow-control {
+      border: 1px solid #888;
+      padding: 7px;
+    }
+
+    .arrow-control label {
+      display: grid;
+      gap: 4px;
+      font-weight: 700;
+    }
+
+    .check-results {
+      display: grid;
+      gap: 5px;
+      margin: 6px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .check-results li::before {
+      display: inline-block;
+      width: 1.3em;
+      font-weight: 900;
+    }
+
+    .check-results li.pass::before { content: "✓"; }
+    .check-results li.fail::before { content: "✗"; }
+
+    .discussion-checks {
+      display: grid;
+      gap: 5px;
+      margin-bottom: 8px;
+    }
+
+    textarea { min-height: 76px; resize: vertical; }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .footer-note {
+      margin: 12px 0 0;
+      font-size: .86rem;
+      color: var(--muted);
+    }
+
+    @media (max-width: 880px) {
+      .scenario-shell, .build-shell { grid-template-columns: 1fr; }
+      .direction-grid, .arrow-controls { grid-template-columns: 1fr; }
+      .control-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 560px) {
+      .app { width: 100%; margin: 0; border-left: 0; border-right: 0; }
+      header { grid-template-columns: 1fr; }
+      .control-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Build or Reject the Thermal Device</h1>
+      <div id="progressText" class="progress" aria-live="polite">Scenario 1 of 6</div>
+    </header>
+
+    <p class="orientation">
+      The First Law asks whether energy quantities balance. The Second Law asks whether the proposed direction and conversion of energy are possible. Heat can be moved from a colder region to a hotter region when work is supplied. A cyclic heat engine cannot receive heat from only one reservoir and convert all of it to net work. In each case, first read the arrows, then verify the energy balance, identify the governing Second-Law statement, and classify the device. Written notes are for discussion only and are never automatically graded.
+    </p>
+
+    <main>
+      <section id="scenarioView" class="view" aria-labelledby="scenarioHeading">
+        <div class="scenario-shell">
+          <article class="card">
+            <h2 id="scenarioHeading" class="scenario-title"></h2>
+            <p id="scenarioDescription" class="scenario-desc"></p>
+            <div class="diagram-wrap">
+              <svg id="deviceSvg" viewBox="0 0 520 500" role="img" aria-labelledby="svgTitle svgDesc">
+                <title id="svgTitle">Thermal device energy-flow diagram</title>
+                <desc id="svgDesc">A high-temperature reservoir above a cyclic device and a low-temperature reservoir below it, with labeled arrows for heat and work.</desc>
+                <defs>
+                  <marker id="arrowSolid" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="strokeWidth">
+                    <path d="M0,0 L9,4.5 L0,9 z" fill="#111"></path>
+                  </marker>
+                </defs>
+
+                <rect class="svg-box" x="85" y="24" width="350" height="86" rx="4"></rect>
+                <text id="topReservoirLabel" class="svg-label" x="260" y="57" text-anchor="middle"></text>
+                <text id="topReservoirTemp" class="svg-value" x="260" y="84" text-anchor="middle"></text>
+
+                <rect class="svg-device" x="155" y="205" width="210" height="96" rx="4"></rect>
+                <text id="deviceLabel" class="svg-label" x="260" y="246" text-anchor="middle">Cyclic device</text>
+                <text class="svg-small" x="260" y="273" text-anchor="middle">Net change in stored energy = 0</text>
+
+                <rect class="svg-box" x="85" y="390" width="350" height="86" rx="4"></rect>
+                <text id="bottomReservoirLabel" class="svg-label" x="260" y="423" text-anchor="middle"></text>
+                <text id="bottomReservoirTemp" class="svg-value" x="260" y="450" text-anchor="middle"></text>
+
+                <line id="qhArrow" class="heat-arrow" x1="215" y1="113" x2="215" y2="201"></line>
+                <line id="qlArrow" class="heat-arrow" x1="305" y1="305" x2="305" y2="386"></line>
+                <line id="wArrow" class="work-arrow" x1="369" y1="253" x2="480" y2="253"></line>
+
+                <text id="qhLabel" class="svg-value" x="150" y="160" text-anchor="middle"></text>
+                <text id="qlLabel" class="svg-value" x="370" y="350" text-anchor="middle"></text>
+                <text id="wLabel" class="svg-value" x="427" y="232" text-anchor="middle"></text>
+              </svg>
+            </div>
+            <div class="legend" aria-label="Diagram line legend">
+              <span>Heat interaction</span>
+              <span class="work-key">Work interaction</span>
+            </div>
+          </article>
+
+          <section class="card" aria-label="Scenario response steps">
+            <div class="steps">
+              <fieldset id="step1Fieldset">
+                <legend>Step 1: Read the diagram</legend>
+                <p class="sr-only">Complete all three direction questions to unlock Step 2.</p>
+                <div class="direction-grid">
+                  <div class="direction-group">
+                    <strong>Q<sub>H</sub></strong>
+                    <div class="option-list">
+                      <label class="choice"><input type="radio" name="qhDir" value="in"> <span>Enters device</span></label>
+                      <label class="choice"><input type="radio" name="qhDir" value="out"> <span>Leaves device</span></label>
+                      <label class="choice"><input type="radio" name="qhDir" value="none"> <span>No interaction</span></label>
+                    </div>
+                  </div>
+                  <div class="direction-group">
+                    <strong>Q<sub>L</sub></strong>
+                    <div class="option-list">
+                      <label class="choice"><input type="radio" name="qlDir" value="in"> <span>Enters device</span></label>
+                      <label class="choice"><input type="radio" name="qlDir" value="out"> <span>Leaves device</span></label>
+                      <label class="choice"><input type="radio" name="qlDir" value="none"> <span>No interaction</span></label>
+                    </div>
+                  </div>
+                  <div class="direction-group">
+                    <strong>Work, W</strong>
+                    <div class="option-list">
+                      <label class="choice"><input type="radio" name="wDir" value="in"> <span>Enters device</span></label>
+                      <label class="choice"><input type="radio" name="wDir" value="out"> <span>Leaves device</span></label>
+                      <label class="choice"><input type="radio" name="wDir" value="none"> <span>No interaction</span></label>
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset id="step2Fieldset" disabled>
+                <legend>Step 2: Check energy conservation</legend>
+                <p>Does the stated energy balance satisfy the First Law?</p>
+                <div class="option-list">
+                  <label class="choice"><input type="radio" name="firstLaw" value="yes"> <span>Yes</span></label>
+                  <label class="choice"><input type="radio" name="firstLaw" value="no"> <span>No</span></label>
+                </div>
+              </fieldset>
+
+              <fieldset id="step3Fieldset" disabled>
+                <legend>Step 3: Classify the Second-Law issue</legend>
+                <div id="principleOptions" class="option-list"></div>
+              </fieldset>
+
+              <fieldset id="step4Fieldset" disabled>
+                <legend>Step 4: Classify the device</legend>
+                <div id="classificationOptions" class="option-list"></div>
+              </fieldset>
+            </div>
+
+            <div class="button-row">
+              <button id="checkScenarioBtn" class="primary" type="button" disabled>Check</button>
+              <button id="hintScenarioBtn" type="button">Hint</button>
+              <button id="resetScenarioBtn" type="button">Reset Scenario</button>
+              <button id="nextScenarioBtn" type="button" disabled>Next Scenario</button>
+            </div>
+
+            <div id="scenarioHint" class="hint" role="status" hidden></div>
+            <div id="scenarioFeedback" class="feedback" aria-live="polite" hidden></div>
+          </section>
+        </div>
+      </section>
+
+      <section id="buildView" class="view" aria-labelledby="buildHeading" hidden>
+        <div class="build-shell">
+          <article class="card">
+            <h2 id="buildHeading">Constrained Build Challenge</h2>
+            <p id="buildTaskText" class="build-task"></p>
+            <div class="diagram-wrap">
+              <svg id="buildSvg" viewBox="0 0 520 500" role="img" aria-labelledby="buildSvgTitle buildSvgDesc">
+                <title id="buildSvgTitle">Student-built thermal device diagram</title>
+                <desc id="buildSvgDesc">A high-temperature reservoir above a device and a low-temperature reservoir below it, with student-selected heat and work arrows.</desc>
+                <defs>
+                  <marker id="buildArrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="strokeWidth">
+                    <path d="M0,0 L9,4.5 L0,9 z" fill="#111"></path>
+                  </marker>
+                </defs>
+                <rect class="svg-box" x="85" y="24" width="350" height="86" rx="4"></rect>
+                <text class="svg-label" x="260" y="57" text-anchor="middle">High-temperature reservoir</text>
+                <text id="buildTopTemp" class="svg-value" x="260" y="84" text-anchor="middle"></text>
+
+                <rect class="svg-device" x="155" y="205" width="210" height="96" rx="4"></rect>
+                <text id="buildDeviceLabel" class="svg-label" x="260" y="246" text-anchor="middle"></text>
+                <text class="svg-small" x="260" y="273" text-anchor="middle">Cyclic device</text>
+
+                <rect class="svg-box" x="85" y="390" width="350" height="86" rx="4"></rect>
+                <text class="svg-label" x="260" y="423" text-anchor="middle">Low-temperature reservoir</text>
+                <text id="buildBottomTemp" class="svg-value" x="260" y="450" text-anchor="middle"></text>
+
+                <line id="buildQhArrow" class="heat-arrow" style="marker-end:url(#buildArrow)" x1="215" y1="113" x2="215" y2="201"></line>
+                <line id="buildQlArrow" class="heat-arrow" style="marker-end:url(#buildArrow)" x1="305" y1="305" x2="305" y2="386"></line>
+                <line id="buildWArrow" class="work-arrow" style="marker-end:url(#buildArrow)" x1="369" y1="253" x2="480" y2="253"></line>
+
+                <text id="buildQhLabel" class="svg-value" x="150" y="160" text-anchor="middle"></text>
+                <text id="buildQlLabel" class="svg-value" x="370" y="350" text-anchor="middle"></text>
+                <text id="buildWLabel" class="svg-value" x="427" y="232" text-anchor="middle"></text>
+              </svg>
+            </div>
+            <p class="footer-note">Solid arrows represent heat. The dashed arrow represents work. Arrowheads, labels, and symbols carry the meaning; color is not required.</p>
+          </article>
+
+          <section class="card" aria-label="Construction controls">
+            <div class="control-grid">
+              <label><span>Device type</span>
+                <select id="deviceType">
+                  <option value="">Choose device type</option>
+                  <option value="engine">Heat engine</option>
+                  <option value="refrigerator">Refrigerator</option>
+                </select>
+              </label>
+              <label><span>High temperature, T<sub>H</sub></span>
+                <select id="thSelect"></select>
+              </label>
+              <label><span>Low temperature, T<sub>L</sub></span>
+                <select id="tlSelect"></select>
+              </label>
+              <label><span>Q<sub>H</sub> magnitude</span>
+                <select id="qhMagnitude"></select>
+              </label>
+              <label><span>Q<sub>L</sub> magnitude</span>
+                <select id="qlMagnitude"></select>
+              </label>
+              <label><span>W magnitude</span>
+                <select id="wMagnitude"></select>
+              </label>
+            </div>
+
+            <div class="arrow-controls">
+              <div class="arrow-control">
+                <label><span>Q<sub>H</sub> direction</span>
+                  <select id="qhDirection">
+                    <option value="">Choose direction</option>
+                    <option value="in">Enters device</option>
+                    <option value="out">Leaves device</option>
+                    <option value="none">No interaction</option>
+                  </select>
+                </label>
+              </div>
+              <div class="arrow-control">
+                <label><span>Q<sub>L</sub> direction</span>
+                  <select id="qlDirection">
+                    <option value="">Choose direction</option>
+                    <option value="in">Enters device</option>
+                    <option value="out">Leaves device</option>
+                    <option value="none">No interaction</option>
+                  </select>
+                </label>
+              </div>
+              <div class="arrow-control">
+                <label><span>W direction</span>
+                  <select id="wDirection">
+                    <option value="">Choose direction</option>
+                    <option value="in">Enters device</option>
+                    <option value="out">Leaves device</option>
+                    <option value="none">No interaction</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <div class="button-row">
+              <button id="checkBuildBtn" class="primary" type="button">Check</button>
+              <button id="hintBuildBtn" type="button">Hint</button>
+              <button id="resetBuildBtn" type="button">Reset Construction</button>
+              <button id="nextBuildBtn" type="button" disabled>Next Construction</button>
+            </div>
+
+            <div id="buildHint" class="hint" role="status" hidden></div>
+            <div id="buildFeedback" class="build-feedback" aria-live="polite" hidden></div>
+
+            <section id="discussionPanel" class="discussion" hidden aria-labelledby="discussionTitle">
+              <h3 id="discussionTitle">Be prepared to explain.</h3>
+              <div class="discussion-checks">
+                <label class="choice"><input type="checkbox"> <span>My device satisfies the First Law because…</span></label>
+                <label class="choice"><input type="checkbox"> <span>My device is feasible or impossible because…</span></label>
+                <label class="choice"><input type="checkbox"> <span>The work interaction matters because…</span></label>
+                <label class="choice"><input type="checkbox"> <span>The reservoir temperatures matter because…</span></label>
+              </div>
+              <label for="discussionNotes"><strong>Notes for discussion—not automatically evaluated.</strong></label>
+              <textarea id="discussionNotes" placeholder="Record a brief explanation, question, or point to discuss."></textarea>
+            </section>
+          </section>
+        </div>
+      </section>
+
+      <section id="completeView" class="view card" hidden aria-labelledby="completeHeading">
+        <h2 id="completeHeading">Activity complete</h2>
+        <p>You evaluated six devices that all satisfy the First Law, then built feasible and impossible devices using explicit constraints. The key distinction is that an energy balance can be numerically correct while the proposed direction or conversion of energy remains impossible under the Second Law.</p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    "use strict";
+
+    const PRINCIPLES = [
+      "Heat naturally transfers from higher temperature to lower temperature.",
+      "Moving heat from lower temperature to higher temperature requires work input.",
+      "A cyclic device cannot convert heat from a single reservoir entirely into work.",
+      "No Second-Law restriction is violated by the proposed energy directions."
+    ];
+
+    const CLASSIFICATIONS = [
+      "Feasible as described.",
+      "Impossible because heat is transferred from cold to hot without work input.",
+      "Impossible because a cyclic device converts heat from a single reservoir entirely into work.",
+      "Impossible because the stated heat-flow direction conflicts with the reservoir temperatures."
+    ];
+
+    const scenarios = [
+      {
+        title: "1. Natural heat transfer",
+        description: "A conducting boundary transfers 60 kJ from a 500 K reservoir to a 300 K reservoir, with no work interaction.",
+        topLabel: "High-temperature reservoir",
+        bottomLabel: "Low-temperature reservoir",
+        topTemp: 500,
+        bottomTemp: 300,
+        deviceLabel: "Conducting boundary",
+        qh: { direction: "in", value: 60 },
+        ql: { direction: "out", value: 60 },
+        w: { direction: "none", value: 0 },
+        principle: 0,
+        classification: 0,
+        balance: "Energy entering = 60 kJ; energy leaving = 60 kJ. Therefore, 60 = 60 kJ.",
+        temperature: "The 500 K reservoir is hotter than the 300 K reservoir.",
+        workRole: "No work input is needed because heat is moving from the higher-temperature reservoir to the lower-temperature reservoir.",
+        governing: "Natural heat-flow direction: heat transfer from higher temperature to lower temperature is permitted.",
+        judgment: "Feasible as described. The energy balance closes, and the heat flow follows the natural temperature direction."
+      },
+      {
+        title: "2. Refrigerator-like transfer",
+        description: "A cyclic device removes 80 kJ from a 275 K reservoir, receives 20 kJ of work, and rejects 100 kJ to a 300 K reservoir.",
+        topLabel: "High-temperature reservoir",
+        bottomLabel: "Low-temperature reservoir",
+        topTemp: 300,
+        bottomTemp: 275,
+        deviceLabel: "Cyclic device",
+        qh: { direction: "out", value: 100 },
+        ql: { direction: "in", value: 80 },
+        w: { direction: "in", value: 20 },
+        principle: 1,
+        classification: 0,
+        balance: "Energy entering = 80 kJ + 20 kJ = 100 kJ; energy leaving = 100 kJ.",
+        temperature: "The 300 K reservoir is hotter than the 275 K reservoir.",
+        workRole: "Work input is present while heat is moved from 275 K to 300 K.",
+        governing: "Clausius restriction: transferring heat from lower temperature to higher temperature requires work input.",
+        judgment: "Feasible as described. The 20 kJ work input permits 80 kJ to be removed from the colder reservoir and 100 kJ to be rejected to the hotter reservoir."
+      },
+      {
+        title: "3. Clausius violation",
+        description: "A cyclic device removes 80 kJ from a 275 K reservoir and rejects 80 kJ to a 300 K reservoir with no work input.",
+        topLabel: "High-temperature reservoir",
+        bottomLabel: "Low-temperature reservoir",
+        topTemp: 300,
+        bottomTemp: 275,
+        deviceLabel: "Cyclic device",
+        qh: { direction: "out", value: 80 },
+        ql: { direction: "in", value: 80 },
+        w: { direction: "none", value: 0 },
+        principle: 1,
+        classification: 1,
+        balance: "Energy entering = 80 kJ; energy leaving = 80 kJ. Therefore, the First Law is satisfied.",
+        temperature: "The 300 K reservoir is hotter than the 275 K reservoir.",
+        workRole: "No work input is present even though heat is moved from 275 K to 300 K.",
+        governing: "Clausius restriction: a cyclic device cannot transfer heat from a colder reservoir to a hotter reservoir without work input.",
+        judgment: "Impossible. The energy quantities balance, but the proposed cold-to-hot transfer occurs without the required work input."
+      },
+      {
+        title: "4. Kelvin–Planck violation",
+        description: "A cyclic device receives 100 kJ from one 500 K reservoir and produces 100 kJ of net work with no heat rejection.",
+        topLabel: "Only thermal reservoir",
+        bottomLabel: "No second reservoir used",
+        topTemp: 500,
+        bottomTemp: null,
+        deviceLabel: "Cyclic device",
+        qh: { direction: "in", value: 100 },
+        ql: { direction: "none", value: 0 },
+        w: { direction: "out", value: 100 },
+        principle: 2,
+        classification: 2,
+        balance: "Energy entering = 100 kJ; energy leaving as work = 100 kJ. Therefore, the First Law is satisfied.",
+        temperature: "Only one thermal reservoir, at 500 K, participates in the cycle.",
+        workRole: "Work leaves the device, but no heat is rejected to a lower-temperature reservoir.",
+        governing: "Kelvin–Planck restriction: a cyclic heat engine cannot convert heat received from a single reservoir entirely into net work.",
+        judgment: "Impossible. The energy balance closes, but complete conversion of single-reservoir heat input into cyclic net work is prohibited."
+      },
+      {
+        title: "5. Feasible heat engine",
+        description: "A cyclic device receives 100 kJ from a 600 K reservoir, produces 35 kJ of work, and rejects 65 kJ to a 300 K reservoir.",
+        topLabel: "High-temperature reservoir",
+        bottomLabel: "Low-temperature reservoir",
+        topTemp: 600,
+        bottomTemp: 300,
+        deviceLabel: "Cyclic heat engine",
+        qh: { direction: "in", value: 100 },
+        ql: { direction: "out", value: 65 },
+        w: { direction: "out", value: 35 },
+        principle: 3,
+        classification: 0,
+        balance: "Energy entering = 100 kJ; energy leaving = 65 kJ + 35 kJ = 100 kJ.",
+        temperature: "The 600 K reservoir is hotter than the 300 K reservoir.",
+        workRole: "Work leaves the device while some heat is rejected to the lower-temperature reservoir.",
+        governing: "No listed Second-Law restriction is violated: heat enters from the hotter reservoir, some heat is rejected to the colder reservoir, and the remainder leaves as work.",
+        judgment: "Feasible as described. The First Law closes and the heat engine does not claim complete conversion of heat into work."
+      },
+      {
+        title: "6. Temperature-label contradiction",
+        description: "A cyclic device is labeled as receiving 100 kJ from a “hot” reservoir at 290 K, rejecting 70 kJ to a “cold” reservoir at 320 K, and producing 30 kJ of work.",
+        topLabel: "Labeled “hot” reservoir",
+        bottomLabel: "Labeled “cold” reservoir",
+        topTemp: 290,
+        bottomTemp: 320,
+        deviceLabel: "Cyclic device",
+        qh: { direction: "in", value: 100 },
+        ql: { direction: "out", value: 70 },
+        w: { direction: "out", value: 30 },
+        principle: 0,
+        classification: 3,
+        balance: "Energy entering = 100 kJ; energy leaving = 70 kJ + 30 kJ = 100 kJ.",
+        temperature: "The reservoir labeled “cold” is actually hotter: 320 K > 290 K.",
+        workRole: "The device produces work; it does not receive work that could assist heat transfer from 290 K to 320 K.",
+        governing: "Natural heat-flow direction: the proposed heat transfer is from the lower absolute temperature to the higher absolute temperature while the device also produces work.",
+        judgment: "Impossible as described. The labels do not control the physics; the numerical temperatures show that the stated heat-flow direction conflicts with the reservoirs."
+      }
+    ];
+
+    const buildTasks = [
+      {
+        title: "Build 1 of 3: one feasible heat engine",
+        instruction: "Choose values and arrow directions for a heat engine that receives heat from the higher-temperature reservoir, produces work, rejects some heat to the lower-temperature reservoir, and satisfies the First Law.",
+        mode: "feasibleEngine"
+      },
+      {
+        title: "Build 2 of 3: one feasible refrigerator",
+        instruction: "Choose values and arrow directions for a refrigerator that removes heat from the lower-temperature reservoir, receives work, rejects heat to the higher-temperature reservoir, and satisfies the First Law.",
+        mode: "feasibleRefrigerator"
+      },
+      {
+        title: "Build 3 of 3: one impossible device that still satisfies the First Law",
+        instruction: "Construct either an engine-like device with no heat rejection or a refrigerator-like device with no work input. The energy quantities must still balance.",
+        mode: "impossibleBalanced"
+      }
+    ];
+
+    const state = {
+      scenarioIndex: 0,
+      scenarioChecked: false,
+      scenarioHintLevel: 0,
+      buildIndex: 0,
+      buildPassed: false,
+      buildHintLevel: 0
+    };
+
+    const byId = (id) => document.getElementById(id);
+
+    const progressText = byId("progressText");
+    const scenarioView = byId("scenarioView");
+    const buildView = byId("buildView");
+    const completeView = byId("completeView");
+    const scenarioHeading = byId("scenarioHeading");
+    const scenarioDescription = byId("scenarioDescription");
+    const principleOptions = byId("principleOptions");
+    const classificationOptions = byId("classificationOptions");
+    const step2Fieldset = byId("step2Fieldset");
+    const step3Fieldset = byId("step3Fieldset");
+    const step4Fieldset = byId("step4Fieldset");
+    const checkScenarioBtn = byId("checkScenarioBtn");
+    const nextScenarioBtn = byId("nextScenarioBtn");
+    const scenarioHint = byId("scenarioHint");
+    const scenarioFeedback = byId("scenarioFeedback");
+
+    const buildValues = [0, 20, 30, 35, 40, 50, 60, 65, 70, 80, 100, 120];
+    const thValues = [300, 350, 400, 500, 600];
+    const tlValues = [250, 275, 300, 325, 350, 400];
+
+    function optionMarkup(name, value, text) {
+      return `<label class="choice"><input type="radio" name="${name}" value="${value}"> <span>${text}</span></label>`;
+    }
+
+    function selectedValue(name) {
+      const selected = document.querySelector(`input[name="${name}"]:checked`);
+      return selected ? selected.value : null;
+    }
+
+    function setArrow(line, direction, positions) {
+      const marker = line.id.startsWith("build") ? "url(#buildArrow)" : "url(#arrowSolid)";
+      if (direction === "none" || !direction) {
+        line.setAttribute("x1", positions.none.x1);
+        line.setAttribute("y1", positions.none.y1);
+        line.setAttribute("x2", positions.none.x2);
+        line.setAttribute("y2", positions.none.y2);
+        line.setAttribute("class", "none-line");
+        line.removeAttribute("marker-end");
+        return;
+      }
+
+      const p = positions[direction];
+      line.setAttribute("x1", p.x1);
+      line.setAttribute("y1", p.y1);
+      line.setAttribute("x2", p.x2);
+      line.setAttribute("y2", p.y2);
+      line.setAttribute("class", line.id.toLowerCase().includes("w") ? "work-arrow" : "heat-arrow");
+      line.setAttribute("marker-end", marker);
+    }
+
+    const arrowPositions = {
+      qh: {
+        in: { x1: 215, y1: 113, x2: 215, y2: 201 },
+        out: { x1: 215, y1: 201, x2: 215, y2: 113 },
+        none: { x1: 190, y1: 157, x2: 240, y2: 157 }
+      },
+      ql: {
+        in: { x1: 305, y1: 386, x2: 305, y2: 305 },
+        out: { x1: 305, y1: 305, x2: 305, y2: 386 },
+        none: { x1: 280, y1: 346, x2: 330, y2: 346 }
+      },
+      w: {
+        in: { x1: 480, y1: 253, x2: 369, y2: 253 },
+        out: { x1: 369, y1: 253, x2: 480, y2: 253 },
+        none: { x1: 391, y1: 253, x2: 458, y2: 253 }
+      }
+    };
+
+    function interactionLabel(symbol, item) {
+      if (item.direction === "none" || item.value === 0) return `${symbol} = 0 (none)`;
+      return `${symbol} = ${item.value} kJ`;
+    }
+
+    function renderScenarioDiagram(s) {
+      byId("topReservoirLabel").textContent = s.topLabel;
+      byId("topReservoirTemp").textContent = `${s.topTemp} K`;
+      byId("bottomReservoirLabel").textContent = s.bottomLabel;
+      byId("bottomReservoirTemp").textContent = s.bottomTemp === null ? "No heat interaction" : `${s.bottomTemp} K`;
+      byId("deviceLabel").textContent = s.deviceLabel;
+
+      setArrow(byId("qhArrow"), s.qh.direction, arrowPositions.qh);
+      setArrow(byId("qlArrow"), s.ql.direction, arrowPositions.ql);
+      setArrow(byId("wArrow"), s.w.direction, arrowPositions.w);
+
+      byId("qhLabel").textContent = interactionLabel("QH", s.qh);
+      byId("qlLabel").textContent = interactionLabel("QL", s.ql);
+      byId("wLabel").textContent = interactionLabel("W", s.w);
+    }
+
+    function renderScenario() {
+      const s = scenarios[state.scenarioIndex];
+      state.scenarioChecked = false;
+      state.scenarioHintLevel = 0;
+      progressText.textContent = `Scenario ${state.scenarioIndex + 1} of ${scenarios.length}`;
+      scenarioHeading.textContent = s.title;
+      scenarioDescription.textContent = s.description;
+      renderScenarioDiagram(s);
+
+      principleOptions.innerHTML = PRINCIPLES.map((text, i) => optionMarkup("principle", String(i), text)).join("");
+      classificationOptions.innerHTML = CLASSIFICATIONS.map((text, i) => optionMarkup("classification", String(i), text)).join("");
+
+      document.querySelectorAll('#scenarioView input[type="radio"]').forEach(input => {
+        input.checked = false;
+        input.addEventListener("change", updateScenarioLocks);
+      });
+
+      step2Fieldset.disabled = true;
+      step3Fieldset.disabled = true;
+      step4Fieldset.disabled = true;
+      checkScenarioBtn.disabled = true;
+      nextScenarioBtn.disabled = true;
+      nextScenarioBtn.textContent = state.scenarioIndex === scenarios.length - 1 ? "Go to Build Challenge" : "Next Scenario";
+      scenarioHint.hidden = true;
+      scenarioHint.textContent = "";
+      scenarioFeedback.hidden = true;
+      scenarioFeedback.innerHTML = "";
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+
+    function updateScenarioLocks() {
+      const step1Done = ["qhDir", "qlDir", "wDir"].every(name => selectedValue(name) !== null);
+      step2Fieldset.disabled = !step1Done;
+
+      const step2Done = step1Done && selectedValue("firstLaw") !== null;
+      step3Fieldset.disabled = !step2Done;
+
+      const step3Done = step2Done && selectedValue("principle") !== null;
+      step4Fieldset.disabled = !step3Done;
+
+      const step4Done = step3Done && selectedValue("classification") !== null;
+      checkScenarioBtn.disabled = !step4Done;
+    }
+
+    function responseComment(label, chosen, correct, labels) {
+      if (chosen === correct) {
+        return `<span class="response-note correct">Your ${label} selection matches the diagram.</span>`;
+      }
+      const chosenText = labels[chosen] || "no selection";
+      const correctText = labels[correct];
+      return `<span class="response-note incorrect">You selected “${chosenText},” but the diagram shows “${correctText}.” Follow the arrowhead, not the arrow label location.</span>`;
+    }
+
+    function checkScenario() {
+      if (checkScenarioBtn.disabled) return;
+      const s = scenarios[state.scenarioIndex];
+      const directionLabels = { in: "enters device", out: "leaves device", none: "no interaction" };
+      const qhChoice = selectedValue("qhDir");
+      const qlChoice = selectedValue("qlDir");
+      const wChoice = selectedValue("wDir");
+      const firstLawChoice = selectedValue("firstLaw");
+      const principleChoice = Number(selectedValue("principle"));
+      const classChoice = Number(selectedValue("classification"));
+
+      const allCorrect = qhChoice === s.qh.direction && qlChoice === s.ql.direction && wChoice === s.w.direction && firstLawChoice === "yes" && principleChoice === s.principle && classChoice === s.classification;
+
+      const directionFeedback = [
+        responseComment("QH direction", qhChoice, s.qh.direction, directionLabels),
+        responseComment("QL direction", qlChoice, s.ql.direction, directionLabels),
+        responseComment("work direction", wChoice, s.w.direction, directionLabels)
+      ].join("");
+
+      const firstLawNote = firstLawChoice === "yes"
+        ? `<span class="response-note correct">You correctly identified that the stated quantities satisfy the First Law.</span>`
+        : `<span class="response-note incorrect">You selected “No,” but the entering and leaving energy quantities are equal. Energy imbalance is not the reason to reject this case.</span>`;
+
+      const principleNote = principleChoice === s.principle
+        ? `<span class="response-note correct">Your governing statement matches the primary Second-Law issue.</span>`
+        : `<span class="response-note incorrect">You selected “${PRINCIPLES[principleChoice]}” The better governing statement is “${PRINCIPLES[s.principle]}”</span>`;
+
+      const classNote = classChoice === s.classification
+        ? `<span class="response-note correct">Your final classification matches the proposed device.</span>`
+        : `<span class="response-note incorrect">You selected “${CLASSIFICATIONS[classChoice]}” The best classification is “${CLASSIFICATIONS[s.classification]}”</span>`;
+
+      scenarioFeedback.innerHTML = `
+        <p class="status-banner ${allCorrect ? "ok" : "bad"}">${allCorrect ? "All four steps are consistent with the diagram and the Second Law." : "Review the specific mismatches below. You may revise your selections and check again."}</p>
+        <ol class="feedback-list">
+          <li><strong>Energy balance:</strong> ${s.balance}${firstLawNote}${directionFeedback}</li>
+          <li><strong>Temperature comparison:</strong> ${s.temperature}</li>
+          <li><strong>Work role:</strong> ${s.workRole}</li>
+          <li><strong>Governing Second-Law principle:</strong> ${s.governing}${principleNote}</li>
+          <li><strong>Final judgment:</strong> ${s.judgment}${classNote}</li>
+        </ol>`;
+
+      scenarioFeedback.hidden = false;
+      state.scenarioChecked = true;
+      nextScenarioBtn.disabled = false;
+      scenarioFeedback.scrollIntoView({ block: "nearest" });
+    }
+
+    function showScenarioHint() {
+      const s = scenarios[state.scenarioIndex];
+      const hints = [
+        "Start with the arrowheads. Determine what crosses the device boundary and in which direction before judging feasibility.",
+        "For a cyclic device, compare total energy entering with total energy leaving. A correct balance does not prove that the cycle is possible.",
+        s.classification === 1 ? "Focus on whether heat is being moved from the lower temperature to the higher temperature and whether work enters the device."
+          : s.classification === 2 ? "Focus on whether the cycle rejects any heat to a second reservoir."
+          : s.classification === 3 ? "Ignore the words “hot” and “cold” for a moment. Compare the numerical temperatures."
+          : "After confirming the balance, ask whether the heat and work directions violate either the Clausius or Kelvin–Planck restriction."
+      ];
+      const index = Math.min(state.scenarioHintLevel, hints.length - 1);
+      scenarioHint.textContent = hints[index];
+      scenarioHint.hidden = false;
+      state.scenarioHintLevel += 1;
+    }
+
+    function resetScenario() {
+      renderScenario();
+      byId("step1Fieldset").focus?.();
+    }
+
+    function nextScenario() {
+      if (!state.scenarioChecked) return;
+      if (state.scenarioIndex < scenarios.length - 1) {
+        state.scenarioIndex += 1;
+        renderScenario();
+      } else {
+        scenarioView.hidden = true;
+        buildView.hidden = false;
+        state.buildIndex = 0;
+        initializeBuildControls();
+        renderBuildTask();
+      }
+    }
+
+    function fillSelect(select, values, suffix, prompt = null) {
+      const promptOption = prompt ? `<option value="">${prompt}</option>` : "";
+      select.innerHTML = promptOption + values.map(v => `<option value="${v}">${v}${suffix}</option>`).join("");
+    }
+
+    function populateTlOptions() {
+      const th = Number(byId("thSelect").value);
+      const validTl = tlValues.filter(v => v < th);
+      const old = Number(byId("tlSelect").value);
+      fillSelect(byId("tlSelect"), validTl, " K");
+      if (validTl.includes(old)) byId("tlSelect").value = String(old);
+      else byId("tlSelect").value = String(validTl[Math.max(0, validTl.length - 2)] ?? validTl[0]);
+    }
+
+    function initializeBuildControls() {
+      fillSelect(byId("thSelect"), thValues, " K");
+      fillSelect(byId("qhMagnitude"), buildValues, " kJ", "Choose magnitude");
+      fillSelect(byId("qlMagnitude"), buildValues, " kJ", "Choose magnitude");
+      fillSelect(byId("wMagnitude"), buildValues, " kJ", "Choose magnitude");
+      byId("thSelect").value = "500";
+      populateTlOptions();
+
+      ["deviceType", "thSelect", "tlSelect", "qhMagnitude", "qlMagnitude", "wMagnitude", "qhDirection", "qlDirection", "wDirection"].forEach(id => {
+        byId(id).addEventListener("change", () => {
+          if (id === "thSelect") populateTlOptions();
+          state.buildPassed = false;
+          byId("nextBuildBtn").disabled = true;
+          byId("discussionPanel").hidden = true;
+          updateBuildDiagram();
+          updateBuildLock();
+        });
+      });
+    }
+
+    function setBuildDefaults() {
+      const mode = buildTasks[state.buildIndex].mode;
+      byId("thSelect").value = "500";
+      populateTlOptions();
+      byId("tlSelect").value = "300";
+      byId("deviceType").value = mode === "feasibleEngine" ? "engine" : mode === "feasibleRefrigerator" ? "refrigerator" : "";
+      byId("qhMagnitude").value = "";
+      byId("qlMagnitude").value = "";
+      byId("wMagnitude").value = "";
+      byId("qhDirection").value = "";
+      byId("qlDirection").value = "";
+      byId("wDirection").value = "";
+    }
+
+    function buildInputsComplete() {
+      return ["deviceType", "qhMagnitude", "qlMagnitude", "wMagnitude", "qhDirection", "qlDirection", "wDirection"]
+        .every(id => byId(id).value !== "");
+    }
+
+    function updateBuildLock() {
+      byId("checkBuildBtn").disabled = !buildInputsComplete();
+    }
+
+    function renderBuildTask() {
+      const task = buildTasks[state.buildIndex];
+      progressText.textContent = `Build challenge ${state.buildIndex + 1} of ${buildTasks.length}`;
+      byId("buildTaskText").innerHTML = `<strong>${task.title}</strong><br>${task.instruction}`;
+      byId("buildFeedback").hidden = true;
+      byId("buildFeedback").innerHTML = "";
+      byId("buildHint").hidden = true;
+      byId("buildHint").textContent = "";
+      byId("discussionPanel").hidden = true;
+      byId("discussionNotes").value = "";
+      byId("discussionPanel").querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+      byId("nextBuildBtn").disabled = true;
+      byId("nextBuildBtn").textContent = state.buildIndex === buildTasks.length - 1 ? "Finish Activity" : "Next Construction";
+      state.buildPassed = false;
+      state.buildHintLevel = 0;
+      setBuildDefaults();
+      updateBuildDiagram();
+      updateBuildLock();
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+
+    function getBuild() {
+      return {
+        type: byId("deviceType").value,
+        th: Number(byId("thSelect").value),
+        tl: Number(byId("tlSelect").value),
+        qh: { magnitude: Number(byId("qhMagnitude").value || 0), magnitudeSelected: byId("qhMagnitude").value !== "", direction: byId("qhDirection").value },
+        ql: { magnitude: Number(byId("qlMagnitude").value || 0), magnitudeSelected: byId("qlMagnitude").value !== "", direction: byId("qlDirection").value },
+        w: { magnitude: Number(byId("wMagnitude").value || 0), magnitudeSelected: byId("wMagnitude").value !== "", direction: byId("wDirection").value }
+      };
+    }
+
+    function normalizeInteraction(item) {
+      if (item.direction === "none") return 0;
+      return item.magnitude;
+    }
+
+    function energyTotals(build) {
+      const interactions = [build.qh, build.ql, build.w];
+      let entering = 0;
+      let leaving = 0;
+      interactions.forEach(item => {
+        const value = normalizeInteraction(item);
+        if (item.direction === "in") entering += value;
+        if (item.direction === "out") leaving += value;
+      });
+      return { entering, leaving, balanced: entering === leaving };
+    }
+
+    function nonzeroDirectionsConsistent(build) {
+      const interactions = [build.qh, build.ql, build.w];
+      return interactions.every(item => (item.direction === "none" && item.magnitude === 0) || (item.direction !== "none" && item.magnitude > 0));
+    }
+
+    function enginePattern(build) {
+      return build.type === "engine" && build.qh.direction === "in" && build.w.direction === "out" && ["out", "none"].includes(build.ql.direction);
+    }
+
+    function refrigeratorPattern(build) {
+      return build.type === "refrigerator" && build.ql.direction === "in" && build.qh.direction === "out" && ["in", "none"].includes(build.w.direction);
+    }
+
+    function engineFeasible(build) {
+      return enginePattern(build) && build.qh.magnitude > 0 && build.ql.direction === "out" && build.ql.magnitude > 0 && build.w.magnitude > 0;
+    }
+
+    function refrigeratorFeasible(build) {
+      return refrigeratorPattern(build) && build.ql.magnitude > 0 && build.qh.magnitude > 0 && build.w.direction === "in" && build.w.magnitude > 0;
+    }
+
+    function evaluateBuild(build, mode) {
+      const totals = energyTotals(build);
+      const tempValid = build.th > build.tl;
+      const interactionConsistent = nonzeroDirectionsConsistent(build);
+      const patternValid = build.type === "engine" ? enginePattern(build) : refrigeratorPattern(build);
+      const feasible = totals.balanced && tempValid && interactionConsistent && (build.type === "engine" ? engineFeasible(build) : refrigeratorFeasible(build));
+
+      let targetMet = false;
+      let finalMessage = "";
+      let governing = "";
+
+      if (mode === "feasibleEngine") {
+        targetMet = feasible && build.type === "engine";
+        governing = build.ql.direction === "out" && build.ql.magnitude > 0
+          ? "The engine rejects some heat to the lower-temperature reservoir instead of converting all heat input into work."
+          : "A cyclic heat engine must reject some heat to a lower-temperature reservoir.";
+        finalMessage = targetMet
+          ? "This is a feasible heat engine under the rules used in this activity."
+          : "This does not yet meet the requested feasible heat-engine construction.";
+      } else if (mode === "feasibleRefrigerator") {
+        targetMet = feasible && build.type === "refrigerator";
+        governing = build.w.direction === "in" && build.w.magnitude > 0
+          ? "Work input is present while heat is moved from the lower-temperature reservoir to the higher-temperature reservoir."
+          : "Cold-to-hot heat transfer requires work input.";
+        finalMessage = targetMet
+          ? "This is a feasible refrigerator under the rules used in this activity."
+          : "This does not yet meet the requested feasible-refrigerator construction.";
+      } else {
+        const meaningfulImpossiblePattern = patternValid;
+        const secondLawViolation = build.type === "engine"
+          ? (build.ql.direction === "none" && build.ql.magnitude === 0 && build.qh.magnitude > 0 && build.w.magnitude > 0)
+          : (build.w.direction === "none" && build.w.magnitude === 0 && build.ql.magnitude > 0 && build.qh.magnitude > 0);
+        targetMet = totals.balanced && tempValid && interactionConsistent && meaningfulImpossiblePattern && secondLawViolation;
+        governing = build.type === "engine"
+          ? "An engine-like cycle with heat input and equal work output but no heat rejection is a Kelvin–Planck violation."
+          : "A refrigerator-like cycle that moves heat from low temperature to high temperature without work input is a Clausius violation.";
+        finalMessage = targetMet
+          ? "This is an impossible device that still satisfies the First Law."
+          : "This construction must balance energy and show one of the specified Second-Law violations without using arbitrary arrow mismatches.";
+      }
+
+      return { totals, tempValid, interactionConsistent, patternValid, feasible, targetMet, governing, finalMessage };
+    }
+
+    function buildInteractionLabel(symbol, item) {
+      if (!item.magnitudeSelected) return `${symbol}: choose magnitude`;
+      if (!item.direction) return `${symbol} = ${item.magnitude} kJ; choose direction`;
+      if (item.direction === "none") return `${symbol} = ${item.magnitude} kJ (none)`;
+      return `${symbol} = ${item.magnitude} kJ`;
+    }
+
+    function updateBuildDiagram() {
+      const build = getBuild();
+      byId("buildTopTemp").textContent = `TH = ${build.th} K`;
+      byId("buildBottomTemp").textContent = `TL = ${build.tl} K`;
+      byId("buildDeviceLabel").textContent = build.type === "engine" ? "Heat engine" : build.type === "refrigerator" ? "Refrigerator" : "Choose device type";
+      setArrow(byId("buildQhArrow"), build.qh.direction, arrowPositions.qh);
+      setArrow(byId("buildQlArrow"), build.ql.direction, arrowPositions.ql);
+      setArrow(byId("buildWArrow"), build.w.direction, arrowPositions.w);
+      byId("buildQhLabel").textContent = buildInteractionLabel("QH", build.qh);
+      byId("buildQlLabel").textContent = buildInteractionLabel("QL", build.ql);
+      byId("buildWLabel").textContent = buildInteractionLabel("W", build.w);
+    }
+
+    function resultItem(pass, label, explanation) {
+      return `<li class="${pass ? "pass correct" : "fail incorrect"}"><strong>${label}:</strong> ${explanation}</li>`;
+    }
+
+    function checkBuild() {
+      if (!buildInputsComplete()) return;
+      const build = getBuild();
+      const task = buildTasks[state.buildIndex];
+      const result = evaluateBuild(build, task.mode);
+      const typeText = build.type === "engine" ? "heat engine" : "refrigerator";
+      const patternText = build.type === "engine"
+        ? "A heat-engine pattern needs QH into the device, W out, and QL out or absent only when intentionally demonstrating the prohibited no-rejection case."
+        : "A refrigerator pattern needs QL into the device, QH out, and W into the device or absent only when intentionally demonstrating the prohibited no-work case.";
+
+      const directionRulePass = task.mode === "impossibleBalanced" ? result.patternValid : (build.type === "engine" ? engineFeasible(build) : refrigeratorFeasible(build));
+      const directionExplanation = directionRulePass
+        ? `The arrow pattern is consistent with the selected ${typeText} and the requested task.`
+        : patternText;
+
+      const secondLawPass = task.mode === "impossibleBalanced" ? !result.feasible && result.targetMet : result.feasible;
+      const secondLawExplanation = task.mode === "impossibleBalanced"
+        ? (result.targetMet ? result.governing : "The device must show the specified missing heat rejection or missing work input while remaining energy-balanced.")
+        : result.governing;
+
+      byId("buildFeedback").innerHTML = `
+        <p class="status-banner ${result.targetMet ? "ok" : "bad"}">${result.finalMessage}</p>
+        <ul class="check-results">
+          ${resultItem(result.totals.balanced, "First-Law balance", `Energy entering = ${result.totals.entering} kJ; energy leaving = ${result.totals.leaving} kJ.`)}
+          ${resultItem(result.tempValid, "Temperature ordering", `TH = ${build.th} K and TL = ${build.tl} K. The interface only allows TH > TL.`)}
+          ${resultItem(result.interactionConsistent, "Magnitude-direction consistency", result.interactionConsistent ? "Every zero magnitude is marked as no interaction, and every active arrow has a positive magnitude." : "Use 0 kJ only with “No interaction,” and use a positive magnitude for every entering or leaving arrow.")}
+          ${resultItem(directionRulePass, "Device arrow pattern", directionExplanation)}
+          ${resultItem(secondLawPass, "Second-Law test", secondLawExplanation)}
+        </ul>`;
+
+      byId("buildFeedback").hidden = false;
+      state.buildPassed = result.targetMet;
+      byId("nextBuildBtn").disabled = !result.targetMet;
+      byId("discussionPanel").hidden = !result.targetMet;
+      if (result.targetMet) byId("discussionPanel").scrollIntoView({ block: "nearest" });
+    }
+
+    function showBuildHint() {
+      const mode = buildTasks[state.buildIndex].mode;
+      const hintsByMode = {
+        feasibleEngine: [
+          "Start with the arrow pattern: QH in, QL out, and W out.",
+          "Choose positive values that satisfy QH = QL + W.",
+          "The heat engine must reject some heat; QL cannot be zero."
+        ],
+        feasibleRefrigerator: [
+          "Start with the arrow pattern: QL in, W in, and QH out.",
+          "Choose positive values that satisfy QH = QL + W.",
+          "The work input must be greater than zero because heat is moved from TL to TH."
+        ],
+        impossibleBalanced: [
+          "Keep the energy balance correct. The impossible feature must come from the Second Law, not arithmetic.",
+          "For an engine-like violation, try QH in, W out, and no QL. For a refrigerator-like violation, try QL in, QH out, and no W.",
+          "Use 0 kJ together with “No interaction.”"
+        ]
+      };
+      const hints = hintsByMode[mode];
+      const index = Math.min(state.buildHintLevel, hints.length - 1);
+      byId("buildHint").textContent = hints[index];
+      byId("buildHint").hidden = false;
+      state.buildHintLevel += 1;
+    }
+
+    function resetBuild() {
+      renderBuildTask();
+    }
+
+    function nextBuild() {
+      if (!state.buildPassed) return;
+      if (state.buildIndex < buildTasks.length - 1) {
+        state.buildIndex += 1;
+        renderBuildTask();
+      } else {
+        buildView.hidden = true;
+        completeView.hidden = false;
+        progressText.textContent = "Complete";
+        window.scrollTo({ top: 0, behavior: "instant" });
+      }
+    }
+
+    checkScenarioBtn.addEventListener("click", checkScenario);
+    byId("hintScenarioBtn").addEventListener("click", showScenarioHint);
+    byId("resetScenarioBtn").addEventListener("click", resetScenario);
+    nextScenarioBtn.addEventListener("click", nextScenario);
+    byId("checkBuildBtn").addEventListener("click", checkBuild);
+    byId("hintBuildBtn").addEventListener("click", showBuildHint);
+    byId("resetBuildBtn").addEventListener("click", resetBuild);
+    byId("nextBuildBtn").addEventListener("click", nextBuild);
+
+    renderScenario();
+  </script>
+</body>
+</html>
