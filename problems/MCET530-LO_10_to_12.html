@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Same Device, Different Purpose</title>
+  <style>
+    :root {
+      --ink: #171717;
+      --muted: #555;
+      --paper: #ffffff;
+      --panel: #f2f2ef;
+      --line: #292929;
+      --accent: #174f70;
+      --good: #176638;
+      --warn: #7b4900;
+      --bad: #861f1f;
+      --focus: #ffbf47;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background: #e7e7e3;
+      line-height: 1.35;
+    }
+
+    button, select, input, textarea { font: inherit; }
+
+    button:focus-visible,
+    select:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    [tabindex]:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    .app {
+      width: min(1180px, calc(100% - 22px));
+      margin: 11px auto;
+      background: var(--paper);
+      border: 2px solid var(--line);
+      box-shadow: 0 4px 16px rgba(0,0,0,.13);
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: end;
+      padding: 13px 17px 9px;
+      border-bottom: 2px solid var(--line);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.45rem, 2.5vw, 2.05rem);
+      line-height: 1.08;
+    }
+
+    .progress {
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .orientation {
+      margin: 0;
+      padding: 9px 17px;
+      background: var(--panel);
+      border-bottom: 1px solid #999;
+      font-size: .94rem;
+    }
+
+    main { padding: 13px 15px 16px; }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(350px, .92fr) minmax(450px, 1.08fr);
+      gap: 13px;
+      align-items: start;
+    }
+
+    .card {
+      border: 1.5px solid var(--line);
+      background: var(--paper);
+      padding: 11px;
+    }
+
+    .case-title {
+      margin: 0 0 4px;
+      font-size: 1.25rem;
+    }
+
+    .case-prompt { margin: 0 0 8px; }
+
+    .diagram-wrap {
+      border: 1px solid #777;
+      background: #fafafa;
+      padding: 7px;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 355px;
+    }
+
+    .box {
+      fill: #fff;
+      stroke: #111;
+      stroke-width: 2.2;
+    }
+
+    .device {
+      fill: #ececec;
+      stroke: #111;
+      stroke-width: 2.5;
+    }
+
+    .heat-arrow {
+      fill: none;
+      stroke: #111;
+      stroke-width: 3;
+      marker-end: url(#arrowHead);
+    }
+
+    .work-arrow {
+      fill: none;
+      stroke: #111;
+      stroke-width: 3;
+      stroke-dasharray: 8 5;
+      marker-end: url(#arrowHead);
+    }
+
+    .svg-label { font-size: 16px; font-weight: 700; }
+    .svg-small { font-size: 13px; }
+    .svg-value { font-size: 15px; font-weight: 700; }
+
+    .direction-controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 7px;
+      margin-top: 8px;
+    }
+
+    .compact-control {
+      border: 1px solid #aaa;
+      padding: 6px;
+    }
+
+    .compact-control label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+
+    .compact-control select { width: 100%; }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: .82rem;
+    }
+
+    .legend span::before {
+      content: "";
+      display: inline-block;
+      width: 26px;
+      margin-right: 5px;
+      border-top: 3px solid #111;
+      vertical-align: middle;
+    }
+
+    .legend .work-key::before { border-top-style: dashed; }
+
+    .steps { display: grid; gap: 5px; }
+
+    .completed-step {
+      background: #f3f3f1;
+      color: #444;
+      padding-top: 5px;
+      padding-bottom: 5px;
+    }
+
+    .completed-step .instruction { margin: 0; }
+
+    fieldset {
+      margin: 0;
+      min-width: 0;
+      border: 1.5px solid #777;
+      padding: 7px 9px 8px;
+    }
+
+    fieldset[disabled] {
+      opacity: .5;
+      background: #f5f5f5;
+    }
+
+    legend {
+      font-weight: 800;
+      padding: 0 5px;
+    }
+
+    .instruction {
+      margin: 0 0 6px;
+      font-size: .91rem;
+      color: #333;
+    }
+
+    .option-list { display: grid; gap: 4px; }
+
+    label.choice,
+    label.token {
+      display: block;
+      padding: 5px 7px;
+      border: 1px solid #aaa;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    label.choice:has(input:checked),
+    label.token:has(input:checked) {
+      border: 2px solid var(--accent);
+      padding: 4px 6px;
+      background: #eef5f8;
+      font-weight: 700;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .metric-slot {
+      border: 1px solid #aaa;
+      padding: 6px;
+    }
+
+    .metric-slot strong { display: block; margin-bottom: 4px; }
+
+    .ratio-display {
+      margin: 7px 0 0;
+      padding: 6px;
+      text-align: center;
+      border: 1px solid #777;
+      background: #fafafa;
+      font-weight: 800;
+      min-height: 35px;
+    }
+
+    .number-row {
+      display: grid;
+      grid-template-columns: minmax(150px, 1fr) auto;
+      gap: 7px;
+      align-items: end;
+    }
+
+    .number-row label { font-weight: 700; }
+    .number-row input, .number-row select { width: 100%; margin-top: 3px; }
+
+    .sentence-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 7px;
+    }
+
+    .sentence-grid label { font-weight: 700; }
+    .sentence-grid select { width: 100%; margin-top: 3px; }
+
+    .feedback {
+      border: 1.5px solid #777;
+      border-left-width: 6px;
+      padding: 8px 10px;
+      background: #f7f7f7;
+      min-height: 58px;
+    }
+
+    .feedback.good { border-left-color: var(--good); }
+    .feedback.warn { border-left-color: var(--warn); }
+    .feedback.bad { border-left-color: var(--bad); }
+    .feedback strong { display: block; margin-bottom: 3px; }
+    .feedback p { margin: 3px 0; }
+
+    .notes {
+      margin-top: 7px;
+      border: 1px solid #999;
+      padding: 7px;
+      background: #fbfbfb;
+    }
+
+    .notes label { display: block; font-weight: 700; margin-bottom: 4px; }
+    textarea { width: 100%; min-height: 58px; resize: vertical; }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 10px;
+      padding-top: 9px;
+      border-top: 1px solid #aaa;
+    }
+
+    button {
+      border: 1.5px solid #222;
+      background: #f2f2f2;
+      padding: 7px 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button.primary { background: #e4eef3; }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+
+    .status-line {
+      margin-left: auto;
+      align-self: center;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .hidden { display: none !important; }
+
+    .summary {
+      max-width: 850px;
+      margin: 0 auto;
+    }
+
+    .summary h2 { margin-top: 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border: 1px solid #555;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th { background: #ececec; }
+
+    .completion-list { margin: 8px 0; }
+
+    @media (max-width: 860px) {
+      .workspace { grid-template-columns: 1fr; }
+      .direction-controls { grid-template-columns: 1fr; }
+      .status-line { width: 100%; margin-left: 0; }
+    }
+
+    @media (max-width: 560px) {
+      header { grid-template-columns: 1fr; }
+      .metric-grid, .sentence-grid { grid-template-columns: 1fr; }
+      .number-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Same Device, Different Purpose</h1>
+    <div id="progress" class="progress" aria-live="polite"></div>
+  </header>
+
+  <p class="orientation">
+    A heat engine, refrigerator, and heat pump are identified partly by the directions of heat and work. A refrigerator and heat pump can describe the same physical cycle, but their performance metrics differ because the desired result differs. For a heat engine, the desired result is net work output. For a refrigerator, it is heat removed from the low-temperature space. For a heat pump, it is heat delivered to the high-temperature space. In this activity, QH, QL, and W are positive magnitudes; the arrows show energy direction.
+  </p>
+
+  <main>
+    <section id="activityView" class="workspace">
+      <div class="card">
+        <h2 id="caseTitle" class="case-title"></h2>
+        <p id="casePrompt" class="case-prompt"></p>
+
+        <div class="diagram-wrap">
+          <svg viewBox="0 0 540 405" role="img" aria-labelledby="diagramTitle diagramDesc">
+            <title id="diagramTitle">Thermal device energy-flow diagram</title>
+            <desc id="diagramDesc">A high-temperature reservoir above a cyclic device, a low-temperature reservoir below it, and adjustable arrows for QH, QL, and work.</desc>
+            <defs>
+              <marker id="arrowHead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#111"></path>
+              </marker>
+            </defs>
+
+            <rect class="box" x="95" y="20" width="350" height="70" rx="2"></rect>
+            <text class="svg-label" x="270" y="49" text-anchor="middle">High-Temperature Reservoir</text>
+            <text id="thLabel" class="svg-value" x="270" y="72" text-anchor="middle"></text>
+
+            <rect class="device" x="165" y="155" width="210" height="90" rx="2"></rect>
+            <text class="svg-label" x="270" y="196" text-anchor="middle">Cyclic Device</text>
+            <text id="purposeSvg" class="svg-small" x="270" y="219" text-anchor="middle">Purpose not yet selected</text>
+
+            <rect class="box" x="95" y="315" width="350" height="70" rx="2"></rect>
+            <text class="svg-label" x="270" y="345" text-anchor="middle">Low-Temperature Reservoir</text>
+            <text id="tlLabel" class="svg-value" x="270" y="368" text-anchor="middle"></text>
+
+            <line id="qhArrow" class="heat-arrow" x1="225" y1="96" x2="225" y2="149"></line>
+            <text id="qhText" class="svg-value" x="145" y="126"></text>
+
+            <line id="qlArrow" class="heat-arrow" x1="315" y1="251" x2="315" y2="309"></line>
+            <text id="qlText" class="svg-value" x="327" y="286"></text>
+
+            <line id="wArrow" class="work-arrow" x1="381" y1="200" x2="490" y2="200"></line>
+            <text id="wText" class="svg-value" x="435" y="185" text-anchor="middle"></text>
+          </svg>
+        </div>
+
+        <div class="legend" aria-label="Diagram legend">
+          <span>Solid arrow: heat</span>
+          <span class="work-key">Dashed arrow: work</span>
+        </div>
+
+        <div class="direction-controls" aria-label="Arrow direction controls">
+          <div class="compact-control">
+            <label for="qhDirection">QH direction</label>
+            <select id="qhDirection">
+              <option value="">Select</option>
+              <option value="in">Enters device</option>
+              <option value="out">Leaves device</option>
+            </select>
+          </div>
+          <div class="compact-control">
+            <label for="qlDirection">QL direction</label>
+            <select id="qlDirection">
+              <option value="">Select</option>
+              <option value="in">Enters device</option>
+              <option value="out">Leaves device</option>
+            </select>
+          </div>
+          <div class="compact-control">
+            <label for="wDirection">W direction</label>
+            <select id="wDirection">
+              <option value="">Select</option>
+              <option value="in">Enters device</option>
+              <option value="out">Leaves device</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div id="steps" class="steps"></div>
+
+        <div id="feedback" class="feedback" role="status" aria-live="polite">
+          <strong>Current task</strong>
+          <p>Complete the first unlocked step, then select Check.</p>
+        </div>
+
+        <div id="notesWrap" class="notes hidden">
+          <label for="discussionNotes">Notes for discussion—not automatically evaluated.</label>
+          <p id="notesPrompt" class="instruction">Record an explanation or question for class discussion.</p>
+          <textarea id="discussionNotes" placeholder="Record an explanation or question for class discussion."></textarea>
+        </div>
+
+        <div class="actions">
+          <button id="checkBtn" class="primary" type="button">Check</button>
+          <button id="hintBtn" type="button">Hint</button>
+          <button id="resetBtn" type="button">Reset</button>
+          <button id="nextBtn" type="button" disabled>Next</button>
+          <span id="statusLine" class="status-line"></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="summaryView" class="card summary hidden" aria-live="polite">
+      <h2>Performance Metric Comparison</h2>
+      <p>You have completed at least one heat-engine, refrigerator, and heat-pump interpretation.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Device</th>
+            <th>Desired result</th>
+            <th>Required input</th>
+            <th>Metric</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Heat engine</td>
+            <td>W<sub>net,out</sub></td>
+            <td>Q<sub>H</sub></td>
+            <td>Thermal efficiency = W<sub>net,out</sub> / Q<sub>H</sub></td>
+          </tr>
+          <tr>
+            <td>Refrigerator</td>
+            <td>Q<sub>L</sub></td>
+            <td>W<sub>net,in</sub></td>
+            <td>COP<sub>R</sub> = Q<sub>L</sub> / W<sub>net,in</sub></td>
+          </tr>
+          <tr>
+            <td>Heat pump</td>
+            <td>Q<sub>H</sub></td>
+            <td>W<sub>net,in</sub></td>
+            <td>COP<sub>HP</sub> = Q<sub>H</sub> / W<sub>net,in</sub></td>
+          </tr>
+        </tbody>
+      </table>
+      <p><strong>Key interpretation:</strong> COP can exceed 1 because the desired heat transfer includes both the heat moved from the low-temperature region and the supplied work. COP is not the fraction of one input converted into one output, so it is not bounded in the same way as heat-engine efficiency.</p>
+      <button id="restartBtn" type="button">Restart activity</button>
+    </section>
+  </main>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  const cases = [
+    {
+      id: "engine",
+      label: "Case 1 of 5",
+      title: "Heat engine",
+      prompt: "A cyclic device receives 500 kJ from the high-temperature reservoir, rejects 325 kJ to the low-temperature reservoir, and produces 175 kJ of net work. Set the arrows to match the description.",
+      th: 600,
+      tl: 300,
+      qh: 500,
+      ql: 325,
+      w: 175,
+      dirs: { qh: "in", ql: "out", w: "out" },
+      classAnswer: "engine",
+      mode: "standard",
+      purposeRequired: null,
+      tasks: [{ purpose: "engine" }]
+    },
+    {
+      id: "sharedR",
+      label: "Case 2A of 5",
+      title: "One cycle used as a refrigerator",
+      prompt: "The cycle removes 300 kJ from a low-temperature space, receives 100 kJ of work, and rejects 400 kJ to a high-temperature space. Interpret this use as a refrigerator.",
+      th: 305,
+      tl: 275,
+      qh: 400,
+      ql: 300,
+      w: 100,
+      dirs: { qh: "out", ql: "in", w: "in" },
+      classAnswer: "workCycle",
+      mode: "standard",
+      purposeRequired: "refrigerator",
+      tasks: [{ purpose: "refrigerator" }]
+    },
+    {
+      id: "sharedHP",
+      label: "Case 2B of 5",
+      title: "The same cycle used as a heat pump",
+      prompt: "The energy flows and magnitudes are unchanged: 300 kJ enters from the low-temperature space, 100 kJ of work enters, and 400 kJ is delivered to the high-temperature space. Interpret this use as a heat pump.",
+      th: 305,
+      tl: 275,
+      qh: 400,
+      ql: 300,
+      w: 100,
+      dirs: { qh: "out", ql: "in", w: "in" },
+      classAnswer: "workCycle",
+      mode: "standard",
+      purposeRequired: "heatpump",
+      tasks: [{ purpose: "heatpump" }],
+      explanation: true
+    },
+    {
+      id: "missingQH",
+      label: "Case 3 of 5",
+      title: "Find QH, then evaluate both purposes",
+      prompt: "A work-consuming cycle removes 240 kJ from the low-temperature space and receives 60 kJ of work. First calculate the missing heat delivered to the high-temperature space. Then evaluate the cycle as both a refrigerator and a heat pump.",
+      th: 310,
+      tl: 270,
+      qh: null,
+      ql: 240,
+      w: 60,
+      dirs: { qh: "out", ql: "in", w: "in" },
+      classAnswer: "workCycle",
+      mode: "dual",
+      missing: "qh",
+      tasks: [{ purpose: "refrigerator" }, { purpose: "heatpump" }]
+    },
+    {
+      id: "missingW",
+      label: "Case 4 of 5",
+      title: "Find work, then choose the purpose",
+      prompt: "A work-consuming cycle delivers 450 kJ to the high-temperature space after removing 360 kJ from the low-temperature space. Calculate the work input, then choose whether you want to evaluate refrigeration or heating performance.",
+      th: 315,
+      tl: 280,
+      qh: 450,
+      ql: 360,
+      w: null,
+      dirs: { qh: "out", ql: "in", w: "in" },
+      classAnswer: "workCycle",
+      mode: "flexible",
+      missing: "w",
+      tasks: []
+    },
+    {
+      id: "misconception",
+      label: "Case 5 of 5",
+      title: "Efficiency versus COP",
+      prompt: "This heat engine receives 200 kJ, rejects 130 kJ, and produces 70 kJ of work. Calculate its efficiency, then compare it with the refrigerator COP of 3 from Case 2.",
+      th: 550,
+      tl: 300,
+      qh: 200,
+      ql: 130,
+      w: 70,
+      dirs: { qh: "in", ql: "out", w: "out" },
+      classAnswer: "engine",
+      mode: "concept",
+      purposeRequired: null,
+      tasks: [{ purpose: "engine" }],
+      concept: true
+    }
+  ];
+
+  const state = {
+    caseIndex: 0,
+    stepIndex: 0,
+    steps: [],
+    numericAttempts: {},
+    completedTypes: { engine: false, refrigerator: false, heatpump: false },
+    caseComplete: false,
+    selectedPurpose: null,
+    resolved: {},
+    notes: {}
+  };
+
+  const el = {
+    activityView: document.getElementById("activityView"),
+    summaryView: document.getElementById("summaryView"),
+    progress: document.getElementById("progress"),
+    caseTitle: document.getElementById("caseTitle"),
+    casePrompt: document.getElementById("casePrompt"),
+    thLabel: document.getElementById("thLabel"),
+    tlLabel: document.getElementById("tlLabel"),
+    qhText: document.getElementById("qhText"),
+    qlText: document.getElementById("qlText"),
+    wText: document.getElementById("wText"),
+    qhArrow: document.getElementById("qhArrow"),
+    qlArrow: document.getElementById("qlArrow"),
+    wArrow: document.getElementById("wArrow"),
+    qhDirection: document.getElementById("qhDirection"),
+    qlDirection: document.getElementById("qlDirection"),
+    wDirection: document.getElementById("wDirection"),
+    purposeSvg: document.getElementById("purposeSvg"),
+    steps: document.getElementById("steps"),
+    feedback: document.getElementById("feedback"),
+    notesWrap: document.getElementById("notesWrap"),
+    discussionNotes: document.getElementById("discussionNotes"),
+    notesPrompt: document.getElementById("notesPrompt"),
+    checkBtn: document.getElementById("checkBtn"),
+    hintBtn: document.getElementById("hintBtn"),
+    resetBtn: document.getElementById("resetBtn"),
+    nextBtn: document.getElementById("nextBtn"),
+    statusLine: document.getElementById("statusLine"),
+    restartBtn: document.getElementById("restartBtn")
+  };
+
+  function currentCase() {
+    return cases[state.caseIndex];
+  }
+
+  function actualValue(c, key) {
+    if (c[key] !== null) return c[key];
+    if (key === "qh") return c.ql + c.w;
+    if (key === "w") return c.qh - c.ql;
+    return null;
+  }
+
+  function deviceFromDirections(dirs) {
+    if (dirs.qh === "in" && dirs.ql === "out" && dirs.w === "out") return "engine";
+    if (dirs.qh === "out" && dirs.ql === "in" && dirs.w === "in") return "workCycle";
+    return "invalid";
+  }
+
+  function purposeLabel(purpose) {
+    if (purpose === "engine") return "Heat engine";
+    if (purpose === "refrigerator") return "Refrigerator use";
+    if (purpose === "heatpump") return "Heat-pump use";
+    return "Purpose not yet selected";
+  }
+
+  function metricInfo(c, purpose) {
+    const qh = actualValue(c, "qh");
+    const ql = actualValue(c, "ql");
+    const w = actualValue(c, "w");
+    if (purpose === "engine") {
+      return {
+        name: "thermal efficiency",
+        short: "eta",
+        numerator: "w",
+        denominator: "qh",
+        numeratorLabel: "Wnet,out",
+        denominatorLabel: "QH",
+        value: w / qh,
+        substitution: w + " / " + qh,
+        units: "dimensionless; enter a decimal or select percent format"
+      };
+    }
+    if (purpose === "refrigerator") {
+      return {
+        name: "refrigerator COP",
+        short: "COPR",
+        numerator: "ql",
+        denominator: "w",
+        numeratorLabel: "QL",
+        denominatorLabel: "Wnet,in",
+        value: ql / w,
+        substitution: ql + " / " + w,
+        units: "dimensionless; do not enter as a percentage"
+      };
+    }
+    return {
+      name: "heat-pump COP",
+      short: "COPHP",
+      numerator: "qh",
+      denominator: "w",
+      numeratorLabel: "QH",
+      denominatorLabel: "Wnet,in",
+      value: qh / w,
+      substitution: qh + " / " + w,
+      units: "dimensionless; do not enter as a percentage"
+    };
+  }
+
+  function buildStepsForCase(c) {
+    const steps = [{ type: "directions", key: "directions", title: "Step 1: Identify the device from energy directions" }];
+
+    if (c.missing) {
+      steps.push({ type: "missing", key: "missing", title: "First-Law calculation" });
+    }
+
+    if (c.mode === "dual") {
+      steps.push({ type: "purpose", key: "purposeR", title: "Step 2A: Identify the refrigerator purpose", required: "refrigerator" });
+      steps.push({ type: "metric", key: "metricR", title: "Step 3A: Build COPR", purpose: "refrigerator" });
+      steps.push({ type: "calculate", key: "calcR", title: "Step 4A: Calculate COPR", purpose: "refrigerator" });
+      steps.push({ type: "purpose", key: "purposeHP", title: "Step 2B: Identify the heat-pump purpose", required: "heatpump" });
+      steps.push({ type: "metric", key: "metricHP", title: "Step 3B: Build COPHP", purpose: "heatpump" });
+      steps.push({ type: "calculate", key: "calcHP", title: "Step 4B: Calculate COPHP", purpose: "heatpump" });
+    } else {
+      if (c.classAnswer === "workCycle") {
+        steps.push({ type: "purpose", key: "purpose", title: "Step 2: Identify the purpose", required: c.purposeRequired || "either" });
+      }
+      steps.push({ type: "metric", key: "metric", title: "Step 3: Build the performance metric", purpose: c.classAnswer === "engine" ? "engine" : null });
+      steps.push({ type: "calculate", key: "calculate", title: "Step 4: Calculate the metric", purpose: c.classAnswer === "engine" ? "engine" : null });
+    }
+
+    if (c.explanation) {
+      steps.push({ type: "explanation", key: "explanation", title: "Conceptual explanation builder" });
+    }
+    if (c.concept) {
+      steps.push({ type: "concept", key: "concept", title: "Concept check: efficiency versus COP" });
+    }
+    return steps;
+  }
+
+  function escapeHtml(text) {
+    return String(text)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function renderCase() {
+    const c = currentCase();
+    state.steps = buildStepsForCase(c);
+    el.progress.textContent = c.label;
+    el.caseTitle.textContent = c.title;
+    el.casePrompt.textContent = c.prompt;
+    el.thLabel.textContent = "TH = " + c.th + " K";
+    el.tlLabel.textContent = "TL = " + c.tl + " K";
+    el.qhText.textContent = "QH = " + (c.qh === null ? "?" : c.qh + " kJ");
+    el.qlText.textContent = "QL = " + (c.ql === null ? "?" : c.ql + " kJ");
+    el.wText.textContent = "W = " + (c.w === null ? "?" : c.w + " kJ");
+
+    el.qhDirection.value = "";
+    el.qlDirection.value = "";
+    el.wDirection.value = "";
+    state.selectedPurpose = null;
+    state.resolved = {};
+    state.stepIndex = 0;
+    state.caseComplete = false;
+    state.numericAttempts = {};
+
+    el.discussionNotes.value = state.notes[c.id] || "";
+    el.notesPrompt.textContent = c.id === "sharedHP" ? "How would you explain this distinction to a classmate?" : "Record an explanation or question for class discussion.";
+    el.notesWrap.classList.add("hidden");
+    el.nextBtn.disabled = true;
+    el.checkBtn.disabled = false;
+    el.hintBtn.disabled = false;
+    el.statusLine.textContent = "Step 1 is unlocked.";
+    setFeedback("Current task", "Set all three arrow directions, classify the resulting representation, then select Check.", "");
+    renderSteps();
+    updateDiagram();
+  }
+
+  function renderSteps() {
+    const c = currentCase();
+    el.steps.innerHTML = "";
+    state.steps.forEach(function (step, index) {
+      const fieldset = document.createElement("fieldset");
+      fieldset.dataset.stepIndex = String(index);
+      const legend = document.createElement("legend");
+      legend.textContent = step.title + (index < state.stepIndex ? " - complete" : "");
+      fieldset.appendChild(legend);
+
+      if (index < state.stepIndex) {
+        fieldset.disabled = true;
+        fieldset.classList.add("completed-step");
+        fieldset.insertAdjacentHTML("beforeend", '<p class="instruction">Completed. The targeted feedback is shown below.</p>');
+      } else if (index > state.stepIndex) {
+        fieldset.disabled = true;
+        fieldset.classList.add("hidden");
+      } else {
+        fieldset.disabled = false;
+        fieldset.insertAdjacentHTML("beforeend", stepHtml(c, step, index));
+      }
+      el.steps.appendChild(fieldset);
+    });
+    syncSavedInputs();
+    updateRatioDisplays();
+  }
+
+  function stepHtml(c, step, index) {
+    const suffix = c.id + "_" + step.key;
+    if (step.type === "directions") {
+      return '<p class="instruction">Use the three diagram controls, then classify the directions you created.</p>' +
+        '<div class="option-list">' +
+        radio(suffix, "deviceClass", "engine", "Heat engine") +
+        radio(suffix, "deviceClass", "workCycle", "Work-consuming refrigeration or heat-pump cycle") +
+        radio(suffix, "deviceClass", "invalid", "Invalid energy-flow representation") +
+        '</div>';
+    }
+
+    if (step.type === "missing") {
+      const isQH = c.missing === "qh";
+      const formula = isQH ? "QH = QL + Win" : "Win = QH - QL";
+      const label = isQH ? "Calculate QH (kJ)" : "Calculate Wnet,in (kJ)";
+      return '<p class="instruction">Use positive magnitudes and the First Law: <strong>' + formula + '</strong>.</p>' +
+        '<div class="number-row"><label for="' + suffix + '_number">' + label +
+        '<input id="' + suffix + '_number" type="number" step="any" inputmode="decimal"></label></div>';
+    }
+
+    if (step.type === "purpose") {
+      return '<p class="instruction">What is the desired result in this use of the work-consuming cycle?</p>' +
+        '<div class="option-list">' +
+        radio(suffix, "purpose", "refrigerator", "Remove heat from the low-temperature space") +
+        radio(suffix, "purpose", "heatpump", "Deliver heat to the high-temperature space") +
+        '</div>';
+    }
+
+    if (step.type === "metric") {
+      return '<p class="instruction">Choose one token for the desired result and one for the required input. A click or keyboard selection is sufficient; dragging is not required.</p>' +
+        '<div class="metric-grid">' +
+        metricSlot(suffix, "numerator", "Desired result") +
+        metricSlot(suffix, "denominator", "Required input") +
+        '</div><div id="' + suffix + '_ratio" class="ratio-display" aria-live="polite">Select both parts of the ratio.</div>';
+    }
+
+    if (step.type === "calculate") {
+      const purpose = resolvePurposeForStep(step);
+      const info = metricInfo(c, purpose);
+      const formatControl = purpose === "engine" ?
+        '<label for="' + suffix + '_format">Entry format<select id="' + suffix + '_format"><option value="decimal">Decimal</option><option value="percent">Percent</option></select></label>' :
+        '<div><strong>COP entry format:</strong><br>Decimal only; do not enter a percent.</div>';
+      return '<p class="instruction">Calculate <strong>' + info.name + '</strong>. Expected units: ' + info.units + '.</p>' +
+        '<div class="number-row"><label for="' + suffix + '_number">Numeric answer' +
+        '<input id="' + suffix + '_number" type="number" step="any" inputmode="decimal"></label>' + formatControl + '</div>';
+    }
+
+    if (step.type === "explanation") {
+      return '<p class="instruction">Complete the explanation using the dropdowns.</p>' +
+        '<p>The energy flows are <select id="' + suffix + '_flows" aria-label="Energy flows comparison"><option value="">Select</option><option value="same">the same</option><option value="different">different</option></select>, but the performance metrics are <select id="' + suffix + '_metrics" aria-label="Performance metrics comparison"><option value="">Select</option><option value="same">the same</option><option value="different">different</option></select> because the desired result for a refrigerator is <select id="' + suffix + '_ref" aria-label="Refrigerator desired result"><option value="">Select</option><option value="ql">QL</option><option value="qh">QH</option><option value="w">W</option></select>, while the desired result for a heat pump is <select id="' + suffix + '_hp" aria-label="Heat pump desired result"><option value="">Select</option><option value="ql">QL</option><option value="qh">QH</option><option value="w">W</option></select>.</p>';
+    }
+
+    if (step.type === "concept") {
+      return '<p class="instruction">The engine efficiency is 0.35 and the refrigerator COP is 3. Which statement is correct?</p>' +
+        '<div class="option-list">' +
+        radio(suffix, "concept", "bothBelow", "Both values must be below 1.") +
+        radio(suffix, "concept", "engineBound", "Only heat-engine efficiency is bounded below 1.") +
+        radio(suffix, "concept", "created", "COP above 1 means energy was created.") +
+        radio(suffix, "concept", "sameResult", "COP and efficiency measure the same desired result.") +
+        '</div>';
+    }
+    return "";
+  }
+
+  function radio(groupBase, name, value, label) {
+    const id = groupBase + "_" + name + "_" + value;
+    return '<label class="choice" for="' + id + '"><input id="' + id + '" type="radio" name="' + groupBase + '_' + name + '" value="' + value + '"> ' + label + '</label>';
+  }
+
+  function metricSlot(suffix, role, title) {
+    return '<div class="metric-slot"><strong>' + title + '</strong>' +
+      '<div class="option-list">' +
+      token(suffix, role, "qh", "QH") +
+      token(suffix, role, "ql", "QL") +
+      token(suffix, role, "w", "Wnet") +
+      '</div></div>';
+  }
+
+  function token(suffix, role, value, label) {
+    const id = suffix + "_" + role + "_" + value;
+    return '<label class="token" for="' + id + '"><input id="' + id + '" type="radio" name="' + suffix + '_' + role + '" value="' + value + '"> ' + label + '</label>';
+  }
+
+  function syncSavedInputs() {
+    Object.keys(state.resolved).forEach(function (key) {
+      const value = state.resolved[key];
+      const node = document.getElementById(key);
+      if (node) {
+        if (node.type === "radio") node.checked = Boolean(value);
+        else node.value = value;
+      }
+    });
+  }
+
+  function saveVisibleInputs() {
+    el.steps.querySelectorAll("input, select").forEach(function (node) {
+      if (node.type === "radio") state.resolved[node.id] = node.checked;
+      else state.resolved[node.id] = node.value;
+    });
+  }
+
+  function currentStep() {
+    return state.steps[state.stepIndex];
+  }
+
+  function resolvePurposeForStep(step) {
+    if (step.purpose) return step.purpose;
+    if (currentCase().classAnswer === "engine") return "engine";
+    return state.selectedPurpose || "refrigerator";
+  }
+
+  function checkedValue(name) {
+    const checked = document.querySelector('input[name="' + name + '"]:checked');
+    return checked ? checked.value : "";
+  }
+
+  function updateDiagram() {
+    const qh = el.qhDirection.value;
+    const ql = el.qlDirection.value;
+    const w = el.wDirection.value;
+
+    setArrow(el.qhArrow, qh, { in: [225, 96, 225, 149], out: [225, 149, 225, 96] });
+    setArrow(el.qlArrow, ql, { in: [315, 309, 315, 251], out: [315, 251, 315, 309] });
+    setArrow(el.wArrow, w, { in: [490, 200, 381, 200], out: [381, 200, 490, 200] });
+
+    el.purposeSvg.textContent = purposeLabel(state.selectedPurpose);
+  }
+
+  function setArrow(node, value, coordinates) {
+    const coords = value && coordinates[value] ? coordinates[value] : coordinates.in;
+    node.setAttribute("x1", coords[0]);
+    node.setAttribute("y1", coords[1]);
+    node.setAttribute("x2", coords[2]);
+    node.setAttribute("y2", coords[3]);
+    node.style.opacity = value ? "1" : ".28";
+  }
+
+  function setFeedback(title, body, kind) {
+    el.feedback.className = "feedback" + (kind ? " " + kind : "");
+    el.feedback.innerHTML = "<strong>" + escapeHtml(title) + "</strong><p>" + body + "</p>";
+  }
+
+  function advanceStep(successMessage) {
+    saveVisibleInputs();
+    state.stepIndex += 1;
+    if (state.stepIndex >= state.steps.length) {
+      completeCase(successMessage);
+      return;
+    }
+    renderSteps();
+    el.statusLine.textContent = "Step " + (state.stepIndex + 1) + " of " + state.steps.length + " is unlocked.";
+    setFeedback("Correct", successMessage + " Continue to the next unlocked step.", "good");
+    const nextFieldset = el.steps.querySelector('fieldset[data-step-index="' + state.stepIndex + '"]');
+    if (nextFieldset) nextFieldset.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+
+  function completeCase(message) {
+    state.caseComplete = true;
+    el.nextBtn.disabled = false;
+    el.checkBtn.disabled = true;
+    el.hintBtn.disabled = false;
+    el.notesWrap.classList.remove("hidden");
+    el.statusLine.textContent = "Case complete. Discussion notes are now available.";
+    setFeedback("Case complete", message + " Use the notes field for discussion preparation, then select Next.", "good");
+  }
+
+  function checkCurrentStep() {
+    if (state.caseComplete) return;
+    const step = currentStep();
+    const c = currentCase();
+    if (!step) return;
+
+    if (step.type === "directions") checkDirections(c, step);
+    else if (step.type === "missing") checkMissing(c, step);
+    else if (step.type === "purpose") checkPurpose(c, step);
+    else if (step.type === "metric") checkMetric(c, step);
+    else if (step.type === "calculate") checkCalculation(c, step);
+    else if (step.type === "explanation") checkExplanation(c, step);
+    else if (step.type === "concept") checkConcept(c, step);
+  }
+
+  function checkDirections(c, step) {
+    const dirs = { qh: el.qhDirection.value, ql: el.qlDirection.value, w: el.wDirection.value };
+    const group = c.id + "_" + step.key + "_deviceClass";
+    const selectedClass = checkedValue(group);
+    if (!dirs.qh || !dirs.ql || !dirs.w || !selectedClass) {
+      setFeedback("Complete all selections", "Choose a direction for QH, QL, and W, and select a device classification.", "warn");
+      return;
+    }
+
+    const mismatches = [];
+    ["qh", "ql", "w"].forEach(function (key) {
+      if (dirs[key] !== c.dirs[key]) {
+        const symbol = key === "qh" ? "QH" : key === "ql" ? "QL" : "W";
+        mismatches.push(symbol + " should " + (c.dirs[key] === "in" ? "enter" : "leave") + " the device for the stated case");
+      }
+    });
+
+    const ruleClass = deviceFromDirections(dirs);
+    if (mismatches.length) {
+      let body = mismatches.join("; ") + ". ";
+      if (selectedClass !== ruleClass) {
+        body += "Also, the selected classification does not match the directions currently shown. ";
+      }
+      body += directionRuleExplanation(selectedClass, dirs);
+      setFeedback("Revise the energy directions", body, "bad");
+      return;
+    }
+
+    if (selectedClass !== c.classAnswer) {
+      setFeedback("Classification mismatch", directionRuleExplanation(selectedClass, dirs) + " The correct classification follows from all three arrows together.", "bad");
+      return;
+    }
+
+    const explanation = c.classAnswer === "engine" ?
+      "QH enters, QL leaves, and work leaves, so the directions describe a heat engine. First Law: QH = QL + Wout = " + actualValue(c, "ql") + " + " + actualValue(c, "w") + " = " + actualValue(c, "qh") + " kJ." :
+      "QL and work enter while QH leaves, so the directions describe a work-consuming refrigeration or heat-pump cycle. First Law: QH = QL + Win" + (c.missing ? "; calculate the missing magnitude next." : " = " + actualValue(c, "ql") + " + " + actualValue(c, "w") + " = " + actualValue(c, "qh") + " kJ.");
+    advanceStep(explanation);
+  }
+
+  function directionRuleExplanation(selectedClass, dirs) {
+    if (selectedClass === "engine") {
+      const wrong = [];
+      if (dirs.qh !== "in") wrong.push("QH must enter");
+      if (dirs.ql !== "out") wrong.push("QL must leave");
+      if (dirs.w !== "out") wrong.push("work must leave");
+      return wrong.length ? "For a heat engine, " + wrong.join(", ") + "." : "Those arrows do form a heat engine.";
+    }
+    if (selectedClass === "workCycle") {
+      const wrong = [];
+      if (dirs.ql !== "in") wrong.push("QL must enter");
+      if (dirs.w !== "in") wrong.push("work must enter");
+      if (dirs.qh !== "out") wrong.push("QH must leave");
+      return wrong.length ? "For a work-consuming refrigeration or heat-pump cycle, " + wrong.join(", ") + "." : "Those arrows do form a work-consuming cycle.";
+    }
+    return deviceFromDirections(dirs) === "invalid" ? "The directions do not match either explicit device rule." : "The directions match a recognized device, so invalid is not the best classification.";
+  }
+
+  function checkMissing(c, step) {
+    const id = c.id + "_" + step.key + "_number";
+    const node = document.getElementById(id);
+    const raw = node ? node.value : "";
+    if (raw === "") {
+      setFeedback("Enter a value", "Calculate the missing energy magnitude before continuing.", "warn");
+      return;
+    }
+    const answer = Number(raw);
+    const correct = c.missing === "qh" ? c.ql + c.w : c.qh - c.ql;
+    if (Math.abs(answer - correct) <= 0.01) {
+      if (c.missing === "qh") {
+        state.resolvedValueQH = correct;
+        el.qhText.textContent = "QH = " + correct + " kJ";
+        advanceStep("The First Law gives QH = QL + Win = " + c.ql + " + " + c.w + " = " + correct + " kJ.");
+      } else {
+        state.resolvedValueW = correct;
+        el.wText.textContent = "W = " + correct + " kJ";
+        advanceStep("The First Law gives Win = QH - QL = " + c.qh + " - " + c.ql + " = " + correct + " kJ.");
+      }
+      return;
+    }
+
+    state.numericAttempts[step.key] = (state.numericAttempts[step.key] || 0) + 1;
+    if (c.missing === "qh") {
+      if (state.numericAttempts[step.key] === 1) {
+        setFeedback("Check the First-Law balance", "Use QH = QL + Win. Substitute the given magnitudes: QH = 240 kJ + 60 kJ. Recalculate before continuing.", "bad");
+      } else {
+        setFeedback("Completed First-Law calculation", "QH = QL + Win = 240 kJ + 60 kJ = 300 kJ.", "bad");
+      }
+    } else {
+      if (state.numericAttempts[step.key] === 1) {
+        setFeedback("Check the First-Law balance", "Use QH = QL + Win, rearranged as Win = QH - QL. Substitute: Win = 450 kJ - 360 kJ. Recalculate before continuing.", "bad");
+      } else {
+        setFeedback("Completed First-Law calculation", "Win = QH - QL = 450 kJ - 360 kJ = 90 kJ.", "bad");
+      }
+    }
+  }
+
+  function checkPurpose(c, step) {
+    const suffix = c.id + "_" + step.key;
+    const selected = checkedValue(suffix + "_purpose");
+    if (!selected) {
+      setFeedback("Select the desired result", "Choose whether the useful result is cooling the low-temperature space or heating the high-temperature space.", "warn");
+      return;
+    }
+    if (step.required !== "either" && selected !== step.required) {
+      const correctText = step.required === "refrigerator" ?
+        "This use is defined by removing QL from the low-temperature space." :
+        "This use is defined by delivering QH to the high-temperature space.";
+      setFeedback("Purpose mismatch", correctText + " The energy-flow cycle can be the same, but the selected purpose determines the performance metric.", "bad");
+      return;
+    }
+    state.selectedPurpose = selected;
+    updateDiagram();
+    const message = selected === "refrigerator" ?
+      "For refrigerator use, the desired result is QL removed from the low-temperature space." :
+      "For heat-pump use, the desired result is QH delivered to the high-temperature space.";
+    advanceStep(message);
+  }
+
+  function checkMetric(c, step) {
+    const purpose = resolvePurposeForStep(step);
+    const info = metricInfo(c, purpose);
+    const suffix = c.id + "_" + step.key;
+    const numerator = checkedValue(suffix + "_numerator");
+    const denominator = checkedValue(suffix + "_denominator");
+    if (!numerator || !denominator) {
+      setFeedback("Complete the ratio", "Select one token for the desired result and one token for the required input.", "warn");
+      return;
+    }
+
+    const messages = [];
+    if (numerator !== info.numerator) {
+      if (purpose === "engine") messages.push("The desired result of a heat engine is net work output, not " + tokenName(numerator) + ".");
+      if (purpose === "refrigerator") messages.push("The desired result for refrigerator use is QL removed from the low-temperature space, not " + tokenName(numerator) + ".");
+      if (purpose === "heatpump") messages.push("The desired result for heat-pump use is QH delivered to the high-temperature space, not " + tokenName(numerator) + ".");
+    }
+    if (denominator !== info.denominator) {
+      if (purpose === "engine") messages.push("The required energy input to a heat engine is QH, not " + tokenName(denominator) + ".");
+      else messages.push("Work input must be supplied to operate this work-consuming cycle, so the denominator is Wnet,in, not " + tokenName(denominator) + ".");
+    }
+    if (messages.length) {
+      setFeedback("Revise the metric", messages.join(" "), "bad");
+      return;
+    }
+
+    state.selectedPurpose = purpose;
+    state.completedTypes[purpose] = true;
+    updateDiagram();
+    advanceStep(info.name + " is desired result divided by required input: " + info.numeratorLabel + " / " + info.denominatorLabel + ".");
+  }
+
+  function tokenName(value) {
+    return value === "qh" ? "QH" : value === "ql" ? "QL" : "Wnet";
+  }
+
+  function checkCalculation(c, step) {
+    const purpose = resolvePurposeForStep(step);
+    const info = metricInfo(c, purpose);
+    const suffix = c.id + "_" + step.key;
+    const node = document.getElementById(suffix + "_number");
+    if (!node || node.value === "") {
+      setFeedback("Enter a numerical result", "Use the ratio you built and enter the calculated metric.", "warn");
+      return;
+    }
+
+    let answer = Number(node.value);
+    let displayMode = "decimal";
+    const formatNode = document.getElementById(suffix + "_format");
+    if (formatNode) displayMode = formatNode.value;
+
+    if (purpose === "engine" && displayMode === "decimal" && answer > 1 && Math.abs(answer / 100 - info.value) <= 0.01) {
+      setFeedback("Percent versus decimal form", answer + " represents " + answer + "%. Either select Percent as the entry format or enter the decimal " + (answer / 100).toFixed(2) + ".", "bad");
+      return;
+    }
+
+    const normalized = purpose === "engine" && displayMode === "percent" ? answer / 100 : answer;
+    const tolerance = Math.max(0.01, Math.abs(info.value) * 0.01);
+    if (Math.abs(normalized - info.value) <= tolerance) {
+      const resultText = purpose === "engine" ?
+        "Thermal efficiency = " + info.substitution + " = " + info.value.toFixed(2) + ", or " + (info.value * 100).toFixed(0) + "%." :
+        info.short + " = " + info.substitution + " = " + trimNumber(info.value) + ".";
+      advanceStep(resultText);
+      return;
+    }
+
+    state.numericAttempts[step.key] = (state.numericAttempts[step.key] || 0) + 1;
+    if (state.numericAttempts[step.key] === 1) {
+      setFeedback("Recalculate the metric", info.short + " = " + info.numeratorLabel + " / " + info.denominatorLabel + " = " + info.substitution + ". Check the division and entry format. The final value is not shown on this first incorrect attempt.", "bad");
+    } else {
+      const complete = purpose === "engine" ?
+        info.short + " = " + info.substitution + " = " + info.value.toFixed(2) + " = " + (info.value * 100).toFixed(0) + "%." :
+        info.short + " = " + info.substitution + " = " + trimNumber(info.value) + ".";
+      setFeedback("Completed calculation", complete, "bad");
+    }
+  }
+
+  function checkExplanation(c, step) {
+    const suffix = c.id + "_" + step.key;
+    const flows = valueOf(suffix + "_flows");
+    const metrics = valueOf(suffix + "_metrics");
+    const ref = valueOf(suffix + "_ref");
+    const hp = valueOf(suffix + "_hp");
+    if (!flows || !metrics || !ref || !hp) {
+      setFeedback("Complete all four dropdowns", "Each selection is needed to build the comparison statement.", "warn");
+      return;
+    }
+    const mismatches = [];
+    if (flows !== "same") mismatches.push("The arrows and magnitudes are the same in both uses.");
+    if (metrics !== "different") mismatches.push("The metrics are different because their desired results differ.");
+    if (ref !== "ql") mismatches.push("A refrigerator values QL removed from the low-temperature space.");
+    if (hp !== "qh") mismatches.push("A heat pump values QH delivered to the high-temperature space.");
+    if (mismatches.length) {
+      setFeedback("Revise the explanation", mismatches.join(" "), "bad");
+      return;
+    }
+    advanceStep("The same physical cycle has COPR = QL / Win and COPHP = QH / Win because the desired result changes with the purpose.");
+  }
+
+  function checkConcept(c, step) {
+    const suffix = c.id + "_" + step.key;
+    const selected = checkedValue(suffix + "_concept");
+    if (!selected) {
+      setFeedback("Select one statement", "Choose the statement that correctly distinguishes efficiency from COP.", "warn");
+      return;
+    }
+    if (selected !== "engineBound") {
+      let message = "";
+      if (selected === "bothBelow") message = "A refrigerator COP can exceed 1 because it compares heat moved with work supplied, not one converted energy output with one input.";
+      if (selected === "created") message = "COP above 1 does not mean energy was created. The First Law still gives QH = QL + Win.";
+      if (selected === "sameResult") message = "Efficiency values work output, while refrigerator COP values QL removed. They do not measure the same desired result.";
+      setFeedback("Conceptual mismatch", message, "bad");
+      return;
+    }
+    advanceStep("Only heat-engine efficiency is constrained below 1 in these cases. COP can exceed 1 without energy creation because transferred heat and supplied work both contribute to QH.");
+  }
+
+  function valueOf(id) {
+    const node = document.getElementById(id);
+    return node ? node.value : "";
+  }
+
+  function trimNumber(value) {
+    return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+  }
+
+  function updateRatioDisplays() {
+    state.steps.forEach(function (step) {
+      if (step.type !== "metric") return;
+      const c = currentCase();
+      const suffix = c.id + "_" + step.key;
+      const display = document.getElementById(suffix + "_ratio");
+      if (!display) return;
+      const numerator = checkedValue(suffix + "_numerator");
+      const denominator = checkedValue(suffix + "_denominator");
+      display.textContent = numerator && denominator ? tokenName(numerator) + " / " + tokenName(denominator) : "Select both parts of the ratio.";
+    });
+  }
+
+  function showHint() {
+    if (state.caseComplete) {
+      setFeedback("Discussion prompt", "Explain the device as desired result divided by required input. Connect the arrow directions, First-Law balance, and selected purpose.", "warn");
+      return;
+    }
+    const c = currentCase();
+    const step = currentStep();
+    let hint = "";
+    if (step.type === "directions") {
+      hint = c.classAnswer === "engine" ?
+        "Trace the wording literally: heat is received from the high-temperature reservoir, heat is rejected to the low-temperature reservoir, and work is produced." :
+        "A work-consuming cycle removes QL from the low-temperature space, receives work, and delivers QH to the high-temperature space.";
+    } else if (step.type === "missing") {
+      hint = c.missing === "qh" ? "For a work-consuming cycle, QH equals QL plus work input." : "Rearrange QH = QL + Win to isolate Win.";
+    } else if (step.type === "purpose") {
+      hint = "Refrigerator use values cooling the low-temperature space. Heat-pump use values heating the high-temperature space.";
+    } else if (step.type === "metric") {
+      const purpose = resolvePurposeForStep(step);
+      hint = purpose === "engine" ? "Ask: What output is wanted, and what heat input is required?" : "Both COP metrics use work input in the denominator; the numerator changes with the desired result.";
+    } else if (step.type === "calculate") {
+      hint = "Divide the desired-result magnitude by the required-input magnitude. For efficiency, check whether your number is a decimal or a percent.";
+    } else if (step.type === "explanation") {
+      hint = "The physical cycle does not change. Only the useful result selected by the user changes.";
+    } else {
+      hint = "Use QH = QL + Win to explain why a COP larger than 1 does not create energy.";
+    }
+    setFeedback("Hint", hint, "warn");
+  }
+
+  function resetCase() {
+    state.notes[currentCase().id] = "";
+    renderCase();
+  }
+
+  function nextCase() {
+    if (!state.caseComplete) return;
+    state.notes[currentCase().id] = el.discussionNotes.value;
+    if (state.caseIndex < cases.length - 1) {
+      state.caseIndex += 1;
+      renderCase();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      showSummary();
+    }
+  }
+
+  function showSummary() {
+    const ready = state.completedTypes.engine && state.completedTypes.refrigerator && state.completedTypes.heatpump;
+    if (!ready) {
+      setFeedback("Summary still locked", "Complete at least one heat-engine, refrigerator, and heat-pump metric before the comparison table appears.", "bad");
+      return;
+    }
+    el.activityView.classList.add("hidden");
+    el.summaryView.classList.remove("hidden");
+    el.progress.textContent = "Activity complete";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function restart() {
+    state.caseIndex = 0;
+    state.completedTypes = { engine: false, refrigerator: false, heatpump: false };
+    state.notes = {};
+    el.summaryView.classList.add("hidden");
+    el.activityView.classList.remove("hidden");
+    renderCase();
+  }
+
+  el.qhDirection.addEventListener("change", updateDiagram);
+  el.qlDirection.addEventListener("change", updateDiagram);
+  el.wDirection.addEventListener("change", updateDiagram);
+  el.steps.addEventListener("change", function (event) {
+    if (event.target && event.target.type === "radio") updateRatioDisplays();
+  });
+  el.checkBtn.addEventListener("click", checkCurrentStep);
+  el.hintBtn.addEventListener("click", showHint);
+  el.resetBtn.addEventListener("click", resetCase);
+  el.nextBtn.addEventListener("click", nextCase);
+  el.discussionNotes.addEventListener("input", function () {
+    state.notes[currentCase().id] = el.discussionNotes.value;
+  });
+  el.restartBtn.addEventListener("click", restart);
+
+  renderCase();
+}());
+</script>
+</body>
+</html>
