@@ -660,4 +660,59 @@ iframe {
     scroll-behavior: auto !important;
     transition: none !important;
   }
+
+.textbook-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(0, 0, 0, 0.42);
+}
+
+.textbook-drawer {
+  position: fixed;
+  inset: 0 0 0 auto;
+  z-index: 90;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  width: min(92vw, 720px);
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  box-shadow: -18px 0 48px rgba(0, 0, 0, 0.20);
+}
+
+.textbook-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  background: #ffffff;
+}
+
+.textbook-drawer-header h2 {
+  margin: 0;
+}
+
+.textbook-drawer iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  background: #ffffff;
+}
+
+@media (max-width: 680px) {
+  .textbook-drawer {
+    width: 100vw;
+  }
+
+  .textbook-drawer-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+  
+  
 }
