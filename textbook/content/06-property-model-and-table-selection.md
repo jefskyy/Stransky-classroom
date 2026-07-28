@@ -1,3 +1,4 @@
+<!--
 ---
 id: m01-t06
 title: Property Model and Table Selection
@@ -48,6 +49,7 @@ source_records:
 accessibility_review: pending
 technical_review: pending
 ---
+-->
 
 # Property Model and Table Selection
 
@@ -223,14 +225,7 @@ where the subscript $f$ denotes saturated-liquid data at the same temperature.
 
 For a target $x$ between $x_A$ and $x_B$,
 
-$$
-y(x)
-\approx
-y_A
-+
-\frac{x-x_A}{x_B-x_A}
-\left(y_B-y_A\right)
-$$
+$$y(x)\approxy_A+\frac{x-x_A}{x_B-x_A}\left(y_B-y_A\right)$$
 
 where $y_A=y(x_A)$ and $y_B=y(x_B)$.
 
