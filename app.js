@@ -1279,8 +1279,78 @@ window.RITClassroom = {
   defaultSandboxHtml
 };
 
+function openTextbookDrawer(topic = "entropy") {
+  const drawer = document.getElementById("textbookDrawer");
+  const backdrop = document.getElementById("textbookDrawerBackdrop");
+  const frame = document.getElementById("textbookDrawerFrame");
+  const title = document.getElementById("textbookDrawerTitle");
+
+  if (!drawer || !backdrop || !frame) return;
+
+  const safeTopic = String(topic || "entropy")
+    .trim()
+    .toLowerCase()
+    .replace(/\.md$/i, "")
+    .replace(/[^a-z0-9-_]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  frame.src = `textbook/viewer.html?topic=${encodeURIComponent(safeTopic)}`;
+
+  if (title) {
+    title.textContent = safeTopic
+      .split("-")
+      .map(part => part ? part[0].toUpperCase() + part.slice(1) : "")
+      .join(" ");
+  }
+
+  drawer.classList.remove("hidden");
+  backdrop.classList.remove("hidden");
+  backdrop.setAttribute("aria-hidden", "false");
+}
+
+function closeTextbookDrawer() {
+  const drawer = document.getElementById("textbookDrawer");
+  const backdrop = document.getElementById("textbookDrawerBackdrop");
+  const frame = document.getElementById("textbookDrawerFrame");
+
+  if (drawer) drawer.classList.add("hidden");
+  if (backdrop) {
+    backdrop.classList.add("hidden");
+    backdrop.setAttribute("aria-hidden", "true");
+  }
+  if (frame) frame.src = "about:blank";
+}
+
+function bindTextbookDrawerControls() {
+  document.getElementById("closeTextbookDrawerBtn")?.addEventListener("click", closeTextbookDrawer);
+  document.getElementById("textbookDrawerBackdrop")?.addEventListener("click", closeTextbookDrawer);
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+      closeTextbookDrawer();
+    }
+  });
+
+  document.addEventListener("click", event => {
+    const trigger = event.target.closest("[data-textbook-topic]");
+    if (!trigger) return;
+
+    event.preventDefault();
+    openTextbookDrawer(trigger.dataset.textbookTopic || "entropy");
+  });
+}
+
+window.openTextbookDrawer = openTextbookDrawer;
+window.closeTextbookDrawer = closeTextbookDrawer;
+
+
+
 window.addEventListener("DOMContentLoaded", () => {
   const page = document.body?.dataset?.page;
   if (page === "instructor") bootInstructor();
-  if (page === "student") bootStudent();
+  if (page === "student") {
+    bindTextbookDrawerControls();
+    bootStudent();
+  }
 });
