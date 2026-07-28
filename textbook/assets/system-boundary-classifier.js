@@ -176,8 +176,7 @@
     host.dataset.activityInitialized = "true";
     instanceCount += 1;
     const instanceId = `sbc-${instanceCount}`;
-    const svgSource = host.dataset.svgSrc || "assets/svg/foundations/system-boundary-classifier.svg";
-    const interfaceRoot = createInterface(instanceId);
+    const svgSource =   host.dataset.svgSrc || "assets/system-boundary-classifier.svg";    const interfaceRoot = createInterface(instanceId);
     const fallback = host.querySelector(".activity-fallback");
 
     if (fallback) {
