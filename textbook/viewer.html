@@ -1,1 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <title>Textbook Viewer</title>
+
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="textbook.css" />
+
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/katex@0.18.1/dist/katex.min.css"
+    crossorigin="anonymous"
+  />
+
+  <script defer src="https://cdn.jsdelivr.net/npm/marked@18.0.7/lib/marked.umd.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.18.1/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.18.1/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+  <script defer src="textbook.js"></script>
+</head>
+
+<body data-page="textbook">
+  <header class="textbook-topbar">
+    <div>
+      <div class="eyebrow">Thermodynamics Textbook</div>
+      <h1 id="textbookTitle">Loading...</h1>
+    </div>
+
+    <button id="toggleNavButton" class="secondary-button" type="button" aria-expanded="true">
+      Contents
+    </button>
+  </header>
+
+  <main class="textbook-layout">
+    <aside id="textbookNav" class="textbook-nav" aria-label="Textbook navigation">
+      <label for="textbookSearch">Search textbook</label>
+      <input id="textbookSearch" type="search" placeholder="Search topics..." autocomplete="off" />
+
+      <nav id="textbookPageList" class="textbook-page-list"></nav>
+    </aside>
+
+    <article class="textbook-reader card">
+      <div id="textbookStatus" class="form-message" role="status" aria-live="polite"></div>
+      <div id="textbookContent" class="textbook-content"></div>
+    </article>
+  </main>
+</body>
+</html>
