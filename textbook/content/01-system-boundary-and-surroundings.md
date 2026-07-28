@@ -126,19 +126,28 @@ where:
 
 ## Interactive Diagram Specifications
 
-![Selectable examples of closed, open, and isolated system boundaries](assets/svg/foundations/system-boundary-classifier.svg)
+<div
+  class="textbook-activity"
+  data-activity="system-boundary-classifier"
+  data-svg-src="assets/svg/foundations/system-boundary-classifier.svg"
+>
+  <details class="activity-fallback">
+    <summary>Text alternative</summary>
 
-- **Asset:** `assets/svg/foundations/system-boundary-classifier.svg`
-- **Viewport:** responsive `viewBox`; default aspect ratio approximately `16:10`
-- **Primary elements:** piston-cylinder, turbine, insulated rigid tank, alternative boundaries, mass arrows, heat arrows, work arrows
-- **Required labels:** `system`, `surroundings`, `boundary`, `control surface`, $\dot m$, $Q$, $W$
-- **Interaction:** the learner selects a boundary and then classifies which interactions cross it; feedback updates the system type
-- **Accessible title:** `Thermodynamic system boundary classifier`
-- **Accessible description:** `Three engineering devices with selectable boundaries and arrows for mass, heat, and work. The learner classifies each selected system as open, closed, or isolated.`
-- **Keyboard behavior:** boundaries and interaction toggles are reachable in logical order; selection works with Space or Enter
-- **Non-color cues:** dashed versus solid boundaries, arrow labels, and distinct icons identify mass, heat, and work
-- **Mobile behavior:** device examples stack vertically below 600 CSS pixels
-- **Text fallback:** a closed system has no mass crossing; an open system permits mass crossing; an isolated system permits neither mass nor energy crossing
+    <p>
+      A closed system has no mass crossing its boundary, although heat or
+      work may cross.
+    </p>
+
+    <p>
+      An open system permits mass to cross a control surface.
+    </p>
+
+    <p>
+      An isolated system permits neither mass nor energy to cross.
+    </p>
+  </details>
+</div>
 
 ## Interpret the Diagram
 
