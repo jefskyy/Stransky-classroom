@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-labelledby="ppc-title ppc-desc">
+  <title id="ppc-title">Thermodynamic processes, paths, and cycles</title>
+  <desc id="ppc-desc">A pressure-specific-volume diagram shows two states connected by alternative paths and separate clockwise and counterclockwise cycles.</desc>
+
+  <defs>
+    <style><![CDATA[
+      .ppc-main-title { font: 700 25px Arial, sans-serif; fill: #222; }
+      .ppc-subtitle { font: 600 14px Arial, sans-serif; fill: #555; }
+      .ppc-axis { stroke: #222; stroke-width: 3; fill: none; }
+      .ppc-grid { stroke: #D7D2CB; stroke-width: 1; stroke-dasharray: 3 7; }
+      .ppc-axis-label { font: italic 700 19px Georgia, serif; fill: #222; }
+      .ppc-label { font: 700 14px Arial, sans-serif; fill: #222; }
+      .ppc-small { font: 12px Arial, sans-serif; fill: #555; }
+      .ppc-mini { font: 11px Arial, sans-serif; fill: #666; }
+      .ppc-state { fill: #fff; stroke: #222; stroke-width: 3; }
+      .ppc-state-ring { fill: none; stroke: #F76902; stroke-width: 2; }
+      .ppc-path { fill: none; stroke-width: 5; cursor: pointer; }
+      .ppc-path-a { stroke: #F76902; }
+      .ppc-path-b { stroke: #009CBD; stroke-dasharray: 16 7; }
+      .ppc-path-unknown { stroke: #7D55C7; stroke-width: 4; stroke-dasharray: 3 9; stroke-linecap: round; }
+      .ppc-path-hit { fill: none; stroke: transparent; stroke-width: 18; cursor: pointer; }
+      .ppc-path-group.is-selected .ppc-path { stroke-width: 8; }
+      .ppc-path-group.is-selected .ppc-selection-halo { opacity: 1; }
+      .ppc-selection-halo { fill: none; stroke: #F6BE00; stroke-width: 13; opacity: 0; }
+      .ppc-cycle-box { fill: #fff; stroke: #ACA39A; stroke-width: 2; rx: 15; }
+      .ppc-cycle { fill: rgba(132,189,0,0.08); stroke: #84BD00; stroke-width: 5; stroke-dasharray: 14 6 3 6; }
+      .ppc-cycle-arrow { fill: none; stroke: #84BD00; stroke-width: 5; }
+      .ppc-cycle-center { fill: #fff; stroke: #222; stroke-width: 2; }
+      .ppc-cycle-direction { font: 700 13px Arial, sans-serif; fill: #222; }
+      .ppc-callout { fill: #fff; stroke: #ACA39A; stroke-width: 2; rx: 12; }
+      .ppc-callout-title { font: 700 13px Arial, sans-serif; fill: #222; }
+      .ppc-callout-text { font: 12px Arial, sans-serif; fill: #555; }
+      .ppc-endpoint-line { stroke: #222; stroke-width: 2; marker-end: url(#ppc-arrow-dark); }
+      .ppc-process-line { stroke: #DA291C; stroke-width: 3; marker-end: url(#ppc-arrow-red); }
+    ]]></style>
+
+    <marker id="ppc-arrow-dark" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 z" fill="#222" />
+    </marker>
+    <marker id="ppc-arrow-red" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 z" fill="#DA291C" />
+    </marker>
+    <marker id="ppc-arrow-green" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 z" fill="#84BD00" />
+    </marker>
+  </defs>
+
+  <text x="24" y="34" class="ppc-main-title">Thermodynamic Processes, Paths, and Cycles</text>
+  <text x="24" y="56" class="ppc-subtitle">The endpoints determine property changes; the route between them can determine heat and work.</text>
+
+  <g id="ppc-plot" transform="translate(62 92)">
+    <rect x="0" y="0" width="455" height="390" fill="#fff" stroke="#ACA39A" stroke-width="2" rx="14" />
+
+    <g aria-hidden="true">
+      <line x1="70" y1="40" x2="70" y2="330" class="ppc-grid" />
+      <line x1="145" y1="40" x2="145" y2="330" class="ppc-grid" />
+      <line x1="220" y1="40" x2="220" y2="330" class="ppc-grid" />
+      <line x1="295" y1="40" x2="295" y2="330" class="ppc-grid" />
+      <line x1="370" y1="40" x2="370" y2="330" class="ppc-grid" />
+      <line x1="45" y1="85" x2="415" y2="85" class="ppc-grid" />
+      <line x1="45" y1="150" x2="415" y2="150" class="ppc-grid" />
+      <line x1="45" y1="215" x2="415" y2="215" class="ppc-grid" />
+      <line x1="45" y1="280" x2="415" y2="280" class="ppc-grid" />
+    </g>
+
+    <line x1="45" y1="330" x2="420" y2="330" class="ppc-axis" marker-end="url(#ppc-arrow-dark)" />
+    <line x1="45" y1="330" x2="45" y2="32" class="ppc-axis" marker-end="url(#ppc-arrow-dark)" />
+    <text x="425" y="337" class="ppc-axis-label">v</text>
+    <text x="26" y="30" class="ppc-axis-label">P</text>
+
+    <text x="58" y="365" class="ppc-mini">specific volume</text>
+    <text x="-12" y="190" class="ppc-mini" transform="rotate(-90 -12 190)">pressure</text>
+
+    <g class="ppc-path-group" data-path-id="path-a" role="button" tabindex="0" aria-pressed="false" aria-label="Select known path A, a curved solid path">
+      <path class="ppc-selection-halo" d="M115 265 C160 115 305 105 365 165" />
+      <path class="ppc-path ppc-path-a" d="M115 265 C160 115 305 105 365 165" marker-end="url(#ppc-arrow-red)" />
+      <path class="ppc-path-hit" d="M115 265 C160 115 305 105 365 165" />
+      <text x="220" y="108" class="ppc-label">path known A</text>
+      <text x="220" y="126" class="ppc-mini">solid curve</text>
+    </g>
+
+    <g class="ppc-path-group" data-path-id="path-b" role="button" tabindex="0" aria-pressed="false" aria-label="Select known path B, a dashed two-stage path">
+      <path class="ppc-selection-halo" d="M115 265 L115 165 L365 165" />
+      <path class="ppc-path ppc-path-b" d="M115 265 L115 165 L365 165" marker-end="url(#ppc-arrow-dark)" />
+      <path class="ppc-path-hit" d="M115 265 L115 165 L365 165" />
+      <text x="132" y="188" class="ppc-label">path known B</text>
+      <text x="132" y="206" class="ppc-mini">dashed segments</text>
+    </g>
+
+    <g class="ppc-path-group" data-path-id="path-unknown" role="button" tabindex="0" aria-pressed="false" aria-label="Select unknown path, a dotted route between the same states">
+      <path class="ppc-selection-halo" d="M115 265 C190 310 300 270 365 165" />
+      <path class="ppc-path ppc-path-unknown" d="M115 265 C190 310 300 270 365 165" marker-end="url(#ppc-arrow-dark)" />
+      <path class="ppc-path-hit" d="M115 265 C190 310 300 270 365 165" />
+      <text x="235" y="285" class="ppc-label">path unknown</text>
+      <text x="235" y="303" class="ppc-mini">dotted route</text>
+    </g>
+
+    <circle cx="115" cy="265" r="9" class="ppc-state" />
+    <circle cx="115" cy="265" r="15" class="ppc-state-ring" />
+    <text x="78" y="251" class="ppc-label">state 1</text>
+
+    <circle cx="365" cy="165" r="9" class="ppc-state" />
+    <circle cx="365" cy="165" r="15" class="ppc-state-ring" />
+    <text x="376" y="153" class="ppc-label">state 2</text>
+
+    <line x1="115" y1="265" x2="365" y2="165" class="ppc-endpoint-line" opacity="0.28" />
+    <text x="216" y="230" class="ppc-small">same endpoints</text>
+  </g>
+
+  <g id="ppc-cycle-panel" transform="translate(545 92)">
+    <rect width="225" height="240" class="ppc-cycle-box" />
+    <text x="18" y="28" class="ppc-label">Complete cycle</text>
+    <text x="18" y="48" class="ppc-mini">final state = initial state</text>
+
+    <ellipse cx="112" cy="130" rx="68" ry="52" class="ppc-cycle" />
+    <path id="ppc-cycle-arrow-top" d="M63 93 C90 68 135 68 162 92" class="ppc-cycle-arrow" marker-end="url(#ppc-arrow-green)" />
+    <path id="ppc-cycle-arrow-bottom" d="M162 168 C135 192 90 192 63 168" class="ppc-cycle-arrow" marker-end="url(#ppc-arrow-green)" />
+    <circle cx="112" cy="130" r="20" class="ppc-cycle-center" />
+    <text x="91" y="135" class="ppc-label">cycle</text>
+    <text id="ppc-cycle-direction-label" x="62" y="220" class="ppc-cycle-direction">clockwise direction</text>
+  </g>
+
+  <g id="ppc-concept-panel" transform="translate(545 352)">
+    <rect width="225" height="222" class="ppc-callout" />
+    <text x="16" y="28" class="ppc-callout-title">What changes?</text>
+
+    <line x1="20" y1="58" x2="52" y2="58" class="ppc-endpoint-line" />
+    <text x="62" y="62" class="ppc-callout-title">Endpoint determined</text>
+    <text x="20" y="84" class="ppc-callout-text">ΔP, Δv, ΔU, and other</text>
+    <text x="20" y="101" class="ppc-callout-text">property changes depend only</text>
+    <text x="20" y="118" class="ppc-callout-text">on state 1 and state 2.</text>
+
+    <line x1="20" y1="145" x2="52" y2="145" class="ppc-process-line" />
+    <text x="62" y="149" class="ppc-callout-title">Process dependent</text>
+    <text x="20" y="171" class="ppc-callout-text">Heat and work may change</text>
+    <text x="20" y="188" class="ppc-callout-text">when the path changes.</text>
+    <text x="20" y="210" class="ppc-callout-text">Over a cycle: all Δproperties = 0.</text>
+  </g>
+</svg>
