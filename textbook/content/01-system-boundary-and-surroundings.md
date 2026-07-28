@@ -91,7 +91,7 @@ For a shell-and-tube heat exchanger:
 
 A boundary is judged by whether it supports the question being asked, not by whether it matches the equipment outline.
 
-### Interaction Inventory
+### on Inventory
 
 After drawing the boundary, identify every crossing:
 
@@ -129,7 +129,6 @@ where:
 <div
   class="textbook-activity"
   data-activity="system-boundary-classifier"
-  data-svg-src="assets/svg/foundations/system-boundary-classifier.svg"
 >
   <details class="activity-fallback">
     <summary>Text alternative</summary>
