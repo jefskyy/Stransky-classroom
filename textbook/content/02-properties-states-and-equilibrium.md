@@ -149,17 +149,17 @@ $$
 
 ![A sorter for extensive, intensive, specific, and process-dependent quantities](assets/svg/foundations/property-state-sorter.svg)
 
-- **Asset:** `assets/svg/foundations/property-state-sorter.svg`
-- **Viewport:** responsive `viewBox`; default aspect ratio approximately `3:2`
-- **Primary elements:** property cards, four classification regions, state panel, process arrow, independence indicator
-- **Required labels:** `extensive`, `intensive`, `specific`, `process dependent`, `state 1`, `state 2`, `independent?`
-- **Interaction:** the learner assigns quantities to categories and tests whether selected property pairs fix a state in a stated phase
-- **Accessible title:** `Thermodynamic property and state classifier`
-- **Accessible description:** `Cards for mass, pressure, temperature, volume, specific volume, internal energy, heat, and work are sorted by property type. A second panel checks whether two properties are independent.`
-- **Keyboard behavior:** cards can be selected and assigned using buttons; no drag-only interaction
-- **Non-color cues:** category names, icons, and border patterns distinguish classifications
-- **Mobile behavior:** classification regions collapse into labeled selection menus below 480 CSS pixels
-- **Text fallback:** properties have values at states; heat and work are process-dependent transfers; two independent intensive properties fix a simple compressible state
+<div
+  class="textbook-activity"
+  data-activity="property-state-sorter"
+>
+  <details class="activity-fallback">
+    <summary>Text alternative</summary>
+    <p>Properties have values at states.</p>
+    <p>Heat and work are process-dependent transfers.</p>
+    <p>Two independent intensive properties fix a simple compressible state in a single phase.</p>
+  </details>
+</div>
 
 ## Interpret the Diagram
 
