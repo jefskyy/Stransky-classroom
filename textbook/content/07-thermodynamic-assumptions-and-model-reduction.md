@@ -1,3 +1,4 @@
+<!--
 ---
 id: m01-t07
 title: Thermodynamic Assumptions and Model Reduction
@@ -53,7 +54,7 @@ source_records:
 accessibility_review: pending
 technical_review: pending
 ---
-
+-->
 # Thermodynamic Assumptions and Model Reduction
 
 ## Learning Objectives
@@ -192,13 +193,7 @@ Do not infer isentropic behavior from insulation alone. Actual adiabatic devices
 <a id="M01-EQ-016"></a>
 ### Uniform-Flow Mass-Flow Rate - `M01-EQ-016`
 
-$$
-\dot m
-=
-\rho V_{flow}A
-=
-\frac{V_{flow}A}{v}
-$$
+$$\dot m =\rho V_{flow}A=\frac{V_{flow}A}{v}$$
 
 where:
 
@@ -219,38 +214,15 @@ where:
 
 Starting from [[heat-and-work-interactions#M01-EQ-007|M01-EQ-007]], steady state and one inlet/one outlet give
 
-$$
-\dot Q
--
-\dot W_s
-=
-\dot m
-\left[
-(h_2-h_1)
-+
-\frac{V_{flow,2}^{2}-V_{flow,1}^{2}}{2}
-+
-g(z_2-z_1)
-\right].
-$$
+$$\dot Q-\dot W_s=\dot m\left[(h_2-h_1)+\frac{V_{flow,2}^{2}-V_{flow,1}^{2}}{2}+g(z_2-z_1)\right].$$
 
 Dividing by $\dot m$ gives
 
-$$
-q-w_s
-=
-(h_2-h_1)
-+
-\Delta ke
-+
-\Delta pe.
-$$
+$$q-w_s=(h_2-h_1)+\Delta ke+\Delta pe.$$
 
 Additional assumptions remove only their corresponding terms. For an adiabatic device with negligible kinetic- and potential-energy changes:
 
-$$
--w_s=h_2-h_1.
-$$
+$$-w_s=h_2-h_1.$$
 
 If shaft work is also zero:
 
