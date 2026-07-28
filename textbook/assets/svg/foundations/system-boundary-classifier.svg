@@ -1,0 +1,198 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     id="system-boundary-classifier-svg"
+     viewBox="0 0 1200 480"
+     preserveAspectRatio="xMidYMin meet"
+     role="group"
+     aria-labelledby="sbc-title sbc-desc">
+  <title id="sbc-title">Thermodynamic system boundary classifier</title>
+  <desc id="sbc-desc">Three engineering devices with selectable boundaries and arrows for mass, heat, and work. The learner classifies each selected system as open, closed, or isolated.</desc>
+
+  <defs>
+    <marker id="sbc-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" class="sbc-arrowhead" />
+    </marker>
+    <pattern id="sbc-insulation" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="10" class="sbc-pattern-line" />
+    </pattern>
+  </defs>
+
+  <style>
+    .sbc-card-bg { fill: #ffffff; stroke: #4b5563; stroke-width: 2; }
+    .sbc-device { fill: #f8fafc; stroke: #111827; stroke-width: 2.5; }
+    .sbc-fluid { fill: #eef2ff; stroke: #111827; stroke-width: 1.5; }
+    .sbc-line { fill: none; stroke: #111827; stroke-width: 2.5; }
+    .sbc-light-line { fill: none; stroke: #4b5563; stroke-width: 1.6; }
+    .sbc-arrow-line { fill: none; stroke: #111827; stroke-width: 2.5; marker-end: url(#sbc-arrow); }
+    .sbc-arrowhead { fill: #111827; }
+    .sbc-pattern-line { stroke: #4b5563; stroke-width: 2; }
+    .sbc-boundary { fill: none; stroke: #1f2937; stroke-width: 3; pointer-events: none; }
+    .sbc-boundary-solid { stroke-dasharray: none; }
+    .sbc-boundary-dashed { stroke-dasharray: 10 7; }
+    .sbc-boundary-hit { fill: none; stroke: none; stroke-width: 18; pointer-events: all; cursor: pointer; }
+    .sbc-boundary-option { cursor: pointer; outline: none; }
+    .sbc-boundary-option:focus .sbc-boundary,
+    .sbc-boundary-option.is-selected .sbc-boundary { stroke-width: 6; }
+    .sbc-boundary-option.is-selected .sbc-select-mark { display: inline; }
+    .sbc-select-mark { display: none; font: 700 11px Arial, sans-serif; }
+    .sbc-title { font: 700 20px Arial, sans-serif; fill: #111827; }
+    .sbc-label { font: 15px Arial, sans-serif; fill: #111827; }
+    .sbc-small { font: 13px Arial, sans-serif; fill: #374151; }
+    .sbc-math { font: italic 16px Georgia, serif; fill: #111827; }
+    .sbc-callout { font: 700 13px Arial, sans-serif; fill: #111827; }
+  </style>
+
+  <!-- PISTON-CYLINDER CARD -->
+  <g id="sbc-card-piston" class="sbc-device-card" transform="translate(20 20)" data-device="piston">
+    <rect class="sbc-card-bg" x="0" y="0" width="360" height="420" rx="12" />
+    <text class="sbc-title" x="20" y="32">Piston-cylinder</text>
+    <text class="sbc-small" x="20" y="53">Select a boundary around the gas or the full assembly.</text>
+
+    <rect class="sbc-device" x="95" y="105" width="170" height="165" rx="4" />
+    <rect class="sbc-fluid" x="100" y="165" width="160" height="100" />
+    <line class="sbc-line" x1="100" y1="165" x2="260" y2="165" />
+    <line class="sbc-line" x1="180" y1="165" x2="180" y2="90" />
+    <rect class="sbc-device" x="155" y="72" width="50" height="22" />
+    <text class="sbc-small" x="147" y="290">gas</text>
+    <text class="sbc-small" x="145" y="245">system</text>
+    <text class="sbc-small" x="20" y="88">surroundings</text>
+
+    <!-- Heat reaches the gas but remains inside the full-assembly boundary. -->
+    <path class="sbc-arrow-line" d="M38 225 H118" />
+    <text class="sbc-math" x="60" y="214">Q</text>
+
+    <!-- Work crosses the gas boundary but is stored in the included weight. -->
+    <path class="sbc-arrow-line" d="M180 215 V104" />
+    <text class="sbc-math" x="190" y="128">W</text>
+
+    <g id="boundary-piston-gas"
+       class="sbc-boundary-option"
+       data-boundary-id="piston-gas"
+       role="button"
+       tabindex="0"
+       aria-pressed="false"
+       aria-label="Select Boundary A around the gas only">
+      <rect class="sbc-boundary-hit" x="91" y="157" width="178" height="116" rx="6" />
+      <rect class="sbc-boundary sbc-boundary-solid" x="91" y="157" width="178" height="116" rx="6" />
+      <text class="sbc-callout" x="20" y="326">A: gas boundary</text>
+      <text class="sbc-select-mark" x="292" y="326" aria-hidden="true">selected</text>
+    </g>
+
+    <g id="boundary-piston-assembly"
+       class="sbc-boundary-option"
+       data-boundary-id="piston-assembly"
+       role="button"
+       tabindex="0"
+       aria-pressed="false"
+       aria-label="Select Boundary B around the insulated cylinder, piston, and weight">
+      <rect class="sbc-boundary-hit" x="28" y="62" width="304" height="238" rx="18" />
+      <rect class="sbc-boundary sbc-boundary-dashed" x="28" y="62" width="304" height="238" rx="18" />
+      <text class="sbc-callout" x="20" y="350">B: full insulated assembly</text>
+      <text class="sbc-select-mark" x="292" y="350" aria-hidden="true">selected</text>
+    </g>
+
+    <text class="sbc-small" x="20" y="382">Solid and dashed lines identify different boundaries.</text>
+    <text class="sbc-small" x="20" y="402">The selected region is the system; outside is surroundings.</text>
+  </g>
+
+  <!-- TURBINE CARD -->
+  <g id="sbc-card-turbine" class="sbc-device-card" transform="translate(420 20)" data-device="turbine">
+    <rect class="sbc-card-bg" x="0" y="0" width="360" height="420" rx="12" />
+    <text class="sbc-title" x="20" y="32">Turbine</text>
+    <text class="sbc-small" x="20" y="53">Compare a flowing-fluid control surface with the rotor.</text>
+
+    <path class="sbc-device" d="M105 130 L255 105 L255 255 L105 230 Z" />
+    <circle class="sbc-device" cx="180" cy="180" r="42" />
+    <path class="sbc-line" d="M180 138 L195 180 L180 222 L165 180 Z" />
+    <line class="sbc-line" x1="222" y1="180" x2="318" y2="180" />
+    <text class="sbc-small" x="139" y="286">fluid passage</text>
+    <text class="sbc-small" x="160" y="185">system</text>
+    <text class="sbc-small" x="20" y="88">surroundings</text>
+
+    <path class="sbc-arrow-line" d="M30 180 H105" />
+    <text class="sbc-math" x="52" y="168">m&#775;</text>
+    <path class="sbc-arrow-line" d="M255 205 H330" />
+    <text class="sbc-math" x="286" y="194">m&#775;</text>
+    <path class="sbc-arrow-line" d="M215 180 H328" />
+    <text class="sbc-math" x="276" y="166">W</text>
+
+    <g id="boundary-turbine-control-volume"
+       class="sbc-boundary-option"
+       data-boundary-id="turbine-control-volume"
+       role="button"
+       tabindex="0"
+       aria-pressed="false"
+       aria-label="Select Boundary A, a control surface around the turbine and flowing fluid">
+      <rect class="sbc-boundary-hit" x="72" y="86" width="216" height="198" rx="22" />
+      <rect class="sbc-boundary sbc-boundary-dashed" x="72" y="86" width="216" height="198" rx="22" />
+      <text class="sbc-small" x="78" y="103">control surface</text>
+      <text class="sbc-callout" x="20" y="326">A: turbine control volume</text>
+      <text class="sbc-select-mark" x="292" y="326" aria-hidden="true">selected</text>
+    </g>
+
+    <g id="boundary-turbine-rotor"
+       class="sbc-boundary-option"
+       data-boundary-id="turbine-rotor"
+       role="button"
+       tabindex="0"
+       aria-pressed="false"
+       aria-label="Select Boundary B around the solid rotor and shaft">
+      <circle class="sbc-boundary-hit" cx="180" cy="180" r="53" />
+      <circle class="sbc-boundary sbc-boundary-solid" cx="180" cy="180" r="53" />
+      <text class="sbc-callout" x="20" y="350">B: rotor and shaft boundary</text>
+      <text class="sbc-select-mark" x="292" y="350" aria-hidden="true">selected</text>
+    </g>
+
+    <text class="sbc-small" x="20" y="382">Mass crosses the control surface, not the solid rotor.</text>
+    <text class="sbc-small" x="20" y="402">Shaft work crosses either selected boundary.</text>
+  </g>
+
+  <!-- INSULATED RIGID TANK CARD -->
+  <g id="sbc-card-tank" class="sbc-device-card" transform="translate(820 20)" data-device="tank">
+    <rect class="sbc-card-bg" x="0" y="0" width="360" height="420" rx="12" />
+    <text class="sbc-title" x="20" y="32">Insulated rigid tank</text>
+    <text class="sbc-small" x="20" y="53">Compare sealed storage with a filling control volume.</text>
+
+    <rect x="92" y="102" width="176" height="185" rx="20" fill="url(#sbc-insulation)" stroke="#111827" stroke-width="2.5" />
+    <rect class="sbc-fluid" x="108" y="118" width="144" height="153" rx="12" />
+    <line class="sbc-line" x1="180" y1="72" x2="180" y2="118" />
+    <path class="sbc-line" d="M165 88 L180 100 L195 88" />
+    <text class="sbc-small" x="138" y="305">rigid tank</text>
+    <text class="sbc-small" x="155" y="208">system</text>
+    <text class="sbc-small" x="20" y="88">surroundings</text>
+
+    <path class="sbc-arrow-line" d="M180 42 V110" />
+    <text class="sbc-math" x="150" y="58">m&#775;</text>
+    <text class="sbc-small" x="210" y="72">inlet</text>
+    <text class="sbc-small" x="114" y="246">no Q, no W</text>
+
+    <g id="boundary-tank-stored"
+       class="sbc-boundary-option"
+       data-boundary-id="tank-stored"
+       role="button"
+       tabindex="0"
+       aria-pressed="false"
+       aria-label="Select Boundary A around the sealed stored contents with the inlet valve closed">
+      <rect class="sbc-boundary-hit" x="104" y="114" width="152" height="161" rx="15" />
+      <rect class="sbc-boundary sbc-boundary-solid" x="104" y="114" width="152" height="161" rx="15" />
+      <text class="sbc-callout" x="20" y="326">A: sealed stored contents</text>
+      <text class="sbc-select-mark" x="292" y="326" aria-hidden="true">selected</text>
+    </g>
+
+    <g id="boundary-tank-filling"
+       class="sbc-boundary-option"
+       data-boundary-id="tank-filling"
+       role="button"
+       tabindex="0"
+       aria-pressed="false"
+       aria-label="Select Boundary B, a control surface around the tank during filling">
+      <rect class="sbc-boundary-hit" x="75" y="82" width="210" height="222" rx="26" />
+      <rect class="sbc-boundary sbc-boundary-dashed" x="75" y="82" width="210" height="222" rx="26" />
+      <text class="sbc-small" x="80" y="100">control surface</text>
+      <text class="sbc-callout" x="20" y="350">B: tank during filling</text>
+      <text class="sbc-select-mark" x="292" y="350" aria-hidden="true">selected</text>
+    </g>
+
+    <text class="sbc-small" x="20" y="382">The insulation blocks heat; rigidity blocks boundary work.</text>
+    <text class="sbc-small" x="20" y="402">Whether mass crosses depends on the selected scenario.</text>
+  </g>
+</svg>
