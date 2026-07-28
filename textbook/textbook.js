@@ -148,16 +148,22 @@
   }
 
   function renderPage(page, markdown) {
-    document.title = `${page.title} | Textbook`;
-    if (elements.title) elements.title.textContent = page.title;
+  document.title = `${page.title} | Textbook`;
 
-    const linkedMarkdown = transformWikiLinks(markdown);
-    const html = parseMarkdown(linkedMarkdown);
-
-    elements.content.innerHTML = html;
-    normalizeRelativeLinks(elements.content);
-    renderMath(elements.content);
+  if (elements.title) {
+    elements.title.textContent = page.title;
   }
+
+  const linkedMarkdown = transformWikiLinks(markdown);
+  const html = parseMarkdown(linkedMarkdown);
+
+  elements.content.innerHTML = html;
+
+  normalizeRelativeLinks(elements.content);
+  renderMath(elements.content);
+
+  void initializeTextbookActivities(elements.content);
+}
 
 function parseMarkdown(markdown) {
   if (!window.marked || typeof window.marked.parse !== "function") {
