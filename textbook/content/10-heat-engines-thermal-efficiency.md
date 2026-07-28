@@ -1,3 +1,4 @@
+<!--
 ---
 id: m02-t03
 title: Heat Engines and Thermal Efficiency
@@ -49,7 +50,7 @@ source_records:
 accessibility_review: pending
 technical_review: pending
 ---
-
+-->
 # Heat Engines and Thermal Efficiency
 
 ## Learning Objectives
@@ -107,13 +108,7 @@ Energy is not destroyed in the conversion. The portion that does not become net 
 
 The desired energy result of a heat engine is net work output. The required energy input is heat received from the high-temperature reservoir.
 
-$$
-\eta_{th}
-=
-\frac{\text{desired energy result}}{\text{required energy input}}
-=
-\frac{W_{net,out}}{Q_H}.
-$$
+$$\eta_{th}=\frac{\text{desired energy result}}{\text{required energy input}}=\frac{W_{net,out}}{Q_H}.$$
 
 The denominator is not total energy circulating through internal components. It is the external heat input required to operate the cycle.
 
@@ -123,11 +118,7 @@ The Kelvin–Planck statement of the Second Law rules out a cyclic device whose 
 
 Therefore, for an actual cyclic heat engine:
 
-$$
-Q_L>0
-\quad\text{and}\quad
-\eta_{th}<1.
-$$
+$$Q_L>0\quad\text{and}\quad\eta_{th}<1.$$
 
 Improved design can reduce irreversibilities and reduce the required heat rejection for a specified heat input and reservoir pair, but it cannot eliminate heat rejection entirely.
 
@@ -186,13 +177,7 @@ where:
 <a id="M02-EQ-005"></a>
 ### Thermal Efficiency Definition — `M02-EQ-005`
 
-$$
-\eta_{th}
-=
-\frac{W_{net,out}}{Q_H}
-=
-1-\frac{Q_L}{Q_H}
-$$
+$$\eta_{th}=\frac{W_{net,out}}{Q_H}=1-\frac{Q_L}{Q_H}$$
 
 where:
 
