@@ -173,6 +173,36 @@ function parseMarkdown(markdown) {
   });
 }
 
+async function initializeTextbookActivities(container) {
+  if (!container) return;
+
+  const activityElements = container.querySelectorAll("[data-activity]");
+
+  for (const activityElement of activityElements) {
+    const activityName = activityElement.dataset.activity;
+    const controller = window.TextbookActivities?.[activityName];
+
+    if (!controller || typeof controller.init !== "function") {
+      console.warn(
+        `No controller was found for textbook activity: ${activityName}`
+      );
+      continue;
+    }
+
+    try {
+      await controller.init(activityElement);
+    } catch (error) {
+      console.error(
+        `Textbook activity failed to initialize: ${activityName}`,
+        error
+      );
+    }
+  }
+}
+
+
+
+  
   function transformWikiLinks(markdown) {
     return String(markdown).replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_match, rawSlug, rawLabel) => {
       const slug = sanitizeSlug(rawSlug);
