@@ -1,58 +1,3 @@
----
-id: m01-t04
-title: Heat, Work, and First-Law Energy Balances
-slug: heat-and-work-interactions
-page_type: topic
-visibility: public
-nav_order: 40
-module: 01-foundations
-mlo:
-  - MLO1
-daily_los:
-  - DLO-003
-  - DLO-004
-  - DLO-005
-prerequisites:
-  - system-boundary-and-surroundings
-  - properties-states-and-equilibrium
-  - thermodynamic-processes-and-cycles
-estimated_time_minutes: 22
-difficulty: introductory
-problem_families:
-  - energy-interaction-classification
-  - closed-system-energy-balance
-  - control-volume-energy-balance
-  - cycle-energy-balance
-interactive_elements:
-  - boundary-energy-interaction-builder
-assets:
-  - assets/svg/foundations/boundary-energy-interaction-builder.svg
-key_terms:
-  - heat
-  - work
-  - internal energy
-  - kinetic energy
-  - potential energy
-  - enthalpy
-  - First Law of Thermodynamics
-  - energy balance
-  - energy-transfer rate
-  - sign convention
-status: draft
-version: 0.2.0
-last_reviewed: 2026-07-28
-authors:
-  - name: Jeffrey Stransky
-    role: course editor
-reviewers: []
-license: TBD
-source_records:
-  - SRC-MCET530-W1-NOTES
-  - SRC-MCET530-EXAM1-2024
-accessibility_review: pending
-technical_review: pending
----
-
 # Heat, Work, and First-Law Energy Balances
 
 ## Learning Objectives
@@ -192,11 +137,7 @@ where:
 <a id="M01-EQ-005"></a>
 ### Closed-System Energy Balance - `M01-EQ-005`
 
-$$
-Q-W
-=
-\Delta U+\Delta KE+\Delta PE
-$$
+$$ Q-W = \Delta U+\Delta KE+\Delta PE $$
 
 where:
 
@@ -214,23 +155,7 @@ where:
 <a id="M01-EQ-007"></a>
 ### Control-Volume Energy-Rate Balance - `M01-EQ-007`
 
-$$
-\frac{dE_{cv}}{dt}
-=
-\dot Q
--
-\dot W_s
-+
-\sum_{in}\dot m
-\left(
- h+\frac{V_{flow}^{2}}{2}+gz
-\right)
--
-\sum_{out}\dot m
-\left(
- h+\frac{V_{flow}^{2}}{2}+gz
-\right)
-$$
+$$ \frac{dE_{cv}}{dt} = \dot Q - \dot W_s + \sum_{in}\dot m \left(  h+\frac{V_{flow}^{2}}{2}+gz \right) - \sum_{out}\dot m \left(h+\frac{V_{flow}^{2}}{2}+gz \right) $$
 
 where:
 
