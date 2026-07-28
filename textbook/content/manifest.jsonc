@@ -1,0 +1,115 @@
+//This file is so I keep track of comments that can't exist in the manifest.json
+{
+  "title": "MCET 530 Thermal-Fluid Sciences II Open Textbook",
+  // Naming note:
+  // "Thermodynamics Digital Textbook" is broad and may become inaccurate if
+  // later modules include heat transfer or other thermal-fluid content.
+
+  "pages": [
+    {
+      "slug": "entropy-as-a-thermodynamic-property",
+      // Potential naming issue:
+      // The original slug "entropy" is valid but too broad for a holistic OER.
+      // This revised slug distinguishes the foundational property page from
+      // entropy balances, entropy generation, and entropy-based applications.
+
+      "title": "Entropy as a Thermodynamic Property",
+
+      "description": "Define entropy as a thermodynamic property, determine entropy changes between states, and interpret entropy in thermal-fluid systems.",
+      // Potential scope issue:
+      // Avoid describing entropy only as a "state function." The course appears
+      // to use "property" and "state property" as the primary vocabulary.
+
+      "file": "entropy-as-a-thermodynamic-property.html",
+      // Integration note:
+      // Use .html if toc.json points to generated production pages.
+      // Use .md only if textbook.js will fetch and render Markdown directly.
+      // Do not mix generated HTML filenames with Markdown source filenames.
+
+      "keywords": [
+        "entropy",
+        "thermodynamic property",
+        "state property",
+        "entropy change",
+        "specific entropy",
+        "second law of thermodynamics"
+      ]
+    },
+    {
+      "slug": "entropy-generation-and-irreversibility",
+      // Naming note:
+      // Combining both terms improves searchability and makes the conceptual
+      // relationship explicit.
+
+      "title": "Entropy Generation and Irreversibility",
+
+      "description": "Relate entropy generation to irreversibility, reversible limits, and the increase of entropy principle.",
+
+      "file": "entropy-generation-and-irreversibility.html",
+
+      "keywords": [
+        "entropy generation",
+        "irreversibility",
+        "reversible process",
+        "irreversible process",
+        "increase of entropy principle",
+        "second law of thermodynamics"
+      ]
+    },
+    {
+      "slug": "entropy-balance-for-control-volumes",
+      // Naming note:
+      // This follows the pilot pattern of descriptive concept-first slugs.
+      // It also reads more naturally than "control-volume-entropy-balance."
+
+      "title": "Entropy Balance for Control Volumes",
+
+      "description": "Apply entropy balances to steady and unsteady control volumes with heat transfer, mass flow, and entropy generation.",
+      // Potential scope issue:
+      // Confirm whether unsteady control-volume entropy balances are actually
+      // included in MCET 530. If the course only treats steady-flow devices,
+      // remove "unsteady" from the description and keywords.
+
+      "file": "entropy-balance-for-control-volumes.html",
+
+      "keywords": [
+        "entropy balance",
+        "control volume",
+        "steady flow",
+        "unsteady flow",
+        "mass flow",
+        "entropy transfer",
+        "heat transfer",
+        "entropy generation"
+      ]
+    },
+    {
+      "slug": "process-feasibility-using-entropy-generation",
+      // Naming issue:
+      // The original "second-law-feasibility" could be confused with the
+      // qualitative feasibility content already taught in MLO2.
+      // This name identifies the new quantitative entropy-generation test.
+
+      "title": "Process Feasibility Using Entropy Generation",
+
+      "description": "Use entropy generation and entropy balances to classify processes as reversible, irreversible, or impossible.",
+      // Technical note:
+      // A positive entropy-generation result indicates irreversibility.
+      // Zero indicates an internally reversible idealization under the stated
+      // model. A negative result indicates an impossible process or an error
+      // in the model, signs, properties, or calculations.
+
+      "file": "process-feasibility-using-entropy-generation.html",
+
+      "keywords": [
+        "process feasibility",
+        "entropy generation",
+        "reversible process",
+        "irreversible process",
+        "impossible process",
+        "second-law analysis",
+        "entropy balance"
+      ]
+    }
+  ]
+}
