@@ -90,19 +90,45 @@
       });
     });
 
-    const referenceAttributes = ["href", "xlink:href", "marker-start", "marker-mid", "marker-end", "fill", "stroke", "filter", "clip-path", "mask"];
-    referenceAttributes.forEach((attribute) => {
-      svg.querySelectorAll(`[${attribute}]`).forEach((element) => {
-        let value = element.getAttribute(attribute);
-        idMap.forEach((newId, oldId) => {
-          value = value
-            .replace(new RegExp(`url\\(#${oldId}\\)`, "g"), `url(#${newId})`)
-            .replace(new RegExp(`^#${oldId}$`), `#${newId}`);
-        });
-        element.setAttribute(attribute, value);
-      });
+    const referenceAttributes = [
+  "href",
+  "xlink:href",
+  "marker-start",
+  "marker-mid",
+  "marker-end",
+  "fill",
+  "stroke",
+  "filter",
+  "clip-path",
+  "mask"
+];
+
+referenceAttributes.forEach((attribute) => {
+  const selector =
+    attribute === "xlink:href"
+      ? "[xlink\\:href]"
+      : `[${attribute}]`;
+
+  svg.querySelectorAll(selector).forEach((element) => {
+    let value = element.getAttribute(attribute);
+
+    if (!value) return;
+
+    idMap.forEach((newId, oldId) => {
+      value = value
+        .replace(
+          new RegExp(`url\\(#${oldId}\\)`, "g"),
+          `url(#${newId})`
+        )
+        .replace(
+          new RegExp(`^#${oldId}$`),
+          `#${newId}`
+        );
     });
 
+    element.setAttribute(attribute, value);
+  });
+});
     svg.querySelectorAll("style").forEach((styleElement) => {
       let cssText = styleElement.textContent;
       idMap.forEach((newId, oldId) => {
