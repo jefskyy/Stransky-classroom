@@ -1,52 +1,3 @@
----
-id: m01-t02
-title: Properties, States, and Equilibrium
-slug: properties-states-and-equilibrium
-page_type: topic
-visibility: public
-nav_order: 20
-module: 01-foundations
-mlo:
-  - MLO1
-daily_los:
-  - DLO-004
-  - DLO-005
-prerequisites:
-  - system-boundary-and-surroundings
-estimated_time_minutes: 16
-difficulty: introductory
-problem_families:
-  - property-classification
-  - state-fixing
-  - state-versus-path-classification
-interactive_elements:
-  - property-state-sorter
-assets:
-  - assets/svg/foundations/property-state-sorter.svg
-key_terms:
-  - thermodynamic property
-  - extensive property
-  - intensive property
-  - specific property
-  - state
-  - equilibrium
-  - state postulate
-  - independent properties
-  - point function
-status: draft
-version: 0.2.0
-last_reviewed: 2026-07-28
-authors:
-  - name: Jeffrey Stransky
-    role: course editor
-reviewers: []
-license: TBD
-source_records:
-  - SRC-MCET530-EXAM1-2024
-accessibility_review: pending
-technical_review: pending
----
-
 # Properties, States, and Equilibrium
 
 ## Learning Objectives
@@ -152,9 +103,7 @@ Examples:
 
 A property change depends only on the two endpoint states:
 
-$$
-\Delta B=B_2-B_1.
-$$
+$$ \Delta B=B_2-B_1. $$
 
 The actual path may affect heat and work, but not the difference between the endpoint property values.
 
@@ -163,9 +112,7 @@ The actual path may affect heat and work, but not the difference between the end
 <a id="M01-EQ-002"></a>
 ### Specific-Property Definition - `M01-EQ-002`
 
-$$
-b=\frac{B}{m}
-$$
+$$ b=\frac{B}{m} $$
 
 where:
 
