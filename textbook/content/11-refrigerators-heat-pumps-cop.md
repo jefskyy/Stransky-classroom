@@ -1,3 +1,4 @@
+<!--
 ---
 id: m02-t04
 title: Refrigerators, Heat Pumps, and Coefficient of Performance
@@ -49,7 +50,7 @@ source_records:
 accessibility_review: pending
 technical_review: pending
 ---
-
+-->
 # Refrigerators, Heat Pumps, and Coefficient of Performance
 
 ## Learning Objectives
@@ -117,23 +118,11 @@ The cycle may be physically identical to a refrigeration cycle. The distinction 
 
 For a refrigerator:
 
-$$
-COP_R
-=
-\frac{\text{heat removed from the cold space}}{\text{required work input}}
-=
-\frac{Q_L}{W_{net,in}}.
-$$
+$$COP_R=\frac{\text{heat removed from the cold space}}{\text{required work input}}=\frac{Q_L}{W_{net,in}}.$$
 
 For a heat pump:
 
-$$
-COP_{HP}
-=
-\frac{\text{heat delivered to the warm space}}{\text{required work input}}
-=
-\frac{Q_H}{W_{net,in}}.
-$$
+$$COP_{HP}=\frac{\text{heat delivered to the warm space}}{\text{required work input}}=\frac{Q_H}{W_{net,in}}.$$
 
 Coefficient of performance is not a percentage efficiency. A COP can exceed one because the numerator includes heat transported from another reservoir in addition to the work input.
 
@@ -190,13 +179,7 @@ where:
 <a id="M02-EQ-007"></a>
 ### Refrigerator Coefficient of Performance — `M02-EQ-007`
 
-$$
-COP_R
-=
-\frac{Q_L}{W_{net,in}}
-=
-\frac{Q_L}{Q_H-Q_L}
-$$
+$$COP_R=\frac{Q_L}{W_{net,in}}=\frac{Q_L}{Q_H-Q_L}$$
 
 **Equation type:** performance-metric definition combined with the cycle balance  
 **Applicable system:** refrigerator, freezer, air conditioner, or other cycle evaluated for cooling  
@@ -208,13 +191,7 @@ $$
 <a id="M02-EQ-008"></a>
 ### Heat-Pump Coefficient of Performance — `M02-EQ-008`
 
-$$
-COP_{HP}
-=
-\frac{Q_H}{W_{net,in}}
-=
-\frac{Q_H}{Q_H-Q_L}
-$$
+$$COP_{HP}=\frac{Q_H}{W_{net,in}}=\frac{Q_H}{Q_H-Q_L}$$
 
 **Equation type:** performance-metric definition combined with the cycle balance  
 **Applicable system:** cycle evaluated for heating  
