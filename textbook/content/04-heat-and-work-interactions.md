@@ -202,19 +202,16 @@ $$
 
 ## Interactive Diagram Specifications
 
-![A selectable boundary showing heat, work, mass flow, and stored energy](assets/svg/foundations/boundary-energy-interaction-builder.svg)
-
-- **Asset:** `assets/svg/foundations/boundary-energy-interaction-builder.svg`
-- **Viewport:** responsive `viewBox`; default aspect ratio approximately `16:10`
-- **Primary elements:** closed-system boundary, control-volume boundary, heat arrow, shaft-work arrow, moving-boundary work, inlet and outlet streams, stored energy panel
-- **Required labels:** $Q$, $W$, $\dot Q$, $\dot W_s$, $\dot m$, $U$, $KE$, $PE$, $h$
-- **Interaction:** selecting a system type enables valid boundary interactions and displays the matching First-Law form
-- **Accessible title:** `Heat, work, mass flow, and stored energy interactions`
-- **Accessible description:** `A system boundary can be switched between closed-system and control-volume modes. Heat, work, and mass-flow arrows are added to build the corresponding energy balance.`
-- **Keyboard behavior:** controls use labeled checkboxes and buttons; no drag-only interactions
-- **Non-color cues:** unique arrow patterns and text labels distinguish heat, work, and mass
-- **Mobile behavior:** interaction controls move below the diagram below 600 CSS pixels
-- **Text fallback:** closed systems exclude mass transport; control volumes include enthalpy, kinetic energy, and potential energy carried by mass
+<div
+  class="textbook-activity"
+  data-activity="boundary-energy-interaction-builder"
+>
+  <details class="activity-fallback">
+    <summary>Text alternative</summary>
+    <p>Closed systems exclude mass transport.</p>
+    <p>Control volumes include enthalpy, kinetic energy, and potential energy carried by mass.</p>
+  </details>
+</div>
 
 ## Interpret the Diagram
 
