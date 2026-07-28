@@ -1,0 +1,64 @@
+{
+  "title": "MCET 530 Thermal-Fluid Sciences II Open Textbook",
+  "pages": [
+    {
+      "slug": "entropy-as-a-thermodynamic-property",
+      "title": "Entropy as a Thermodynamic Property",
+      "description": "Define entropy as a thermodynamic property, determine entropy changes between states, and interpret entropy in thermal-fluid systems.",
+      "file": "entropy-as-a-thermodynamic-property.html",
+      "keywords": [
+        "entropy",
+        "thermodynamic property",
+        "state property",
+        "entropy change",
+        "specific entropy",
+        "second law of thermodynamics"
+      ]
+    },
+    {
+      "slug": "entropy-generation-and-irreversibility",
+      "title": "Entropy Generation and Irreversibility",
+      "description": "Relate entropy generation to irreversibility, reversible limits, and the increase of entropy principle.",
+      "file": "entropy-generation-and-irreversibility.html",
+      "keywords": [
+        "entropy generation",
+        "irreversibility",
+        "reversible process",
+        "irreversible process",
+        "increase of entropy principle",
+        "second law of thermodynamics"
+      ]
+    },
+    {
+      "slug": "entropy-balance-for-control-volumes",
+      "title": "Entropy Balance for Control Volumes",
+      "description": "Apply entropy balances to steady and unsteady control volumes with heat transfer, mass flow, and entropy generation.",
+      "file": "entropy-balance-for-control-volumes.html",
+      "keywords": [
+        "entropy balance",
+        "control volume",
+        "steady flow",
+        "unsteady flow",
+        "mass flow",
+        "entropy transfer",
+        "heat transfer",
+        "entropy generation"
+      ]
+    },
+    {
+      "slug": "process-feasibility-using-entropy-generation",
+      "title": "Process Feasibility Using Entropy Generation",
+      "description": "Use entropy generation and entropy balances to classify processes as reversible, irreversible, or impossible.",
+      "file": "process-feasibility-using-entropy-generation.html",
+      "keywords": [
+        "process feasibility",
+        "entropy generation",
+        "reversible process",
+        "irreversible process",
+        "impossible process",
+        "second-law analysis",
+        "entropy balance"
+      ]
+    }
+  ]
+}
