@@ -1,3 +1,4 @@
+<!--
 ---
 id: m02-t02
 title: Thermal Energy Reservoirs
@@ -46,7 +47,7 @@ source_records:
 accessibility_review: pending
 technical_review: pending
 ---
-
+-->
 # Thermal Energy Reservoirs
 
 ## Learning Objectives
@@ -130,11 +131,7 @@ These labels identify relative temperature levels. They do not by themselves det
 <a id="M02-EQ-003"></a>
 ### Reservoir Temperature-Change Estimate — `M02-EQ-003`
 
-$$
-\left|\Delta T_R\right|
-\approx
-\frac{\left|Q_R\right|}{C_R}
-$$
+$$\left|\Delta T_R\right|\approx\frac{\left|Q_R\right|}{C_R}$$
 
 where:
 
@@ -157,11 +154,7 @@ $$
 
 ### Reservoir-Validity Criterion
 
-$$
-\left|\Delta T_R\right|
-\le
-\Delta T_{allow}
-$$
+$$\left|\Delta T_R\right|\le\Delta T_{allow}$$
 
 where $\Delta T_{allow}$ is the largest temperature change that the model or engineering decision can neglect.
 
