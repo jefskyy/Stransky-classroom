@@ -326,4 +326,60 @@
   .sbc-actions button {
     width: 100%;
   }
+
+
+  .textbook-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+
+  margin: 0;
+  padding:
+    clamp(1rem, 2.5vw, 1.75rem)
+    clamp(1rem, 3vw, 2.25rem);
+
+  border-bottom: 1px solid rgba(124, 135, 142, 0.18);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.98),
+      rgba(247, 105, 2, 0.055)
+    );
+
+  box-shadow: 0 8px 24px rgba(37, 42, 46, 0.05);
+}
+
+.textbook-topbar__identity {
+  min-width: 0;
+}
+
+.textbook-topbar__identity h1 {
+  margin: 0.15rem 0 0;
+  font-size: clamp(1.55rem, 3vw, 2.35rem);
+  line-height: 1.1;
+}
+
+.textbook-topbar__actions {
+  flex-shrink: 0;
+}
+
+@media (max-width: 800px) {
+  .textbook-topbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .textbook-topbar__actions {
+    justify-content: flex-start;
+  }
+
+  .app-nav-button {
+    flex: 1 1 210px;
+  }
+}
+
+
+  
 }
