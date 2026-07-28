@@ -1,3 +1,4 @@
+<!--
 ---
 id: m02-t05
 title: Reversibility, Irreversibility, and Carnot Limits
@@ -54,6 +55,7 @@ source_records:
 accessibility_review: pending
 technical_review: pending
 ---
+-->
 
 # Reversibility, Irreversibility, and Carnot Limits
 
@@ -156,11 +158,7 @@ Equivalent maximum-performance conclusions apply to refrigerators and heat pumps
 
 For a reversible device, the heat-transfer ratio is related to the reservoir temperatures:
 
-$$
-\left(\frac{Q_L}{Q_H}\right)_{rev}
-=
-\frac{T_L}{T_H}.
-$$
+$$\left(\frac{Q_L}{Q_H}\right)_{rev}=\frac{T_L}{T_H}.$$
 
 The ratio requires an absolute temperature scale because $0\ ^\circ\text{C}$ and $0\ ^\circ\text{F}$ are arbitrary reference points. Use Kelvin or Rankine.
 
@@ -200,11 +198,7 @@ These trends are useful for checking calculations before comparing them with act
 <a id="M02-EQ-010"></a>
 ### Reversible Heat-Transfer Ratio — `M02-EQ-010`
 
-$$
-\left(\frac{Q_L}{Q_H}\right)_{rev}
-=
-\frac{T_L}{T_H}
-$$
+$$\left(\frac{Q_L}{Q_H}\right)_{rev}=\frac{T_L}{T_H}$$
 
 where:
 
@@ -223,11 +217,7 @@ where:
 <a id="M02-EQ-011"></a>
 ### Carnot Heat-Engine Efficiency — `M02-EQ-011`
 
-$$
-\eta_{th,Carnot}
-=
-1-\frac{T_L}{T_H}
-$$
+$$\eta_{th,Carnot}=1-\frac{T_L}{T_H}$$
 
 **Equation type:** reversible maximum-performance relationship  
 **Applicable system:** any reversible heat engine operating between $T_H$ and $T_L$  
@@ -239,11 +229,7 @@ $$
 <a id="M02-EQ-012"></a>
 ### Carnot Refrigerator COP — `M02-EQ-012`
 
-$$
-COP_{R,Carnot}
-=
-\frac{T_L}{T_H-T_L}
-$$
+$$COP_{R,Carnot}=\frac{T_L}{T_H-T_L}$$
 
 **Equation type:** reversible maximum-performance relationship  
 **Applicable system:** reversible refrigerator operating between $T_H$ and $T_L$  
@@ -255,11 +241,7 @@ $$
 <a id="M02-EQ-013"></a>
 ### Carnot Heat-Pump COP — `M02-EQ-013`
 
-$$
-COP_{HP,Carnot}
-=
-\frac{T_H}{T_H-T_L}
-$$
+$$COP_{HP,Carnot}=\frac{T_H}{T_H-T_L}$$
 
 **Equation type:** reversible maximum-performance relationship  
 **Applicable system:** reversible heat pump operating between $T_H$ and $T_L$  
@@ -273,14 +255,7 @@ $$
 
 For a heat engine:
 
-$$
-\eta_{th,claim}
-\begin{cases}
-<\eta_{th,Carnot} & \text{irreversible or otherwise not ruled out by this limit},\\
-=\eta_{th,Carnot} & \text{reversible idealization},\\
->\eta_{th,Carnot} & \text{impossible}.
-\end{cases}
-$$
+$$\eta_{th,claim}\begin{cases}<\eta_{th,Carnot} & \text{irreversible or otherwise not ruled out by this limit},\\=\eta_{th,Carnot} & \text{reversible idealization},\\>\eta_{th,Carnot} & \text{impossible}.\end{cases}$$
 
 For a refrigerator or heat pump, replace $\eta_{th}$ with the corresponding COP.
 
