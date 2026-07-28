@@ -1,53 +1,3 @@
----
-id: m01-t03
-title: Thermodynamic Processes, Paths, and Cycles
-slug: thermodynamic-processes-and-cycles
-page_type: topic
-visibility: public
-nav_order: 30
-module: 01-foundations
-mlo:
-  - MLO1
-daily_los:
-  - DLO-004
-prerequisites:
-  - properties-states-and-equilibrium
-estimated_time_minutes: 16
-difficulty: introductory
-problem_families:
-  - process-classification
-  - path-interpretation
-  - cycle-identification
-interactive_elements:
-  - process-path-cycle-diagram
-assets:
-  - assets/svg/foundations/process-path-cycle-diagram.svg
-key_terms:
-  - process
-  - process path
-  - quasi-equilibrium process
-  - cycle
-  - isobaric
-  - isothermal
-  - isochoric
-  - polytropic
-  - state function
-  - path function
-status: draft
-version: 0.2.0
-last_reviewed: 2026-07-28
-authors:
-  - name: Jeffrey Stransky
-    role: course editor
-reviewers: []
-license: TBD
-source_records:
-  - SRC-MCET530-EXAM1-2024
-  - SRC-MCET530-W1-NOTES
-accessibility_review: pending
-technical_review: pending
----
-
 # Thermodynamic Processes, Paths, and Cycles
 
 ## Learning Objectives
@@ -139,13 +89,7 @@ This geometric interpretation is conditional. It does not apply to arbitrary dev
 <a id="M01-EQ-004"></a>
 ### Complete-Cycle Property Change - `M01-EQ-004`
 
-$$
-\Delta B_{cycle}
-=
-\oint dB
-=
-0
-$$
+$$\Delta B_{cycle} = \oint dB = 0 $$
 
 where $B$ is any thermodynamic property of the system.
 
@@ -185,20 +129,56 @@ $$
 
 ## Interactive Diagram Specifications
 
-![States connected by alternative paths and a complete thermodynamic cycle](assets/svg/foundations/process-path-cycle-diagram.svg)
+<div
+  class="textbook-activity"
+  data-activity="process-path-cycle-diagram"
+>
+  <details class="activity-fallback">
+    <summary>Text alternative</summary>
 
-- **Asset:** `assets/svg/foundations/process-path-cycle-diagram.svg`
-- **Viewport:** responsive `viewBox`; default aspect ratio approximately `4:3`
-- **Primary elements:** $P-v$ axes, states 1 and 2, two alternative paths, dashed unknown path, clockwise loop, counterclockwise loop
-- **Required labels:** `state`, `process`, `path known`, `path unknown`, `cycle`, $P$, $v$
-- **Interaction:** selecting a path reveals which quantities are determined by endpoints and which can depend on the path; cycle direction can be toggled
-- **Accessible title:** `Thermodynamic processes, paths, and cycles`
-- **Accessible description:** `A pressure-specific-volume diagram shows two states connected by alternative paths and separate clockwise and counterclockwise cycles.`
-- **Keyboard behavior:** paths and cycle direction controls are selectable with buttons
-- **Non-color cues:** solid, dashed, and patterned lines distinguish known paths, unknown paths, and cycles
-- **Mobile behavior:** the diagram remains legible at 360 CSS pixels with labels moved outside the plotting area
-- **Text fallback:** endpoint property changes are path independent; heat and work may depend on the path; all property changes are zero over a complete cycle
+    <p>
+      Endpoint property changes are path independent.
+      Heat and work may depend on the path.
+    </p>
 
+    <p>
+      All property changes are zero over a complete
+      thermodynamic cycle.
+    </p>
+  </details>
+</div>
+
+<!--EML EMBEDDING IDEAS
+If states 1 and 2 are identical, why can one path cost more energy than another?
+Activity: Let students select competing paths and predict which produces greater work before revealing the area under each curve.
+EML mindset: Curiosity—identical outcomes can conceal radically different journeys, costs, and opportunities.
+Can you know the destination perfectly—and still know almost nothing about the trip?
+Activity: Hide the unknown path and ask students to separate what can be determined from endpoints from what requires process information.
+EML mindset: Recognizing knowledge gaps—students practice identifying what is known, unknown, and worth investigating.
+Which thermodynamic quantities have “memory,” and which forget how they got there?
+Activity: Students sort property changes, heat, and work into “endpoint-dependent” and “path-dependent” categories, then test their choices interactively.
+EML mindset: Connecting ideas—the distinction can be linked to economics, transportation, computing, and project design.
+Could the dashed path represent a better process—or merely an untested assumption?
+Activity: Invite students to propose plausible shapes for the unknown path and explain what additional measurements would validate each one.
+EML mindset: Creating value through inquiry—uncertainty becomes a space for experimentation rather than a missing answer.
+When does going in a circle produce something useful?
+Activity: Toggle the cycle direction and ask students to infer whether the loop represents net work output or work input.
+EML mindset: Opportunity recognition—repetition and cycles can create value even when the system returns to its starting state.
+How can every property return to zero change while energy still crosses the boundary?
+Activity: Students trace a complete loop, verify that endpoint property changes vanish, and then inspect the nonzero enclosed area.
+EML mindset: Challenging assumptions—“back where we started” does not mean “nothing happened.”
+What does the area inside a thermodynamic loop actually buy you?
+Activity: Let students reshape the loop and observe how its enclosed area changes, then connect that area to net boundary work.
+EML mindset: Value creation—abstract geometry becomes a measurable engineering output.
+If two engineers choose different paths, can both be correct?
+Activity: Compare alternative processes that share the same endpoints but differ in heat transfer, work, practicality, or efficiency.
+EML mindset: Embracing multiple solutions—engineering decisions are evaluated by constraints and value, not by a single “correct” route.
+What information would make an unknown path worth investing in?
+Activity: Give students a limited “measurement budget” and ask them to choose which pressure, volume, heat, or work data would reduce uncertainty most.
+EML mindset: Resourcefulness—use limited resources to gather the information with the greatest decision-making value.
+Could reversing the cycle transform a power-producing device into a life-improving one?
+Activity: Toggle clockwise and counterclockwise operation, then have students connect the reversal to engines, refrigerators, heat pumps, or energy-recovery systems.
+EML mindset: Impact awareness—changing direction can change not only the mathematics, but also who benefits and how. -->
 ## Interpret the Diagram
 
 The two paths between states 1 and 2 have the same $\Delta U$, $\Delta H$, and other property changes because the endpoints are identical. The heat and work interactions may differ.
