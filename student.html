@@ -92,5 +92,33 @@
       </section>
     </section>
   </main>
+
+  <div id="textbookDrawerBackdrop" class="textbook-drawer-backdrop hidden" aria-hidden="true"></div>
+
+<aside
+  id="textbookDrawer"
+  class="textbook-drawer hidden"
+  aria-label="Textbook drawer"
+  aria-modal="true"
+  role="dialog"
+>
+  <div class="textbook-drawer-header">
+    <div>
+      <div class="eyebrow">Textbook</div>
+      <h2 id="textbookDrawerTitle">Reference</h2>
+    </div>
+
+    <button id="closeTextbookDrawerBtn" class="secondary-button" type="button">
+      Close
+    </button>
+  </div>
+
+  <iframe
+    id="textbookDrawerFrame"
+    title="Textbook reference page"
+    sandbox="allow-scripts allow-same-origin"
+  ></iframe>
+</aside>
+  
 </body>
 </html>
