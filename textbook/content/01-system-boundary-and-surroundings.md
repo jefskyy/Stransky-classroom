@@ -109,13 +109,7 @@ Do not classify a system from the device name alone. Classify the **selected bou
 <a id="M01-EQ-001"></a>
 ### General Control-Volume Mass Balance - `M01-EQ-001`
 
-$$
-\frac{dm_{cv}}{dt}
-=
-\sum \dot m_{in}
--
-\sum \dot m_{out}
-$$
+$$ \frac{dm_{cv}}{dt} = \sum \dot m_{in} - \sum \dot {m}_{out} $$
 
 where:
 
