@@ -1,0 +1,162 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 640" role="img" aria-labelledby="pss-title pss-desc">
+  <title id="pss-title">Thermodynamic property and state classifier</title>
+  <desc id="pss-desc">Cards for mass, pressure, temperature, volume, specific volume, internal energy, heat, and work are sorted by property type. A second panel checks whether two properties are independent.</desc>
+
+  <defs>
+    <style><![CDATA[
+      .pss-title { font: 700 26px Arial, sans-serif; fill: #222; }
+      .pss-subtitle { font: 600 15px Arial, sans-serif; fill: #555; }
+      .pss-label { font: 700 15px Arial, sans-serif; fill: #222; }
+      .pss-small { font: 12px Arial, sans-serif; fill: #555; }
+      .pss-mini { font: 11px Arial, sans-serif; fill: #666; }
+      .pss-card-text { font: 700 14px Arial, sans-serif; fill: #222; }
+      .pss-card-sub { font: 11px Arial, sans-serif; fill: #666; }
+      .pss-region-title { font: 700 15px Arial, sans-serif; fill: #222; }
+      .pss-region-icon { font: 700 13px Arial, sans-serif; fill: #222; }
+      .pss-card rect { fill: #fff; stroke: #6d6e71; stroke-width: 2; rx: 10; }
+      .pss-card.is-selected rect { fill: #FFF4ED; stroke: #F76902; stroke-width: 4; }
+      .pss-card.is-assigned { opacity: 0.96; }
+      .pss-boundary-dashed { stroke-dasharray: 10 7; }
+      .pss-boundary-dotted { stroke-dasharray: 2 7; stroke-linecap: round; }
+      .pss-boundary-longdash { stroke-dasharray: 16 8 3 8; }
+      .pss-region rect { fill: #fff; stroke-width: 3; rx: 16; }
+      .pss-extensive rect { stroke: #F76902; }
+      .pss-intensive rect { stroke: #009CBD; }
+      .pss-specific rect { stroke: #84BD00; }
+      .pss-process rect { stroke: #7D55C7; }
+      .pss-state-panel rect.outer { fill: #fff; stroke: #ACA39A; stroke-width: 2; rx: 16; }
+      .pss-state-box { fill: #fff; stroke: #6d6e71; stroke-width: 2; rx: 12; }
+      .pss-independence { fill: #fff; stroke: #009CBD; stroke-width: 2; rx: 14; }
+      .pss-process-arrow { fill: none; stroke: #DA291C; stroke-width: 4; marker-end: url(#pss-arrow-head); }
+      .pss-process-tag { fill: #F6BE00; stroke: #222; stroke-width: 1.5; rx: 7; }
+      .pss-process-tag-text { font: 700 12px Arial, sans-serif; fill: #222; }
+      .pss-independence-status { font: 700 16px Arial, sans-serif; fill: #222; }
+    ]]></style>
+
+    <marker id="pss-arrow-head" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 z" fill="#DA291C" />
+    </marker>
+  </defs>
+
+  <g id="pss-layout-root">
+    <text x="20" y="34" class="pss-title">Thermodynamic Property and State Classifier</text>
+    <text x="20" y="56" class="pss-subtitle">Sort each quantity by type, then test whether a property pair fixes a simple compressible state in a single phase.</text>
+
+    <g class="pss-region pss-extensive" data-region="extensive" transform="translate(20 82)">
+      <rect width="210" height="210" />
+      <text x="16" y="28" class="pss-region-title">Extensive</text>
+      <text x="162" y="28" class="pss-region-icon">Σ</text>
+      <text x="16" y="47" class="pss-mini">depends on system size</text>
+      <line x1="14" y1="58" x2="194" y2="58" stroke="#F76902" stroke-width="2"/>
+      <text x="16" y="76" class="pss-small">examples:</text>
+      <text x="16" y="94" class="pss-small">mass, volume, total internal energy</text>
+    </g>
+
+    <g class="pss-region pss-intensive" data-region="intensive" transform="translate(250 82)">
+      <rect class="pss-boundary-dashed" width="210" height="210" />
+      <text x="16" y="28" class="pss-region-title">Intensive</text>
+      <text x="170" y="28" class="pss-region-icon">I</text>
+      <text x="16" y="47" class="pss-mini">does not depend on size</text>
+      <line x1="14" y1="58" x2="194" y2="58" stroke="#009CBD" stroke-width="2" stroke-dasharray="8 6"/>
+      <text x="16" y="76" class="pss-small">examples:</text>
+      <text x="16" y="94" class="pss-small">pressure, temperature</text>
+    </g>
+
+    <g class="pss-region pss-specific" data-region="specific" transform="translate(480 82)">
+      <rect class="pss-boundary-dotted" width="210" height="210" />
+      <text x="16" y="28" class="pss-region-title">Specific</text>
+      <text x="162" y="28" class="pss-region-icon">÷m</text>
+      <text x="16" y="47" class="pss-mini">per-unit-mass property</text>
+      <line x1="14" y1="58" x2="194" y2="58" stroke="#84BD00" stroke-width="2" stroke-dasharray="2 6" stroke-linecap="round"/>
+      <text x="16" y="76" class="pss-small">example:</text>
+      <text x="16" y="94" class="pss-small">specific volume</text>
+    </g>
+
+    <g class="pss-region pss-process" data-region="process-dependent" transform="translate(710 82)">
+      <rect class="pss-boundary-longdash" width="210" height="210" />
+      <text x="16" y="28" class="pss-region-title">Process dependent</text>
+      <text x="157" y="28" class="pss-region-icon">path</text>
+      <text x="16" y="47" class="pss-mini">transfer, not stored at a state</text>
+      <line x1="14" y1="58" x2="194" y2="58" stroke="#7D55C7" stroke-width="2" stroke-dasharray="14 7 3 7"/>
+      <text x="16" y="76" class="pss-small">examples:</text>
+      <text x="16" y="94" class="pss-small">heat, work</text>
+    </g>
+
+    <g id="pss-card-deck-label" transform="translate(20 328)">
+      <text class="pss-label" x="0" y="0">Property cards</text>
+      <text class="pss-mini" x="0" y="18">Choose a card, then assign it with the buttons below.</text>
+    </g>
+
+    <g id="pss-card-deck">
+      <g class="pss-card" data-card-id="mass" role="button" tabindex="0" aria-pressed="false" aria-label="Select mass card" transform="translate(20 348)">
+        <rect width="150" height="52" />
+        <text x="14" y="24" class="pss-card-text">Mass</text>
+        <text x="14" y="40" class="pss-card-sub">m</text>
+      </g>
+      <g class="pss-card" data-card-id="pressure" role="button" tabindex="0" aria-pressed="false" aria-label="Select pressure card" transform="translate(180 348)">
+        <rect width="150" height="52" />
+        <text x="14" y="24" class="pss-card-text">Pressure</text>
+        <text x="14" y="40" class="pss-card-sub">P</text>
+      </g>
+      <g class="pss-card" data-card-id="temperature" role="button" tabindex="0" aria-pressed="false" aria-label="Select temperature card" transform="translate(20 410)">
+        <rect width="150" height="52" />
+        <text x="14" y="24" class="pss-card-text">Temperature</text>
+        <text x="14" y="40" class="pss-card-sub">T</text>
+      </g>
+      <g class="pss-card" data-card-id="volume" role="button" tabindex="0" aria-pressed="false" aria-label="Select volume card" transform="translate(180 410)">
+        <rect width="150" height="52" />
+        <text x="14" y="24" class="pss-card-text">Volume</text>
+        <text x="14" y="40" class="pss-card-sub">V</text>
+      </g>
+      <g class="pss-card" data-card-id="specific-volume" role="button" tabindex="0" aria-pressed="false" aria-label="Select specific volume card" transform="translate(20 472)">
+        <rect width="150" height="52" />
+        <text x="14" y="24" class="pss-card-text">Specific volume</text>
+        <text x="14" y="40" class="pss-card-sub">v = V/m</text>
+      </g>
+      <g class="pss-card" data-card-id="internal-energy" role="button" tabindex="0" aria-pressed="false" aria-label="Select internal energy card" transform="translate(180 472)">
+        <rect width="150" height="52" />
+        <text x="14" y="24" class="pss-card-text">Internal energy</text>
+        <text x="14" y="40" class="pss-card-sub">U</text>
+      </g>
+      <g class="pss-card" data-card-id="heat" role="button" tabindex="0" aria-pressed="false" aria-label="Select heat card" transform="translate(20 534)">
+        <rect width="150" height="52" />
+        <text x="14" y="24" class="pss-card-text">Heat</text>
+        <text x="14" y="40" class="pss-card-sub">Q</text>
+      </g>
+      <g class="pss-card" data-card-id="work" role="button" tabindex="0" aria-pressed="false" aria-label="Select work card" transform="translate(180 534)">
+        <rect width="150" height="52" />
+        <text x="14" y="24" class="pss-card-text">Work</text>
+        <text x="14" y="40" class="pss-card-sub">W</text>
+      </g>
+    </g>
+
+    <g class="pss-state-panel" transform="translate(360 334)">
+      <rect class="outer" width="580" height="274" />
+      <text x="20" y="28" class="pss-label">State panel</text>
+      <text x="20" y="48" class="pss-mini">Properties have values at states. Heat and work occur during the process between states.</text>
+
+      <rect x="20" y="76" width="135" height="86" class="pss-state-box" />
+      <text x="54" y="102" class="pss-label">State 1</text>
+      <text x="40" y="126" class="pss-small">P, T, v, u, ...</text>
+      <text x="50" y="144" class="pss-mini">state properties</text>
+
+      <rect x="425" y="76" width="135" height="86" class="pss-state-box" />
+      <text x="459" y="102" class="pss-label">State 2</text>
+      <text x="445" y="126" class="pss-small">P, T, v, u, ...</text>
+      <text x="455" y="144" class="pss-mini">state properties</text>
+
+      <path d="M185 118 L395 118" class="pss-process-arrow" />
+      <text x="258" y="102" class="pss-label">process</text>
+      <rect x="242" y="128" width="48" height="24" class="pss-process-tag" />
+      <text x="258" y="144" class="pss-process-tag-text">Q</text>
+      <rect x="304" y="128" width="48" height="24" class="pss-process-tag" />
+      <text x="320" y="144" class="pss-process-tag-text">W</text>
+
+      <rect x="20" y="186" width="540" height="68" class="pss-independence" />
+      <text x="36" y="212" class="pss-label">Independence indicator</text>
+      <text x="36" y="230" class="pss-mini">Simple compressible substance, single phase</text>
+      <text x="36" y="246" class="pss-small">independent?</text>
+      <text x="165" y="246" id="pss-independence-status" class="pss-independence-status">Choose two properties below.</text>
+    </g>
+  </g>
+</svg>
