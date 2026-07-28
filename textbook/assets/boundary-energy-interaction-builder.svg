@@ -1,0 +1,184 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" role="img" aria-labelledby="beib-title beib-desc">
+  <title id="beib-title">Heat, work, mass flow, and stored energy interactions</title>
+  <desc id="beib-desc">A system boundary can be switched between closed-system and control-volume modes. Heat, work, and mass-flow arrows are added to build the corresponding energy balance.</desc>
+
+  <defs>
+    <style><![CDATA[
+      .beib-title { font: 700 26px Arial, sans-serif; fill: #222; }
+      .beib-subtitle { font: 600 15px Arial, sans-serif; fill: #555; }
+      .beib-label { font: 700 15px Arial, sans-serif; fill: #222; }
+      .beib-small { font: 12px Arial, sans-serif; fill: #555; }
+      .beib-mini { font: 11px Arial, sans-serif; fill: #666; }
+      .beib-text { font: 13px Arial, sans-serif; fill: #222; }
+      .beib-bold { font: 700 13px Arial, sans-serif; fill: #222; }
+
+      .beib-page-bg { fill: #fff; }
+      .beib-diagram-frame { fill: #fff; stroke: #ACA39A; stroke-width: 2; rx: 18; }
+      .beib-device-shell { fill: #fafafa; stroke: #6d6e71; stroke-width: 2; rx: 14; }
+      .beib-cylinder-top { fill: #ececec; stroke: #6d6e71; stroke-width: 2; }
+      .beib-piston { fill: #f2f2f2; stroke: #6d6e71; stroke-width: 2; }
+      .beib-shaft { stroke: #6d6e71; stroke-width: 6; stroke-linecap: round; }
+
+      .beib-boundary-closed { fill: #FFF8F3; stroke: #F76902; stroke-width: 4; }
+      .beib-boundary-cv { fill: #F2FBFD; stroke: #009CBD; stroke-width: 4; stroke-dasharray: 12 8; }
+
+      .beib-arrow-heat { fill: none; stroke: #DA291C; stroke-width: 4; stroke-dasharray: 7 4; marker-end: url(#beib-arrow-red); }
+      .beib-arrow-shaft { fill: none; stroke: #7D55C7; stroke-width: 4; marker-end: url(#beib-arrow-purple); }
+      .beib-arrow-boundary { fill: none; stroke: #D7A300; stroke-width: 4; stroke-dasharray: 16 5 4 5; marker-end: url(#beib-arrow-yellow); }
+      .beib-arrow-mass { fill: none; stroke: #84BD00; stroke-width: 4; stroke-dasharray: 2 5; marker-end: url(#beib-arrow-green); }
+      .beib-arrow-hidden { opacity: 0; pointer-events: none; }
+
+      .beib-energy-panel { fill: #fff; stroke: #ACA39A; stroke-width: 2; rx: 16; }
+      .beib-energy-chip { fill: #fff; stroke: #6d6e71; stroke-width: 2; rx: 10; }
+      .beib-energy-chip.active { fill: #eef8e2; stroke: #84BD00; stroke-width: 3; }
+      .beib-energy-chip.inactive { fill: #f4f4f4; stroke: #BEBEBE; stroke-dasharray: 5 4; }
+      .beib-state-box { fill: #fff; stroke: #6d6e71; stroke-width: 2; rx: 12; }
+      .beib-mode-tag { fill: #fff4ed; stroke: #F76902; stroke-width: 2; rx: 10; }
+      .beib-mode-tag-cv { fill: #eaf7fb; stroke: #009CBD; stroke-width: 2; rx: 10; }
+      .beib-highlight-ring { fill: none; stroke: #F6BE00; stroke-width: 5; stroke-opacity: 0; }
+      .beib-highlight-ring.visible { stroke-opacity: 1; }
+    ]]></style>
+
+    <marker id="beib-arrow-red" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 z" fill="#DA291C" />
+    </marker>
+    <marker id="beib-arrow-purple" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 z" fill="#7D55C7" />
+    </marker>
+    <marker id="beib-arrow-yellow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 z" fill="#D7A300" />
+    </marker>
+    <marker id="beib-arrow-green" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 z" fill="#84BD00" />
+    </marker>
+  </defs>
+
+  <rect width="960" height="600" class="beib-page-bg" />
+
+  <text x="22" y="34" class="beib-title">Boundary Energy Interaction Builder</text>
+  <text x="22" y="56" class="beib-subtitle">Switch between a closed system and a control volume, then turn interactions on to build the First-Law balance.</text>
+
+  <g id="beib-main-panel" transform="translate(20 80)">
+    <rect width="620" height="470" class="beib-diagram-frame" />
+    <text x="20" y="30" class="beib-label">System sketch</text>
+    <text x="20" y="50" class="beib-mini">Heat, work, and mass arrows cross only the selected boundary.</text>
+
+    <g id="beib-closed-tag" transform="translate(445 18)">
+      <rect width="150" height="34" class="beib-mode-tag" />
+      <text x="23" y="22" class="beib-bold">closed system</text>
+    </g>
+
+    <g id="beib-cv-tag" transform="translate(449 18)" opacity="0">
+      <rect width="146" height="34" class="beib-mode-tag-cv" />
+      <text x="20" y="22" class="beib-bold">control volume</text>
+    </g>
+
+    <g id="beib-device-group" transform="translate(178 146)">
+      <rect id="beib-boundary-closed" x="-28" y="-28" width="306" height="268" rx="24" class="beib-boundary-closed" />
+      <rect id="beib-boundary-cv" x="-34" y="-34" width="318" height="280" rx="24" class="beib-boundary-cv" opacity="0" />
+
+      <g transform="translate(-18 -72)">
+        <text x="0" y="0" class="beib-bold">selected boundary</text>
+        <text x="0" y="18" class="beib-mini">solid = closed system; dashed = control surface</text>
+      </g>
+
+      <rect x="0" y="0" width="250" height="210" class="beib-device-shell" />
+      <ellipse cx="125" cy="20" rx="88" ry="16" class="beib-cylinder-top" />
+      <rect x="37" y="20" width="176" height="126" fill="#fff" stroke="#6d6e71" stroke-width="2" />
+      <rect x="48" y="68" width="154" height="14" class="beib-piston" />
+      <line x1="125" y1="82" x2="125" y2="154" stroke="#6d6e71" stroke-width="6" />
+      <line x1="125" y1="20" x2="125" y2="-2" stroke="#6d6e71" stroke-width="6" />
+      <line x1="125" y1="-2" x2="166" y2="-22" stroke="#6d6e71" stroke-width="5" />
+
+      <text x="74" y="180" class="beib-text">stored energy inside</text>
+      <text x="94" y="198" class="beib-mini">system or control volume</text>
+      <circle cx="125" cy="110" r="66" class="beib-highlight-ring" id="beib-highlight-core" />
+
+      <g id="beib-heat-group" class="beib-arrow-hidden">
+        <path d="M-118 82 C-74 82 -48 82 -18 82" class="beib-arrow-heat" />
+        <text x="-126" y="64" class="beib-bold" id="beib-heat-label">Q</text>
+        <text x="-140" y="101" class="beib-mini">heat</text>
+      </g>
+
+      <g id="beib-shaft-group" class="beib-arrow-hidden">
+        <line x1="212" y1="108" x2="252" y2="108" class="beib-shaft" />
+        <path d="M252 108 C298 108 326 108 362 108" class="beib-arrow-shaft" />
+        <text x="294" y="88" class="beib-bold" id="beib-shaft-label">W</text>
+        <text x="282" y="130" class="beib-mini">shaft work</text>
+      </g>
+
+      <g id="beib-boundary-work-group" class="beib-arrow-hidden">
+        <path d="M126 -88 C126 -66 126 -48 126 -28" class="beib-arrow-boundary" />
+        <text x="144" y="-76" class="beib-bold">W</text>
+        <text x="144" y="-58" class="beib-mini">moving-boundary work</text>
+      </g>
+
+      <g id="beib-inlet-group" class="beib-arrow-hidden">
+        <path d="M-144 162 C-94 162 -58 162 -30 162" class="beib-arrow-mass" />
+        <text x="-150" y="144" class="beib-bold">ṁ</text>
+        <text x="-150" y="183" class="beib-mini">inlet</text>
+      </g>
+
+      <g id="beib-outlet-group" class="beib-arrow-hidden">
+        <path d="M278 162 C326 162 354 162 404 162" class="beib-arrow-mass" />
+        <text x="360" y="144" class="beib-bold">ṁ</text>
+        <text x="360" y="183" class="beib-mini">outlet</text>
+      </g>
+    </g>
+  </g>
+
+  <g id="beib-side-panel" transform="translate(660 80)">
+    <rect width="280" height="470" class="beib-energy-panel" />
+    <text x="18" y="30" class="beib-label">Stored energy panel</text>
+    <text x="18" y="49" class="beib-mini">
+      <tspan x="18" dy="0">Compare energy stored inside with energy</tspan>
+      <tspan x="18" dy="15">transported across the selected boundary.</tspan>
+    </text>
+
+    <g transform="translate(18 86)">
+      <rect width="244" height="112" class="beib-state-box" />
+      <text x="16" y="25" class="beib-bold">State energy terms</text>
+      <text x="16" y="48" class="beib-small">
+        <tspan x="16" dy="0">U, KE, and PE may change for both</tspan>
+        <tspan x="16" dy="17">system types.</tspan>
+        <tspan x="16" dy="20">For a control volume, flowing mass</tspan>
+        <tspan x="16" dy="17">carries h, KE, and PE.</tspan>
+      </text>
+    </g>
+
+    <g id="beib-chip-U" transform="translate(18 218)">
+      <rect width="74" height="44" class="beib-energy-chip active" />
+      <text x="30" y="27" class="beib-bold">U</text>
+    </g>
+    <g id="beib-chip-KE" transform="translate(104 218)">
+      <rect width="74" height="44" class="beib-energy-chip active" />
+      <text x="21" y="27" class="beib-bold">KE</text>
+    </g>
+    <g id="beib-chip-PE" transform="translate(190 218)">
+      <rect width="74" height="44" class="beib-energy-chip active" />
+      <text x="24" y="27" class="beib-bold">PE</text>
+    </g>
+
+    <g id="beib-chip-h" transform="translate(18 274)">
+      <rect width="74" height="44" class="beib-energy-chip inactive" />
+      <text x="32" y="27" class="beib-bold">h</text>
+    </g>
+
+    <g transform="translate(18 332)">
+      <text class="beib-label" x="0" y="0">Boundary labels</text>
+      <text class="beib-small" x="0" y="23">Q or Q̇ — heat transfer</text>
+      <text class="beib-small" x="0" y="44">W or Ẇ<tspan baseline-shift="sub" font-size="10">s</tspan> — work</text>
+      <text class="beib-small" x="0" y="65">ṁ — mass flow</text>
+    </g>
+
+    <g transform="translate(18 410)">
+      <text class="beib-label" x="0" y="0">Interpretation cue</text>
+      <text class="beib-small" id="beib-side-note-1">
+        <tspan x="0" y="22">Closed system: no mass crosses.</tspan>
+      </text>
+      <text class="beib-small" id="beib-side-note-2">
+        <tspan x="0" y="43">Control volume: flow carries h, KE, PE.</tspan>
+      </text>
+    </g>
+  </g>
+</svg>
