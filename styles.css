@@ -713,6 +713,111 @@ iframe {
   }
 }
 
-  
+.topbar__actions,
+.textbook-topbar__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.app-nav-button {
+  display: inline-grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.7rem;
+
+  min-width: 180px;
+  padding: 0.7rem 0.85rem;
+
+  border: 1px solid rgba(247, 105, 2, 0.28);
+  border-radius: 14px;
+
+  color: var(--text, #202124);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(247, 105, 2, 0.12),
+      rgba(255, 255, 255, 0.96)
+    );
+
+  box-shadow:
+    0 6px 18px rgba(37, 42, 46, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+
+  text-decoration: none;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
+}
+
+.app-nav-button:hover {
+  transform: translateY(-2px);
+  border-color: var(--rit-orange, #f76902);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(247, 105, 2, 0.18),
+      rgba(255, 255, 255, 1)
+    );
+
+  box-shadow:
+    0 10px 24px rgba(37, 42, 46, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.app-nav-button:active {
+  transform: translateY(0);
+}
+
+.app-nav-button:focus-visible {
+  outline: 3px solid rgba(0, 156, 189, 0.35);
+  outline-offset: 3px;
+}
+
+.app-nav-button__icon {
+  display: grid;
+  place-items: center;
+
+  width: 2.15rem;
+  height: 2.15rem;
+
+  border-radius: 10px;
+
+  color: #ffffff;
+  background: var(--rit-orange, #f76902);
+
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.app-nav-button__text {
+  display: grid;
+  gap: 0.08rem;
+  min-width: 0;
+}
+
+.app-nav-button__text strong {
+  color: var(--text, #202124);
+  font-size: 0.95rem;
+  font-weight: 750;
+  line-height: 1.15;
+}
+
+.app-nav-button__text small {
+  color: var(--muted, #687078);
+  font-size: 0.76rem;
+  line-height: 1.2;
+}
+
+.app-nav-button__arrow {
+  color: var(--rit-orange, #f76902);
+  font-size: 1rem;
+  font-weight: 800;
+}
   
 }
