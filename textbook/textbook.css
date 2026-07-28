@@ -151,3 +151,179 @@
     flex-direction: column;
   }
 }
+
+
+/* =========================================================
+   Interactive textbook activities
+   ========================================================= */
+
+.textbook-activity {
+  margin: 2rem 0;
+}
+
+.textbook-activity[data-activity="system-boundary-classifier"] {
+  width: 100%;
+}
+
+.sbc-activity-shell {
+  display: grid;
+  gap: 1rem;
+}
+
+.sbc-svg-mount {
+  min-height: 12rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: #ffffff;
+}
+
+.sbc-inline-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.sbc-loading,
+.sbc-error {
+  margin: 0;
+  padding: 1rem;
+}
+
+.sbc-error {
+  border-left: 6px solid var(--rit-orange);
+  background: rgba(247, 105, 2, 0.08);
+}
+
+.sbc-response-panel {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: rgba(124, 135, 142, 0.06);
+}
+
+.sbc-response-panel h3 {
+  margin-top: 0;
+}
+
+.sbc-selection {
+  margin-bottom: 0.25rem;
+  font-weight: 700;
+}
+
+.sbc-scenario {
+  margin-top: 0;
+}
+
+.sbc-interaction-fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin: 1rem 0;
+  padding: 0.9rem 1rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.sbc-interaction-fieldset label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.sbc-interaction-fieldset input {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.sbc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.sbc-actions button {
+  min-height: 2.75rem;
+  padding: 0.6rem 1rem;
+  border: 2px solid currentColor;
+  border-radius: var(--radius-md);
+  background: #ffffff;
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sbc-actions button:first-child {
+  border-color: var(--rit-orange);
+  background: var(--rit-orange);
+  color: #ffffff;
+}
+
+.sbc-actions button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-soft);
+}
+
+.sbc-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.sbc-feedback {
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border-left: 0.35rem solid var(--muted);
+  background: #ffffff;
+}
+
+.sbc-feedback.is-correct {
+  border-left-style: double;
+  border-left-color: var(--dark-green, #548000);
+}
+
+.sbc-feedback.is-incorrect {
+  border-left-style: dashed;
+  border-left-color: var(--rit-orange);
+}
+
+.sbc-math-text {
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+}
+
+.activity-fallback {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: #ffffff;
+}
+
+.textbook-activity .sbc-boundary-option {
+  cursor: pointer;
+}
+
+.textbook-activity .sbc-boundary-option:focus-visible {
+  outline: none;
+}
+
+.textbook-activity .sbc-boundary-option:focus-visible .sbc-boundary {
+  stroke-width: 7;
+}
+
+@media (max-width: 600px) {
+  .sbc-interaction-fieldset {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .sbc-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .sbc-actions button {
+    width: 100%;
+  }
+}
