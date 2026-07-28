@@ -1,57 +1,3 @@
----
-id: m01-t05
-title: Pure Substances, Phases, and Property Diagrams
-slug: pure-substances-phases-and-property-diagrams
-page_type: topic
-visibility: public
-nav_order: 50
-module: 01-foundations
-mlo:
-  - MLO1
-daily_los:
-  - DLO-004
-  - DLO-005
-prerequisites:
-  - properties-states-and-equilibrium
-  - thermodynamic-processes-and-cycles
-estimated_time_minutes: 24
-difficulty: introductory
-problem_families:
-  - pure-substance-classification
-  - phase-identification
-  - quality-calculation
-  - property-diagram-interpretation
-interactive_elements:
-  - liquid-vapor-dome-state-classifier
-assets:
-  - assets/svg/foundations/liquid-vapor-dome-state-classifier.svg
-key_terms:
-  - pure substance
-  - phase
-  - compressed liquid
-  - saturated liquid
-  - saturated mixture
-  - saturated vapor
-  - superheated vapor
-  - saturation temperature
-  - saturation pressure
-  - quality
-  - vapor dome
-status: draft
-version: 0.2.0
-last_reviewed: 2026-07-28
-authors:
-  - name: Jeffrey Stransky
-    role: course editor
-reviewers: []
-license: TBD
-source_records:
-  - SRC-MCET530-EXAM1-2024
-  - SRC-MCET530-W1-NOTES
-accessibility_review: pending
-technical_review: pending
----
-
 # Pure Substances, Phases, and Property Diagrams
 
 ## Learning Objectives
@@ -150,13 +96,7 @@ A process path on a property diagram should appear only when the path is known o
 <a id="M01-EQ-009"></a>
 ### Vapor Quality - `M01-EQ-009`
 
-$$
-x
-=
-\frac{m_g}{m_f+m_g}
-=
-\frac{m_g}{m_{total}}
-$$
+$$x=\frac{m_g}{m_f+m_g}=\frac{m_g}{m_{total}}$$
 
 where:
 
@@ -173,13 +113,7 @@ where:
 <a id="M01-EQ-010"></a>
 ### Saturated-Mixture Property Relation - `M01-EQ-010`
 
-$$
-y
-=
-y_f+x y_{fg}
-=
-y_f+x(y_g-y_f)
-$$
+$$y=y_f+x y_{fg}=y_f+x(y_g-y_f)$$
 
 where:
 
