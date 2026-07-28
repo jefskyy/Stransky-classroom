@@ -27,9 +27,24 @@
 
       renderNavigation();
       await loadTopic(initialSlug, { pushState: false });
-    } catch (error) {
-      setStatus(`Textbook failed to load: ${error.message}`, "error");
-    }
+} catch (error) {
+  console.error("Textbook initialization failed:", error);
+
+  if (elements.title) {
+    elements.title.textContent = "Textbook unavailable";
+  }
+
+  setStatus(`Textbook failed to load: ${error.message}`, "error");
+
+  if (elements.content) {
+    elements.content.innerHTML = `
+      <div class="empty-state">
+        <h2>The textbook page could not be rendered.</h2>
+        <p>${escapeHtml(error.message)}</p>
+      </div>
+    `;
+  }
+}
   }
 
   function cacheElements() {
@@ -144,20 +159,19 @@
     renderMath(elements.content);
   }
 
-  function parseMarkdown(markdown) {
-    if (!window.marked || !window.marked.parse) {
-      return `<p>Markdown renderer unavailable. Check the Marked.js script in viewer.html.</p><pre>${escapeHtml(markdown)}</pre>`;
-    }
-
-    window.marked.setOptions({
-      gfm: true,
-      breaks: false,
-      mangle: false,
-      headerIds: true
-    });
-
-    return window.marked.parse(markdown);
+function parseMarkdown(markdown) {
+  if (!window.marked || typeof window.marked.parse !== "function") {
+    return `
+      <p>Markdown renderer unavailable. Check the Marked.js script in viewer.html.</p>
+      <pre>${escapeHtml(markdown)}</pre>
+    `;
   }
+
+  return window.marked.parse(markdown, {
+    gfm: true,
+    breaks: false
+  });
+}
 
   function transformWikiLinks(markdown) {
     return String(markdown).replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_match, rawSlug, rawLabel) => {
