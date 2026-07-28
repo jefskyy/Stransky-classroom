@@ -1,3 +1,4 @@
+<!--
 ---
 id: m02-t01
 title: Purpose of the Second Law and Energy Quality
@@ -45,7 +46,7 @@ source_records:
 accessibility_review: pending
 technical_review: pending
 ---
-
+-->
 # Purpose of the Second Law and Energy Quality
 
 ## Learning Objectives
@@ -89,11 +90,7 @@ The First Law tracks the quantity exchanged. The Second Law constrains the allow
 
 When two bodies at different temperatures interact without a work-consuming device, net heat transfer occurs spontaneously from higher temperature to lower temperature:
 
-$$
-T_H>T_L
-\quad\Longrightarrow\quad
-\text{spontaneous net heat transfer from }H\text{ to }L.
-$$
+$$T_H>T_L\quad\Longrightarrow\quad\text{spontaneous net heat transfer from }H\text{ to }L.$$
 
 The reverse transfer from low temperature to high temperature is possible only when another effect accompanies it, such as work input to a refrigerator or heat pump.
 
