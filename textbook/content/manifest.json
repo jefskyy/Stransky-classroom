@@ -1,63 +1,173 @@
 {
-  "title": "MCET 530 Thermal-Fluid Sciences II Open Textbook",
+  "title": "Thermodynamics Digital Textbook",
   "pages": [
     {
-      "slug": "entropy-as-a-thermodynamic-property",
-      "title": "Entropy as a Thermodynamic Property",
-      "description": "Define entropy as a thermodynamic property, determine entropy changes between states, and interpret entropy in thermal-fluid systems.",
-      "file": "entropy-as-a-thermodynamic-property.html",
+      "slug": "system-boundary-and-surroundings",
+      "title": "System, Boundary, and Surroundings",
+      "description": "Defines thermodynamic systems, boundaries, surroundings, and common system classifications.",
+      "file": "01-system-boundary-and-surroundings.md",
       "keywords": [
-        "entropy",
-        "thermodynamic property",
-        "state property",
-        "entropy change",
-        "specific entropy",
-        "second law of thermodynamics"
-      ]
-    },
-    {
-      "slug": "entropy-generation-and-irreversibility",
-      "title": "Entropy Generation and Irreversibility",
-      "description": "Relate entropy generation to irreversibility, reversible limits, and the increase of entropy principle.",
-      "file": "entropy-generation-and-irreversibility.html",
-      "keywords": [
-        "entropy generation",
-        "irreversibility",
-        "reversible process",
-        "irreversible process",
-        "increase of entropy principle",
-        "second law of thermodynamics"
-      ]
-    },
-    {
-      "slug": "entropy-balance-for-control-volumes",
-      "title": "Entropy Balance for Control Volumes",
-      "description": "Apply entropy balances to steady and unsteady control volumes with heat transfer, mass flow, and entropy generation.",
-      "file": "entropy-balance-for-control-volumes.html",
-      "keywords": [
-        "entropy balance",
+        "system",
+        "boundary",
+        "surroundings",
+        "closed system",
         "control volume",
-        "steady flow",
-        "unsteady flow",
-        "mass flow",
-        "entropy transfer",
-        "heat transfer",
-        "entropy generation"
+        "thermodynamics"
       ]
     },
     {
-      "slug": "process-feasibility-using-entropy-generation",
-      "title": "Process Feasibility Using Entropy Generation",
-      "description": "Use entropy generation and entropy balances to classify processes as reversible, irreversible, or impossible.",
-      "file": "process-feasibility-using-entropy-generation.html",
+      "slug": "properties-states-and-equilibrium",
+      "title": "Properties, States, and Equilibrium",
+      "description": "Introduces thermodynamic properties, states, equilibrium, and the state postulate.",
+      "file": "02-properties-states-and-equilibrium.md",
       "keywords": [
-        "process feasibility",
-        "entropy generation",
-        "reversible process",
-        "irreversible process",
-        "impossible process",
-        "second-law analysis",
-        "entropy balance"
+        "property",
+        "state",
+        "equilibrium",
+        "state postulate",
+        "intensive property",
+        "extensive property"
+      ]
+    },
+    {
+      "slug": "thermodynamic-processes-and-cycles",
+      "title": "Thermodynamic Processes and Cycles",
+      "description": "Explains processes, paths, cycles, and changes between thermodynamic states.",
+      "file": "03-thermodynamic-processes-and-cycles.md",
+      "keywords": [
+        "process",
+        "cycle",
+        "path",
+        "quasi-equilibrium",
+        "initial state",
+        "final state"
+      ]
+    },
+    {
+      "slug": "heat-and-work-interactions",
+      "title": "Heat and Work Interactions",
+      "description": "Distinguishes heat and work as energy interactions across a system boundary.",
+      "file": "04-heat-and-work-interactions.md",
+      "keywords": [
+        "heat",
+        "work",
+        "energy transfer",
+        "boundary work",
+        "sign convention",
+        "interaction"
+      ]
+    },
+    {
+      "slug": "pure-substances-phases-and-property-diagrams",
+      "title": "Pure Substances, Phases, and Property Diagrams",
+      "description": "Introduces pure substances, phase behavior, saturation, and thermodynamic property diagrams.",
+      "file": "05-pure-substances-phases-and-property-diagrams.md",
+      "keywords": [
+        "pure substance",
+        "phase",
+        "saturation",
+        "vapor dome",
+        "property diagram",
+        "quality"
+      ]
+    },
+    {
+      "slug": "property-model-and-table-selection",
+      "title": "Property Model and Table Selection",
+      "description": "Guides the selection of appropriate property models, tables, and equations of state.",
+      "file": "06-property-model-and-table-selection.md",
+      "keywords": [
+        "property table",
+        "ideal gas",
+        "incompressible substance",
+        "equation of state",
+        "model selection",
+        "interpolation"
+      ]
+    },
+    {
+      "slug": "thermodynamic-assumptions-and-model-reduction",
+      "title": "Thermodynamic Assumptions and Model Reduction",
+      "description": "Shows how assumptions simplify thermodynamic models while preserving physically meaningful behavior.",
+      "file": "07-thermodynamic-assumptions-and-model-reduction.md",
+      "keywords": [
+        "assumptions",
+        "model reduction",
+        "steady state",
+        "negligible kinetic energy",
+        "negligible potential energy",
+        "simplification"
+      ]
+    },
+    {
+      "slug": "purpose-second-law-energy-quality",
+      "title": "Purpose of the Second Law and Energy Quality",
+      "description": "Explains why the Second Law is needed and distinguishes energy quantity from energy quality.",
+      "file": "08-purpose-second-law-energy-quality.md",
+      "keywords": [
+        "second law",
+        "energy quality",
+        "energy quantity",
+        "direction",
+        "feasibility",
+        "irreversibility"
+      ]
+    },
+    {
+      "slug": "thermal-energy-reservoirs",
+      "title": "Thermal Energy Reservoirs",
+      "description": "Defines thermal energy reservoirs and their roles in cyclic thermal devices.",
+      "file": "09-thermal-energy-reservoirs.md",
+      "keywords": [
+        "thermal reservoir",
+        "high-temperature reservoir",
+        "low-temperature reservoir",
+        "heat source",
+        "heat sink",
+        "temperature"
+      ]
+    },
+    {
+      "slug": "heat-engines-thermal-efficiency",
+      "title": "Heat Engines and Thermal Efficiency",
+      "description": "Describes heat-engine energy flows and evaluates performance using thermal efficiency.",
+      "file": "10-heat-engines-thermal-efficiency.md",
+      "keywords": [
+        "heat engine",
+        "thermal efficiency",
+        "net work",
+        "heat input",
+        "cyclic device",
+        "energy flow"
+      ]
+    },
+    {
+      "slug": "refrigerators-heat-pumps-cop",
+      "title": "Refrigerators, Heat Pumps, and COP",
+      "description": "Compares refrigerators and heat pumps and defines their coefficients of performance.",
+      "file": "11-refrigerators-heat-pumps-cop.md",
+      "keywords": [
+        "refrigerator",
+        "heat pump",
+        "coefficient of performance",
+        "COP",
+        "work input",
+        "cooling",
+        "heating"
+      ]
+    },
+    {
+      "slug": "reversibility-irreversibility-carnot-limits",
+      "title": "Reversibility, Irreversibility, and Carnot Limits",
+      "description": "Introduces reversible processes, irreversibility, and ideal Carnot performance limits.",
+      "file": "12-reversibility-irreversibility-carnot-limits.md",
+      "keywords": [
+        "reversibility",
+        "irreversibility",
+        "Carnot",
+        "reversible limit",
+        "maximum efficiency",
+        "ideal performance"
       ]
     }
   ]
