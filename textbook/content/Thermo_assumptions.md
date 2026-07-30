@@ -1,28 +1,23 @@
-# Thermodynamic Variables Summary Table
+# Thermodynamic & Fluid System Assumptions Summary Table
 
-| Variable Name | Symbol | Description (1 sentence max) | Common SI Units |
+| Assumption | Description & Application | Key Words & Phrases | Affected Equations / Variables |
 | :--- | :--- | :--- | :--- |
-| Heat Transfer | $Q$ | Total amount of thermal energy transferred across a system boundary due to a temperature difference. | $\text{J}$ or $\text{kJ}$ |
-| Heat Transfer Rate | $\dot{Q}$ | Thermal energy transferred per unit time across a system boundary. | $\text{W}$ or $\text{kW}$ |
-| Specific Heat Transfer | $q$ | Heat transfer per unit mass of the system. | $\text{J/kg}$ or $\text{kJ/kg}$ |
-| Work | $W$ | Total energy transferred by a force acting through a distance across a system boundary. | $\text{J}$ or $\text{kJ}$ |
-| Work Rate (Power) | $\dot{W}$ | Work done or energy transferred per unit time. | $\text{W}$ or $\text{kW}$ |
-| Specific Work | $w$ | Work done per unit mass of the system. | $\text{J/kg}$ or $\text{kJ/kg}$ |
-| Temperature | $T$ | Measure of the average macroscopic kinetic energy of the particles within a substance. | $\text{K}$ or $\text{^\circ C}$ |
-| Pressure | $P$ | Normal force exerted by a fluid per unit surface area of its boundary. | $\text{Pa}$ or $\text{kPa}$ |
-| Internal Energy | $U$ | Total microscopic kinetic and potential energy contained within a system. | $\text{J}$ or $\text{kJ}$ |
-| Specific Internal Energy | $u$ | Internal energy contained per unit mass of the system. | $\text{J/kg}$ or $\text{kJ/kg}$ |
-| Enthalpy | $H$ | Total thermodynamic property defined as the sum of internal energy and the product of pressure and volume. | $\text{J}$ or $\text{kJ}$ |
-| Specific Enthalpy | $h$ | Enthalpy per unit mass of the system. | $\text{J/kg}$ or $\text{kJ/kg}$ |
-| Entropy | $S$ | Measure of the microscopic molecular disorder or randomness within a system. | $\text{J/K}$ or $\text{kJ/K}$ |
-| Specific Entropy | $s$ | Entropy per unit mass of the system. | $\text{J/(kg}\cdot\text{K)}$ or $\text{kJ/(kg}\cdot\text{K)}$ |
-| Kinetic Energy | $\text{KE}$ | Energy possessed by a system due to its overall macroscopic motion. | $\text{J}$ or $\text{kJ}$ |
-| Potential Energy | $\text{PE}$ | Energy possessed by a system due to its position within a gravitational field. | $\text{J}$ or $\text{kJ}$ |
-| Mass | $m$ | Measure of the total amount of matter contained within a system. | $\text{kg}$ |
-| Mass Flow Rate | $\dot{m}$ | Mass of fluid passing through a cross-section per unit time. | $\text{kg/s}$ |
-| Density | $\rho$ | Mass contained per unit volume of a substance. | $\text{kg/m}^3$ |
-| Volume | $V$ | Total three-dimensional spatial extent occupied by a system. | $\text{m}^3$ |
-| Specific Volume | $v$ | Volume occupied per unit mass of a substance, representing the reciprocal of density. | $\text{m}^3/\text{kg}$ |
-| Volumetric Flow Rate | $\dot{V}$ | Volume of fluid passing through a cross-section per unit time. | $\text{m}^3/\text{s}$ |
-| Velocity | $V$ or $V_{\text{flow}}$ | Magnitude of macroscopic fluid displacement per unit time. | $\text{m/s}$ |
-| Specific Gas Constant | $R$ | Substance-specific gas constant calculated as the universal gas constant divided by molar mass. | $\text{J/(kg}\cdot\text{K)}$ or $\text{kJ/(kg}\cdot\text{K)}$ |
+| Compressibility / Incompressibility | Assumes fluid density remains constant ($\rho = \text{const}$). Useful for liquids and low-speed gases, simplifying mass and energy balance equations. | `'Incompressible flow'`, `'Constant density'`, `'Liquid flow'`, `'Low-speed gas'` | $P v = z R T$ |
+| Steady-State Flow (SSF) | No accumulation of mass or energy in the control volume ($\frac{dE}{dt} = 0, \frac{dm}{dt} = 0$); conditions do not change over time. | `'Steady'`, `'Does not change over time'`, `'Constant conditions'`, `'Equilibrium'` | $\sum \dot{m}_{\text{in}} = \sum \dot{m}_{\text{out}}$ |
+| SISO / MIMO Boundary Flow | Single Inlet, Single Outlet (SISO) simplifies conservation equations, whereas Multiple Inlets, Multiple Outlets (MIMO) requires detailed summation streams. | `'Single inlet'`, `'Single outlet'`, `'Multiple streams'`, `'Mass flow rate balance'` | $\dot{Q} - \dot{W} = \dot{m}(\Delta h + \Delta \text{KE} + \Delta \text{PE})$ |
+| Uniform Flow | Flow properties are assumed to be uniform across a cross-section, avoiding detailed velocity profile integration. | `'Uniform velocity'`, `'Negligible boundary effects'`, `'Evenly distributed'` | $\dot{m} = \rho A V_{\text{avg}}$ |
+| Ideal Gas / Real Gas | Ideal gas follows $P v = R T$; real gases deviate under high pressure or low temperature and require compressibility factors. | `'Ideal gas'`, `'PV=nRT'`, `'Perfect gas'`, `'Non-ideal behavior'`, `'Compressibility'` | $P v = z R T$ |
+| Negligible Kinetic Energy ($\Delta\text{KE} = 0$) | Kinetic energy changes are negligible when flow speeds are low or velocity differences between inlet and outlet are minimal. | `'Negligible velocity change'`, `'Low-speed flow'`, `'Slow-moving fluid'` | $\dot{Q} - \dot{W} = \dot{m}(\Delta h + \Delta \text{PE})$ |
+| Negligible Potential Energy ($\Delta\text{PE} = 0$) | Potential energy changes are negligible when elevation differences between state points are negligible. | `'Negligible height change'`, `'Horizontal flow'`, `'Small elevation difference'` | $\dot{Q} - \dot{W} = \dot{m}(\Delta h + \Delta \text{KE})$ |
+| Isentropic Process ($\Delta s = 0$) | Entropy remains constant across the process (frictionless and adiabatic), representing an idealized reversible benchmark. | `'Reversible'`, `'No entropy change'`, `'Frictionless'`, `'Perfectly efficient'` | $s_1 = s_2$ |
+| Isothermal Process ($\Delta T = 0$) | Temperature remains constant throughout the process. Common in phase changes and slow thermal equilibrium systems. | `'Constant temperature'`, `'Phase change'`, `'Thermal equilibrium'` | $P v = \text{const}$ |
+| Adiabatic Process ($\dot{Q} = 0$) | No heat transfer occurs across system boundaries due to insulation or rapid expansion/compression. | `'Insulated'`, `'No heat loss'`, `'Rapid compression'`, `'Quick expansion'` | $\dot{Q} = 0 \implies -\dot{W} = \dot{m}\Delta h$ |
+| Rigid Boundary / No Boundary Work ($W = 0$) | Assumes the system boundary is fixed in volume, eliminating boundary expansion/contraction work ($\int P dV = 0$). | `'Rigid container'`, `'Constant volume'`, `'Fixed boundary'`, `'No expansion work'` | $Q = \Delta U$ |
+| Constant Specific Heats ($c_p, c_v = \text{const}$) | Assumes heat capacities do not vary with temperature, simplifying enthalpy and internal energy evaluation ($\Delta h = c_p \Delta T$). | `'Constant properties'`, `'Standard gas tables'`, `'Cp and Cv are given as constants'` | $\Delta u = c_v \Delta T$, $\Delta h = c_p \Delta T$ |
+| Internally Reversible Process ($s_{\text{gen}} = 0$) | The process contains no internal dissipative effects or fluid friction, maximizing theoretical work or cycle efficiency. | `'Reversible process'`, `'Ideal cycle'`, `'Frictionless'`, `'No dissipative losses'`, `'Carnot'` | $s_{\text{gen}} = 0$ |
+| Isobaric Process ($\Delta P = 0$) | Pressure remains constant throughout the heat addition or removal process, typical in open boilers and heat exchangers. | `'Constant pressure'`, `'Open system heat transfer'`, `'Boiling'`, `'Condensation'` | $W = P(V_2 - V_1)$ |
+| Isochoric Process ($\Delta V = 0$) | Volume remains constant, preventing boundary work generation in closed vessels. | `'Fixed volume'`, `'No expansion work'`, `'Rigid container'`, `'Closed tank'` | $W = 0, Q = m c_v \Delta T$ |
+| Perfectly Insulated System | Complete thermal isolation prevents any energy transfer via heat across the control boundary. | `'Insulated'`, `'No heat transfer'`, `'Adiabatic process'`, `'Perfect insulation'` | $\dot{Q} = 0$ |
+| Throttling Process ($h_1 = h_2$) | Fluid passes through a restriction (valve, expansion device) with negligible work, heat transfer, or kinetic changes. | `'Throttling'`, `'Joule-Thomson expansion'`, `'No heat/work interactions'`, `'Isenthalpic'` | $h_1 = h_2, \dot{Q} = 0, \dot{W} = 0$ |
+| Negligible Viscous Effects / Frictionless | Fluid viscosity is assumed zero or fluid shear losses are neglected in boundary layer flows. | `'Frictionless'`, `'Negligible losses'`, `'No energy dissipation'`, `'Reversible process'` | $\dot{Q} - \dot{W} = \dot{m}(\Delta h + \Delta \text{KE} + \Delta \text{PE})$ |
+| Negligible Radiation Heat Transfer | Radiative energy exchange between surfaces is small relative to conduction or convection modes and can be neglected. | `'Negligible radiation'`, `'Only convection/conduction considered'`, `'Thermal conduction dominant'` | $\dot{Q}_{\text{rad}} = 0$ |
