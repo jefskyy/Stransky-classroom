@@ -13,6 +13,17 @@
         "variables"
       ]
     },
+      {
+      "slug": "Thermo-assumptions",
+      "title": "Thermodynamic Assumptions",
+      "description": "...",
+      "file": "Thermo_assumptions.md",
+      "keywords": [
+        "units",
+        "assumptions",
+        "variables"
+      ]
+    },
     
     {
       "slug": "system-boundary-and-surroundings",
