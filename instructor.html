@@ -5,6 +5,187 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Instructor Dashboard | RIT Classroom Engagement</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    .collapsible-panel {
+      padding: 0;
+      overflow: clip;
+    }
+
+    .panel-summary {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: clamp(1rem, 2.2vw, 1.5rem);
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(247, 105, 2, 0.045));
+    }
+
+    .panel-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .panel-summary:hover {
+      background: linear-gradient(135deg, #ffffff, rgba(247, 105, 2, 0.09));
+    }
+
+    .panel-summary:focus-visible {
+      outline: 3px solid var(--rit-yellow);
+      outline-offset: -4px;
+    }
+
+    .panel-summary h2 {
+      margin-bottom: 0.25rem;
+    }
+
+    .panel-summary p {
+      margin-bottom: 0;
+    }
+
+    .panel-summary-action {
+      flex: 0 0 auto;
+      min-width: 5.5rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.45rem 0.7rem;
+      color: var(--muted);
+      background: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .collapsible-panel[open] .panel-summary-action::before {
+      content: "Collapse";
+    }
+
+    .collapsible-panel:not([open]) .panel-summary-action::before {
+      content: "Expand";
+    }
+
+    .panel-content {
+      border-top: 1px solid var(--border);
+      padding: clamp(1rem, 2.2vw, 1.5rem);
+    }
+
+    .panel-action-row,
+    .preview-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .preview-toolbar {
+      justify-content: space-between;
+      margin-top: 1rem;
+    }
+
+    .preview-toolbar p {
+      margin: 0;
+    }
+
+    .jigsaw-controls {
+      margin-top: 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1rem;
+      background: rgba(125, 85, 199, 0.055);
+    }
+
+    .jigsaw-control-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0 1rem;
+    }
+
+    .resizable-preview {
+      position: relative;
+      height: 560px;
+      min-height: 280px;
+      max-height: 85vh;
+      overflow: auto;
+      resize: vertical;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: #ffffff;
+    }
+
+    .resizable-preview iframe {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      border: 0;
+      border-radius: inherit;
+    }
+
+    .resizable-preview:fullscreen {
+      width: 100vw;
+      height: 100vh;
+      max-height: none;
+      resize: none;
+      border: 0;
+      border-radius: 0;
+      padding: 0;
+      background: #ffffff;
+    }
+
+    .resizable-preview:fullscreen iframe {
+      border-radius: 0;
+    }
+
+
+    .room-reset-actions,
+    .export-action-row {
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .room-reset-note,
+    .export-note {
+      max-width: 48rem;
+      margin: 0;
+    }
+
+    .destructive-button {
+      color: var(--rit-red);
+      border-color: rgba(218, 41, 28, 0.42);
+      background: rgba(218, 41, 28, 0.06);
+      box-shadow: none;
+    }
+
+    .destructive-button:hover {
+      color: #ffffff;
+      border-color: var(--rit-red);
+      background: var(--rit-red);
+      box-shadow: 0 8px 20px rgba(218, 41, 28, 0.2);
+    }
+
+    @media (max-width: 680px) {
+      .panel-summary,
+      .preview-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .panel-summary-action {
+        align-self: flex-start;
+      }
+
+      .jigsaw-control-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .resizable-preview {
+        height: 460px;
+      }
+    }
+  </style>
   <script type="module" src="app.js"></script>
 </head>
 <body data-page="instructor">
@@ -17,141 +198,230 @@
   </header>
 
   <main class="dashboard-grid">
-    <section class="card room-card">
-      <div class="section-heading-row">
+    <details class="card room-card collapsible-panel" open>
+      <summary class="panel-summary">
         <div>
           <h2>Room</h2>
-          <p class="muted">Students join with the QR code or link.</p>
+          <p class="muted">Create the student join link, QR code, and current room.</p>
         </div>
-        <button class="secondary-button" id="newRoomBtn" type="button">New room</button>
-      </div>
-
-      <div class="room-id-box">
-        <span>Room ID</span>
-        <strong id="roomIdText">Not connected</strong>
-      </div>
-
-      <div class="join-layout">
-<div class="qr-wrap">
-  <img
-    id="qrImage"
-    alt="QR code for the student join link"
-    width="230"
-    height="230"
-    style="width:230px;height:230px;max-width:100%;border-radius:12px;background:#fff;"
-  />
-  <p class="qr-fallback" id="qrFallback">QR loads after the room is created.</p>
-</div>
-        <div class="join-link-block">
-          <label for="joinLink">Student join link</label>
-          <input id="joinLink" type="text" readonly value="" />
-          <button id="copyJoinLinkBtn" type="button">Copy join link</button>
+        <span class="panel-summary-action" aria-hidden="true"></span>
+      </summary>
+      <div class="panel-content">
+        <div class="panel-action-row room-reset-actions">
+          <p class="muted room-reset-note">Refresh the room code only after exporting any roster or comments you need. The previous room will be closed and permanently cleared.</p>
+          <button class="secondary-button destructive-button" id="newRoomBtn" type="button">Refresh room code</button>
         </div>
-      </div>
 
-      <form id="openRoomForm" class="inline-form" autocomplete="off">
-        <label for="existingRoomInput">Open existing room</label>
-        <div class="inline-controls">
-          <input id="existingRoomInput" type="text" inputmode="latin" maxlength="12" placeholder="Example: A7K4Q9" />
-          <button class="secondary-button" type="submit">Open</button>
+        <div class="room-id-box">
+          <span>Room ID</span>
+          <strong id="roomIdText">Not connected</strong>
         </div>
-      </form>
-    </section>
 
-    <section class="card module-card">
-      <h2>Active Module</h2>
-      <p class="muted">Changing the module updates every connected student screen.</p>
-      <div class="module-button-grid" role="group" aria-label="Active module selector">
-        <button class="module-button" id="modeSigninBtn" type="button" data-mode="signin">Name Sign-In</button>
-        <button class="module-button" id="modeAiBtn" type="button" data-mode="ai">AI Problem</button>
-        <button class="module-button" id="modeGroupsBtn" type="button" data-mode="groups">Groups</button>
-        <button class="module-button" id="modeHtmlBtn" type="button" data-mode="html">HTML Viewer</button>
+        <div class="join-layout">
+          <div class="qr-wrap">
+            <img
+              id="qrImage"
+              alt="QR code for the student join link"
+              width="230"
+              height="230"
+              style="width:230px;height:230px;max-width:100%;border-radius:12px;background:#fff;"
+            />
+            <p class="qr-fallback" id="qrFallback">QR loads after the room is created.</p>
+          </div>
+          <div class="join-link-block">
+            <label for="joinLink">Student join link</label>
+            <input id="joinLink" type="text" readonly value="" />
+            <button id="copyJoinLinkBtn" type="button">Copy join link</button>
+          </div>
+        </div>
+
+        <form id="openRoomForm" class="inline-form" autocomplete="off">
+          <label for="existingRoomInput">Open existing room</label>
+          <div class="inline-controls">
+            <input id="existingRoomInput" type="text" inputmode="latin" maxlength="12" placeholder="Example: A7K4Q9" />
+            <button class="secondary-button" type="submit">Open</button>
+          </div>
+        </form>
       </div>
-      <div class="active-module-banner" id="activeModuleBanner">No room loaded.</div>
-    </section>
+    </details>
 
-    <section class="card roster-card wide-card">
-      <div class="section-heading-row">
+    <details class="card module-card collapsible-panel" open>
+      <summary class="panel-summary">
+        <div>
+          <h2>Active Module</h2>
+          <p class="muted">Choose what every connected student sees.</p>
+        </div>
+        <span class="panel-summary-action" aria-hidden="true"></span>
+      </summary>
+      <div class="panel-content">
+        <div class="module-button-grid" role="group" aria-label="Active module selector">
+          <button class="module-button" id="modeSigninBtn" type="button" data-mode="signin">Name Sign-In</button>
+          <button class="module-button" id="modeAiBtn" type="button" data-mode="ai">AI Problem</button>
+          <button class="module-button" id="modeGroupsBtn" type="button" data-mode="groups">Groups</button>
+          <button class="module-button" id="modeHtmlBtn" type="button" data-mode="html">HTML Viewer</button>
+        </div>
+        <div class="active-module-banner" id="activeModuleBanner">No room loaded.</div>
+      </div>
+    </details>
+
+    <details class="card roster-card wide-card collapsible-panel" open>
+      <summary class="panel-summary">
         <div>
           <h2>Live Roster</h2>
           <p class="muted"><span id="rosterCount">0</span> signed in · <span id="onlineCount">0</span> currently connected</p>
         </div>
-        <button class="secondary-button" id="clearRosterBtn" type="button">Clear roster</button>
+        <span class="panel-summary-action" aria-hidden="true"></span>
+      </summary>
+      <div class="panel-content">
+        <div class="panel-action-row">
+          <button class="secondary-button" id="clearRosterBtn" type="button">Clear roster</button>
+        </div>
+        <div id="rosterGrid" class="roster-grid" aria-live="polite"></div>
       </div>
-      <div id="rosterGrid" class="roster-grid" aria-live="polite"></div>
-    </section>
+    </details>
 
-    <section class="card config-card">
-      <h2>Randomized Group Formation</h2>
-      <p class="muted">Students are shuffled with Fisher-Yates and distributed evenly.</p>
+    <details class="card config-card collapsible-panel" open>
+      <summary class="panel-summary">
+        <div>
+          <h2>Team Formation</h2>
+          <p class="muted">Create standard randomized teams or two-stage jigsaw assignments.</p>
+        </div>
+        <span class="panel-summary-action" aria-hidden="true"></span>
+      </summary>
+      <div class="panel-content">
+        <label for="groupModeSelect">Configuration mode</label>
+        <select id="groupModeSelect">
+          <option value="size">Fixed group size</option>
+          <option value="count">Fixed number of groups</option>
+          <option value="auto">Auto-assign</option>
+          <option value="jigsaw">Jigsaw: Group I + Group II</option>
+        </select>
 
-      <label for="groupModeSelect">Configuration mode</label>
-      <select id="groupModeSelect">
-        <option value="size">Fixed group size</option>
-        <option value="count">Fixed number of groups</option>
-        <option value="auto">Auto-assign</option>
-      </select>
+        <div id="groupSizeBlock">
+          <label for="groupSizeInput">Maximum students per group</label>
+          <input id="groupSizeInput" type="number" min="2" max="12" step="1" value="4" />
+        </div>
 
-      <div id="groupSizeBlock">
-        <label for="groupSizeInput">Maximum students per group</label>
-        <input id="groupSizeInput" type="number" min="2" max="12" step="1" value="4" />
+        <div id="groupCountBlock" class="hidden">
+          <label for="groupCountInput">Exact number of groups</label>
+          <input id="groupCountInput" type="number" min="1" max="40" step="1" value="5" />
+        </div>
+
+        <div id="jigsawControls" class="jigsaw-controls hidden">
+          <h3>Jigsaw configuration</h3>
+          <p class="muted">Group I is the home/synthesis team. Group II is the complementary expert or topic group.</p>
+          <div class="jigsaw-control-grid">
+            <div>
+              <label for="jigsawHomeCountInput">Number of Group I teams</label>
+              <input id="jigsawHomeCountInput" type="number" min="1" max="40" step="1" value="8" />
+            </div>
+            <div>
+              <label for="jigsawHomeLabelStyle">Group I labels</label>
+              <select id="jigsawHomeLabelStyle">
+                <option value="letters">Letters: A, B, C</option>
+                <option value="numbers">Numbers: 1, 2, 3</option>
+              </select>
+            </div>
+            <div>
+              <label for="jigsawExpertCountInput">Number of Group II assignments</label>
+              <input id="jigsawExpertCountInput" type="number" min="2" max="12" step="1" value="6" />
+            </div>
+            <div>
+              <label for="jigsawExpertLabelStyle">Group II labels</label>
+              <select id="jigsawExpertLabelStyle">
+                <option value="colors">Colors: Red, Blue, Green</option>
+                <option value="numbers">Numbers: 1, 2, 3</option>
+                <option value="letters">Letters: A, B, C</option>
+              </select>
+            </div>
+          </div>
+          <p class="muted">Best coverage occurs when each Group I team has the same number of students as there are Group II assignments.</p>
+        </div>
+
+        <button id="assignGroupsBtn" type="button">Randomize and assign groups</button>
+        <div id="groupSummary" class="summary-stack"></div>
       </div>
+    </details>
 
-      <div id="groupCountBlock" class="hidden">
-        <label for="groupCountInput">Exact number of groups</label>
-        <input id="groupCountInput" type="number" min="1" max="40" step="1" value="5" />
+    <details class="card config-card collapsible-panel" open>
+      <summary class="panel-summary">
+        <div>
+          <h2>AI Problem Engagement</h2>
+          <p class="muted">Distribute one problem variation to each student.</p>
+        </div>
+        <span class="panel-summary-action" aria-hidden="true"></span>
+      </summary>
+      <div class="panel-content">
+        <label for="aiTitleInput">Activity title</label>
+        <input id="aiTitleInput" type="text" value="AI Problem Engagement" />
+
+        <label for="aiInstructionsInput">Student instructions</label>
+        <textarea id="aiInstructionsInput" rows="3">Read your assigned problem variation. Make a prediction, justify it, and submit a brief response.</textarea>
+
+        <label for="aiPayloadInput">Problem payloads</label>
+        <textarea id="aiPayloadInput" rows="9">[{"title":"Variation A","body":"A system undergoes a process with specified inlet and outlet states. Predict whether entropy generation will be positive, zero, or impossible before calculating."},{"title":"Variation B","body":"A device rejects heat to a boundary while mass flows through it. Identify which entropy terms increase or decrease the required entropy generation."},{"title":"Variation C","body":"A control volume has steady mass flow but nonzero heat transfer. Determine what would make the proposed process infeasible."}]</textarea>
+
+        <button id="startAiBtn" type="button">Distribute problems and start</button>
       </div>
+    </details>
 
-      <button id="assignGroupsBtn" type="button">Randomize and assign groups</button>
-      <div id="groupSummary" class="summary-stack"></div>
-    </section>
-
-    <section class="card config-card">
-      <h2>AI Problem Engagement</h2>
-      <p class="muted">Paste AI-generated problem payloads as JSON or one problem per line. Each student receives one payload.</p>
-
-      <label for="aiTitleInput">Activity title</label>
-      <input id="aiTitleInput" type="text" value="AI Problem Engagement" />
-
-      <label for="aiInstructionsInput">Student instructions</label>
-      <textarea id="aiInstructionsInput" rows="3">Read your assigned problem variation. Make a prediction, justify it, and submit a brief response.</textarea>
-
-      <label for="aiPayloadInput">Problem payloads</label>
-      <textarea id="aiPayloadInput" rows="9">[{"title":"Variation A","body":"A system undergoes a process with specified inlet and outlet states. Predict whether entropy generation will be positive, zero, or impossible before calculating."},{"title":"Variation B","body":"A device rejects heat to a boundary while mass flows through it. Identify which entropy terms increase or decrease the required entropy generation."},{"title":"Variation C","body":"A control volume has steady mass flow but nonzero heat transfer. Determine what would make the proposed process infeasible."}]</textarea>
-
-      <button id="startAiBtn" type="button">Distribute problems and start</button>
-    </section>
-
-    <section class="card config-card wide-card">
-      <div class="section-heading-row">
+    <details class="card config-card wide-card collapsible-panel" open>
+      <summary class="panel-summary">
         <div>
           <h2>Dynamic HTML Viewer</h2>
-          <p class="muted">Broadcast a snippet that runs inside a sandboxed iframe on each student device. Student interactions remain local.</p>
+          <p class="muted">Load, preview, and broadcast an interactive HTML activity.</p>
         </div>
-        <button class="secondary-button" id="loadSampleHtmlBtn" type="button">Load sample</button>
+        <span class="panel-summary-action" aria-hidden="true"></span>
+      </summary>
+      <div class="panel-content">
+        <div class="panel-action-row">
+          <button class="secondary-button" id="loadSampleHtmlBtn" type="button">Load sample</button>
+        </div>
+
+        <label for="htmlTitleInput">Viewer title</label>
+        <input id="htmlTitleInput" type="text" value="Interactive HTML Sandbox" />
+
+        <label for="htmlInput">HTML snippet</label>
+        <textarea id="htmlInput" rows="14" spellcheck="false"></textarea>
+
+        <div class="split-actions">
+          <button id="broadcastHtmlBtn" type="button">Broadcast HTML and start</button>
+          <button class="secondary-button" id="previewHtmlBtn" type="button">Preview locally</button>
+        </div>
+
+        <div class="preview-toolbar">
+          <p class="muted">Drag the lower-right edge to change preview height, or open the preview full screen.</p>
+          <button class="secondary-button" id="fullscreenPreviewBtn" type="button">Full screen preview</button>
+        </div>
+
+        <div class="preview-shell resizable-preview" id="htmlPreviewContainer">
+          <iframe
+            id="htmlPreviewFrame"
+            title="Instructor preview of the HTML snippet"
+            sandbox="allow-scripts allow-forms"
+            allow="fullscreen"
+          ></iframe>
+        </div>
       </div>
+    </details>
 
-      <label for="htmlTitleInput">Viewer title</label>
-      <input id="htmlTitleInput" type="text" value="Interactive HTML Sandbox" />
-
-      <label for="htmlInput">HTML snippet</label>
-      <textarea id="htmlInput" rows="14" spellcheck="false"></textarea>
-
-      <div class="split-actions">
-        <button id="broadcastHtmlBtn" type="button">Broadcast HTML and start</button>
-        <button class="secondary-button" id="previewHtmlBtn" type="button">Preview locally</button>
+    <details class="card wide-card collapsible-panel" open>
+      <summary class="panel-summary">
+        <div>
+          <h2>Recent Student Submissions</h2>
+          <p class="muted">Review responses written when students press submit.</p>
+        </div>
+        <span class="panel-summary-action" aria-hidden="true"></span>
+      </summary>
+      <div class="panel-content">
+        <div class="panel-action-row export-action-row">
+          <p class="muted export-note">The CSV contains every participant in the current roster and every comment submitted from the student response textboxes during this room.</p>
+          <button class="secondary-button" id="exportCsvBtn" type="button">Export roster and comments (.csv)</button>
+        </div>
+        <p class="form-message" id="exportCsvMessage" role="status" aria-live="polite"></p>
+        <div id="submissionList" class="submission-list"></div>
       </div>
-
-      <div class="preview-shell">
-        <iframe id="htmlPreviewFrame" title="Instructor preview of the HTML snippet" sandbox="allow-scripts allow-forms"></iframe>
-      </div>
-    </section>
-
-    <section class="card wide-card">
-      <h2>Recent Student Submissions</h2>
-      <p class="muted">Submissions write only when students press submit.</p>
-      <div id="submissionList" class="submission-list"></div>
-    </section>
+    </details>
   </main>
 </body>
 </html>
