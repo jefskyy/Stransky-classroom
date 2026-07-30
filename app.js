@@ -5,6 +5,7 @@ import {
   ref,
   get,
   set,
+  push,
   update,
   remove,
   onValue,
@@ -13,17 +14,9 @@ import {
   goOnline
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDT4b9oMiVuowe9eDAtRA0x6LgKc2S6LP4",
-  authDomain: "stransky-classroom.firebaseapp.com",
-  databaseURL: "https://stransky-classroom-default-rtdb.firebaseio.com/",
-  projectId: "stransky-classroom",
-  storageBucket: "stransky-classroom.firebasestorage.app",
-  messagingSenderId: "192133852270",
-  appId: "1:192133852270:web:f00ee5c08803cc174b0a7f"
-};
+import { firebaseConfig } from "./firebase-config.js";
 
-const APP_VERSION = "1.0.0";
+const APP_VERSION = "1.3.0";
 const STORAGE_KEY = "ritClassroomEngagementState.v1";
 const MODULE_LABELS = {
   signin: "Name Sign-In",
@@ -60,7 +53,7 @@ function isFirebaseConfigured(config) {
 
 function initializeFirebase() {
   if (!configured) {
-    return { ok: false, message: "Firebase config is not set. Replace the values in app.js before deployment." };
+    return { ok: false, message: "Firebase config is not set. Replace the values in firebase-config.js before deployment." };
   }
 
   if (database) {
@@ -228,8 +221,25 @@ function makeEmptyRoom(roomId) {
       content: defaultSandboxHtml(),
       version: Date.now()
     },
-    submissions: {}
+    submissionLog: {}
   };
+}
+
+async function closeRoom(roomId, replacementRoomId = "") {
+  const safeRoom = normalizeRoomId(roomId);
+  if (!safeRoom) return;
+
+  // Replace the former room with a minimal tombstone. This atomically boots
+  // connected students while permanently removing the roster and comments.
+  await set(roomRef(safeRoom), {
+    meta: {
+      roomId: safeRoom,
+      status: "closed",
+      replacementRoomId: normalizeRoomId(replacementRoomId),
+      closedAt: serverTimestamp()
+    },
+    activeModule: "closed"
+  });
 }
 
 async function createRoom() {
@@ -244,32 +254,25 @@ async function createRoom() {
     exists = snapshot.exists();
     attempts += 1;
   }
-async function closeRoom(roomId) {
-  const safeRoom = normalizeRoomId(roomId);
-  if (!safeRoom) return;
 
-  try {
-    await update(roomRef(safeRoom), {
-      "meta/status": "closed",
-      "meta/closedAt": serverTimestamp(),
-      activeModule: "closed",
-      updatedAt: serverTimestamp()
-    });
-  } catch {
-    undefined;
-  }
-}
-  
   if (exists) {
     throw new Error("Could not create a unique room ID. Try again.");
   }
 
-const previousRoomId = readStore().instructorRoomId || currentRoomId || "";
-await closeRoom(previousRoomId);
+  const previousRoomId = readStore().instructorRoomId || currentRoomId || "";
+  await set(roomRef(roomId), makeEmptyRoom(roomId));
 
-await set(roomRef(roomId), makeEmptyRoom(roomId));
-patchStore({ instructorRoomId: roomId });
-return roomId;
+  if (previousRoomId && previousRoomId !== roomId) {
+    try {
+      await closeRoom(previousRoomId, roomId);
+    } catch (error) {
+      await remove(roomRef(roomId)).catch(() => undefined);
+      throw new Error(`The prior room could not be cleared, so the room code was not refreshed: ${error.message}`);
+    }
+  }
+
+  patchStore({ instructorRoomId: roomId });
+  return roomId;
 }
 
 async function openOrCreateInstructorRoom(requestedRoomId) {
@@ -280,6 +283,8 @@ async function openOrCreateInstructorRoom(requestedRoomId) {
   const snapshot = await get(roomRef(roomId));
   if (!snapshot.exists()) {
     await set(roomRef(roomId), makeEmptyRoom(roomId));
+  } else if (snapshot.val()?.meta?.status === "closed") {
+    throw new Error("That room has expired and its roster and comments were cleared. Create a new room.");
   }
   patchStore({ instructorRoomId: roomId });
   return roomId;
@@ -299,6 +304,7 @@ async function setActiveModule(roomId, mode) {
 async function clearRoster(roomId) {
   await ensureReady();
   await remove(roomRef(roomId, "students"));
+  await remove(roomRef(roomId, "submissionLog"));
   await remove(roomRef(roomId, "submissions"));
   await update(roomRef(roomId), {
     groups: {
@@ -313,8 +319,8 @@ async function clearRoster(roomId) {
   });
 }
 
-function buildGroups(studentsObject, config) {
-  const roster = Object.values(studentsObject || {})
+function getGroupRoster(studentsObject) {
+  return Object.values(studentsObject || {})
     .filter(student => student && student.id && student.name)
     .map(student => ({
       id: student.id,
@@ -322,8 +328,12 @@ function buildGroups(studentsObject, config) {
       active: student.active !== false,
       lastSeen: student.lastSeen || 0
     }));
+}
 
+function buildGroups(studentsObject, config) {
+  const roster = getGroupRoster(studentsObject);
   const total = roster.length;
+
   if (total === 0) {
     return {
       mode: config.mode,
@@ -353,6 +363,7 @@ function buildGroups(studentsObject, config) {
     label: `Group ${index + 1}`,
     members: []
   }));
+
   shuffled.forEach((student, index) => {
     groups[index % groupCount].members.push(student);
   });
@@ -361,6 +372,7 @@ function buildGroups(studentsObject, config) {
   groups.forEach(group => {
     group.members.forEach(member => {
       assignments[member.id] = {
+        structure: "standard",
         groupNumber: group.groupNumber,
         label: group.label,
         teammates: group.members.map(item => ({ id: item.id, name: item.name }))
@@ -378,6 +390,169 @@ function buildGroups(studentsObject, config) {
   };
 }
 
+const JIGSAW_COLOR_LABELS = [
+  "Red",
+  "Blue",
+  "Green",
+  "Orange",
+  "Purple",
+  "Yellow",
+  "Teal",
+  "Pink",
+  "Silver",
+  "Gold",
+  "Navy",
+  "Lime"
+];
+
+function indexToLetters(index) {
+  let value = Math.max(0, Number(index) || 0) + 1;
+  let label = "";
+  while (value > 0) {
+    value -= 1;
+    label = String.fromCharCode(65 + (value % 26)) + label;
+    value = Math.floor(value / 26);
+  }
+  return label;
+}
+
+function makeJigsawLabel(index, style, prefix) {
+  if (style === "letters") {
+    return `${prefix} ${indexToLetters(index)}`;
+  }
+  if (style === "colors") {
+    return `${prefix} ${JIGSAW_COLOR_LABELS[index] || `Color ${index + 1}`}`;
+  }
+  return `${prefix} ${index + 1}`;
+}
+
+function chooseBalancedExpertIndex(expertCounts, usedInHome) {
+  const allIndices = expertCounts.map((_count, index) => index);
+  const unusedIndices = allIndices.filter(index => !usedInHome.has(index));
+  const candidates = unusedIndices.length ? unusedIndices : allIndices;
+  const minimumCount = Math.min(...candidates.map(index => expertCounts[index]));
+  const leastUsed = candidates.filter(index => expertCounts[index] === minimumCount);
+  return leastUsed[randomInt(leastUsed.length)];
+}
+
+function buildJigsawGroups(studentsObject, config) {
+  const roster = getGroupRoster(studentsObject);
+  const total = roster.length;
+  const requestedHomeCount = Math.max(1, Math.min(40, Number(config.jigsawHomeCount) || 1));
+  const requestedExpertCount = Math.max(2, Math.min(12, Number(config.jigsawExpertCount) || 2));
+  const homeLabelStyle = config.jigsawHomeLabelStyle === "numbers" ? "numbers" : "letters";
+  const expertLabelStyle = ["colors", "numbers", "letters"].includes(config.jigsawExpertLabelStyle)
+    ? config.jigsawExpertLabelStyle
+    : "colors";
+
+  if (total === 0) {
+    return {
+      mode: "jigsaw",
+      jigsawHomeCount: requestedHomeCount,
+      jigsawExpertCount: requestedExpertCount,
+      jigsawHomeLabelStyle: homeLabelStyle,
+      jigsawExpertLabelStyle: expertLabelStyle,
+      version: Date.now(),
+      groups: [],
+      homeGroups: [],
+      expertGroups: [],
+      assignments: {},
+      coverageMessage: "No students are currently available for assignment."
+    };
+  }
+
+  const homeCount = Math.min(requestedHomeCount, total);
+  const expertCount = Math.min(requestedExpertCount, total);
+  const shuffled = fisherYatesShuffle(roster);
+
+  const homeGroups = Array.from({ length: homeCount }, (_item, index) => ({
+    groupNumber: index + 1,
+    label: makeJigsawLabel(index, homeLabelStyle, "Group I"),
+    members: []
+  }));
+
+  shuffled.forEach((student, index) => {
+    homeGroups[index % homeCount].members.push(student);
+  });
+
+  const expertGroups = Array.from({ length: expertCount }, (_item, index) => ({
+    groupNumber: index + 1,
+    label: makeJigsawLabel(index, expertLabelStyle, "Group II"),
+    members: []
+  }));
+
+  const expertCounts = Array(expertCount).fill(0);
+  const assignments = {};
+
+  homeGroups.forEach(homeGroup => {
+    const usedInHome = new Set();
+    const members = fisherYatesShuffle(homeGroup.members);
+
+    members.forEach(student => {
+      const expertIndex = chooseBalancedExpertIndex(expertCounts, usedInHome);
+      const expertGroup = expertGroups[expertIndex];
+      usedInHome.add(expertIndex);
+      expertCounts[expertIndex] += 1;
+      expertGroup.members.push(student);
+
+      assignments[student.id] = {
+        structure: "jigsaw",
+        groupNumber: homeGroup.groupNumber,
+        label: `${homeGroup.label} · ${expertGroup.label}`,
+        teammates: homeGroup.members.map(person => ({ id: person.id, name: person.name })),
+        homeGroup: {
+          groupNumber: homeGroup.groupNumber,
+          label: homeGroup.label,
+          teammates: []
+        },
+        expertGroup: {
+          groupNumber: expertGroup.groupNumber,
+          label: expertGroup.label,
+          teammates: []
+        }
+      };
+    });
+  });
+
+  homeGroups.forEach(group => {
+    group.members.forEach(member => {
+      assignments[member.id].homeGroup.teammates = group.members.map(person => ({
+        id: person.id,
+        name: person.name
+      }));
+    });
+  });
+
+  expertGroups.forEach(group => {
+    group.members.forEach(member => {
+      assignments[member.id].expertGroup.teammates = group.members.map(person => ({
+        id: person.id,
+        name: person.name
+      }));
+    });
+  });
+
+  const homeSizes = homeGroups.map(group => group.members.length);
+  const exactCoverage = homeSizes.every(size => size === expertCount);
+  const coverageMessage = exactCoverage
+    ? `Each Group I team has one member for each of the ${expertCount} Group II assignments.`
+    : `Group I team sizes are ${homeSizes.join(", ")}; Group II has ${expertCount} assignments. Some teams may have a missing or repeated expert assignment when these values differ.`;
+
+  return {
+    mode: "jigsaw",
+    jigsawHomeCount: homeCount,
+    jigsawExpertCount: expertCount,
+    jigsawHomeLabelStyle: homeLabelStyle,
+    jigsawExpertLabelStyle: expertLabelStyle,
+    version: Date.now(),
+    groups: homeGroups,
+    homeGroups,
+    expertGroups,
+    assignments,
+    coverageMessage
+  };
+}
+
 function calculateAutoGroupCount(total) {
   if (total <= 4) return 1;
   let count = Math.ceil(total / 4);
@@ -392,7 +567,10 @@ async function assignGroups(roomId, config) {
   const snapshot = await get(roomRef(roomId));
   if (!snapshot.exists()) throw new Error("Room not found.");
   const roomState = snapshot.val();
-  const groupState = buildGroups(roomState.students || {}, config);
+  const groupState = config.mode === "jigsaw"
+    ? buildJigsawGroups(roomState.students || {}, config)
+    : buildGroups(roomState.students || {}, config);
+
   await update(roomRef(roomId), {
     activeModule: "groups",
     groups: groupState,
@@ -575,7 +753,11 @@ async function submitResponse(roomId, studentId, moduleName, responseText) {
   const safeText = cleanText(responseText, 10000);
   if (!safeText) throw new Error("Enter a response before submitting.");
 
-  await set(roomRef(safeRoom, `submissions/${safeModule}/${studentId}`), {
+  const submissionReference = push(roomRef(safeRoom, "submissionLog"));
+  const submissionId = submissionReference.key || generateId("submission");
+
+  await set(submissionReference, {
+    submissionId,
     studentId,
     studentName: currentStudentName || readStore().name || "Student",
     module: safeModule,
@@ -583,6 +765,8 @@ async function submitResponse(roomId, studentId, moduleName, responseText) {
     submittedAt: serverTimestamp(),
     submittedLocalAt: Date.now()
   });
+
+  return submissionId;
 }
 
 function listenToRoom(roomId, callback, errorCallback) {
@@ -623,7 +807,7 @@ async function reconnectNow() {
 }
 
 function assertReady() {
-  if (!configured) throw new Error("Firebase config is not set in app.js.");
+  if (!configured) throw new Error("Firebase config is not set in firebase-config.js.");
   if (!database) throw new Error("Firebase is not initialized.");
 }
 
@@ -849,7 +1033,7 @@ function renderInstructorRoom(roomState) {
   renderQr(joinUrl);
   renderRoster(students);
   renderGroupSummary(roomState.groups || {});
-  renderSubmissionList(roomState.submissions || {}, roomState.students || {});
+  renderSubmissionList(roomState);
 
   const htmlInput = document.getElementById("htmlInput");
   const htmlTitle = document.getElementById("htmlTitleInput");
@@ -875,50 +1059,269 @@ function renderRoster(students) {
   }).join("");
 }
 
+function renderInstructorGroupCard(group) {
+  const members = (group.members || [])
+    .map(member => `<li>${escapeHtml(member.name)}</li>`)
+    .join("");
+
+  return `<article class="group-card">
+    <h3>${escapeHtml(group.label || `Group ${group.groupNumber}`)}</h3>
+    <ul>${members || "<li>No members assigned.</li>"}</ul>
+  </article>`;
+}
+
 function renderGroupSummary(groupState) {
   const container = document.getElementById("groupSummary");
   if (!container) return;
+
+  if (groupState.mode === "jigsaw") {
+    const homeGroups = groupState.homeGroups || [];
+    const expertGroups = groupState.expertGroups || [];
+
+    if (!homeGroups.length) {
+      container.innerHTML = `<div class="empty-state">No students are available for jigsaw assignment yet.</div>`;
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="active-module-banner">${escapeHtml(groupState.coverageMessage || "Jigsaw assignments created.")}</div>
+      <section aria-label="Group I home teams">
+        <h3>Group I · Home Teams</h3>
+        <div class="summary-stack">${homeGroups.map(renderInstructorGroupCard).join("")}</div>
+      </section>
+      <section aria-label="Group II expert groups">
+        <h3>Group II · Expert Groups</h3>
+        <div class="summary-stack">${expertGroups.map(renderInstructorGroupCard).join("")}</div>
+      </section>`;
+    return;
+  }
+
   const groups = groupState.groups || [];
   if (!groups.length) {
     container.innerHTML = `<div class="empty-state">No groups assigned yet.</div>`;
     return;
   }
 
-  container.innerHTML = groups.map(group => {
-    const members = (group.members || []).map(member => `<li>${escapeHtml(member.name)}</li>`).join("");
-    return `<article class="group-card">
-      <h3>${escapeHtml(group.label || `Group ${group.groupNumber}`)}</h3>
-      <ul>${members}</ul>
-    </article>`;
-  }).join("");
+  container.innerHTML = groups.map(renderInstructorGroupCard).join("");
 }
 
-function renderSubmissionList(submissions, studentsObject) {
-  const container = document.getElementById("submissionList");
-  if (!container) return;
-
+function collectSubmissionRows(roomState) {
   const rows = [];
-  Object.entries(submissions || {}).forEach(([moduleName, moduleSubmissions]) => {
-    Object.values(moduleSubmissions || {}).forEach(submission => {
-      if (submission && submission.response) {
-        const studentName = studentsObject?.[submission.studentId]?.name || submission.studentName || "Student";
-        rows.push({ ...submission, moduleName, studentName });
-      }
+  const studentsObject = roomState?.students || {};
+
+  Object.entries(roomState?.submissionLog || {}).forEach(([submissionId, submission]) => {
+    if (!submission || !submission.response) return;
+    const studentId = submission.studentId || "";
+    rows.push({
+      ...submission,
+      submissionId: submission.submissionId || submissionId,
+      moduleName: submission.module || "general",
+      studentId,
+      studentName: studentsObject?.[studentId]?.name || submission.studentName || "Student"
     });
   });
 
-  rows.sort((a, b) => (b.submittedLocalAt || 0) - (a.submittedLocalAt || 0));
+  // Read legacy fixed-path submissions so an existing room still exports the
+  // latest response that was stored before the append-only log was introduced.
+  Object.entries(roomState?.submissions || {}).forEach(([moduleName, moduleSubmissions]) => {
+    Object.entries(moduleSubmissions || {}).forEach(([studentId, submission]) => {
+      if (!submission || !submission.response) return;
+      rows.push({
+        ...submission,
+        submissionId: submission.submissionId || `legacy-${moduleName}-${studentId}`,
+        moduleName: submission.module || moduleName,
+        studentId: submission.studentId || studentId,
+        studentName: studentsObject?.[studentId]?.name || submission.studentName || "Student"
+      });
+    });
+  });
 
+  return rows.sort((a, b) => {
+    const aTime = Number(a.submittedAt || a.submittedLocalAt || 0);
+    const bTime = Number(b.submittedAt || b.submittedLocalAt || 0);
+    return aTime - bTime;
+  });
+}
+
+function renderSubmissionList(roomState) {
+  const container = document.getElementById("submissionList");
+  if (!container) return;
+
+  const rows = collectSubmissionRows(roomState);
   if (!rows.length) {
     container.innerHTML = `<div class="empty-state">No submissions yet.</div>`;
     return;
   }
 
-  container.innerHTML = rows.slice(0, 20).map(row => `<article class="submission-item">
+  const recentRows = rows.slice(-20).reverse();
+  const countNote = rows.length > recentRows.length
+    ? `<p class="muted">Showing the 20 most recent of ${rows.length} saved comments. The CSV export includes all ${rows.length}.</p>`
+    : "";
+
+  container.innerHTML = countNote + recentRows.map(row => `<article class="submission-item">
     <div><strong>${escapeHtml(row.studentName)}</strong> <span>${escapeHtml(row.moduleName)}</span></div>
     <p>${escapeHtml(row.response)}</p>
     <small>${formatTime(row.submittedAt || row.submittedLocalAt)}</small>
   </article>`).join("");
+}
+
+function formatIsoTimestamp(value) {
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue) || numericValue <= 0) return "";
+  try {
+    return new Date(numericValue).toISOString();
+  } catch {
+    return "";
+  }
+}
+
+function getStudentGroupExportFields(roomState, studentId) {
+  const assignment = roomState?.groups?.assignments?.[studentId] || null;
+  if (!assignment) {
+    return { group: "", groupI: "", groupII: "" };
+  }
+
+  if (assignment.structure === "jigsaw") {
+    return {
+      group: "",
+      groupI: assignment.homeGroup?.label || "",
+      groupII: assignment.expertGroup?.label || ""
+    };
+  }
+
+  return {
+    group: assignment.label || (assignment.groupNumber ? `Group ${assignment.groupNumber}` : ""),
+    groupI: "",
+    groupII: ""
+  };
+}
+
+function protectSpreadsheetText(value) {
+  const text = String(value ?? "");
+  return /^[\s]*[=+\-@]/.test(text) ? `'${text}` : text;
+}
+
+function csvCell(value) {
+  const protectedText = protectSpreadsheetText(value);
+  return `"${protectedText.replaceAll('"', '""')}"`;
+}
+
+function buildRoomCsv(roomState) {
+  const roomId = roomState?.meta?.roomId || currentRoomId || "room";
+  const students = getRosterStudents(roomState);
+  const submissions = collectSubmissionRows(roomState);
+  const submissionsByStudent = new Map();
+
+  submissions.forEach(submission => {
+    const studentId = submission.studentId || "";
+    if (!submissionsByStudent.has(studentId)) submissionsByStudent.set(studentId, []);
+    submissionsByStudent.get(studentId).push(submission);
+  });
+
+  const headers = [
+    "room_id",
+    "student_id",
+    "student_name",
+    "joined_at",
+    "last_seen",
+    "connection_status",
+    "group",
+    "group_i",
+    "group_ii",
+    "submission_id",
+    "module",
+    "comment",
+    "submitted_at"
+  ];
+
+  const dataRows = [];
+  const exportedStudentIds = new Set();
+
+  students.forEach(student => {
+    exportedStudentIds.add(student.id);
+    const studentSubmissions = submissionsByStudent.get(student.id) || [];
+    const groupFields = getStudentGroupExportFields(roomState, student.id);
+    const baseFields = [
+      roomId,
+      student.id,
+      student.name,
+      formatIsoTimestamp(student.joinedAt),
+      formatIsoTimestamp(student.lastSeen),
+      student.active !== false ? "connected" : "disconnected",
+      groupFields.group,
+      groupFields.groupI,
+      groupFields.groupII
+    ];
+
+    if (!studentSubmissions.length) {
+      dataRows.push([...baseFields, "", "", "", ""]);
+      return;
+    }
+
+    studentSubmissions.forEach(submission => {
+      dataRows.push([
+        ...baseFields,
+        submission.submissionId || "",
+        submission.moduleName || submission.module || "general",
+        submission.response || "",
+        formatIsoTimestamp(submission.submittedAt || submission.submittedLocalAt)
+      ]);
+    });
+  });
+
+  // Preserve comments even if an instructor cleared an individual roster entry
+  // before exporting the room.
+  submissions.forEach(submission => {
+    if (exportedStudentIds.has(submission.studentId)) return;
+    const groupFields = getStudentGroupExportFields(roomState, submission.studentId);
+    dataRows.push([
+      roomId,
+      submission.studentId || "",
+      submission.studentName || "Student",
+      "",
+      "",
+      "not in current roster",
+      groupFields.group,
+      groupFields.groupI,
+      groupFields.groupII,
+      submission.submissionId || "",
+      submission.moduleName || submission.module || "general",
+      submission.response || "",
+      formatIsoTimestamp(submission.submittedAt || submission.submittedLocalAt)
+    ]);
+  });
+
+  const lines = [headers, ...dataRows].map(row => row.map(csvCell).join(","));
+  return {
+    csv: `\uFEFF${lines.join("\r\n")}`,
+    roomId,
+    rosterCount: students.length,
+    submissionCount: submissions.length
+  };
+}
+
+function downloadRoomCsv(roomState) {
+  if (!roomState) throw new Error("The current room has not loaded yet.");
+
+  const result = buildRoomCsv(roomState);
+  if (result.rosterCount === 0 && result.submissionCount === 0) {
+    throw new Error("There is no roster or submitted comment to export yet.");
+  }
+
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const filename = `classroom-${result.roomId}-${timestamp}.csv`;
+  const blob = new Blob([result.csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+  return result;
 }
 
 async function bootInstructor() {
@@ -949,14 +1352,93 @@ async function bootInstructor() {
   bindInstructorEvents();
 }
 
+function updateGroupingControlVisibility(mode) {
+  document.getElementById("groupSizeBlock")?.classList.toggle("hidden", mode !== "size");
+  document.getElementById("groupCountBlock")?.classList.toggle("hidden", mode !== "count");
+  document.getElementById("jigsawControls")?.classList.toggle("hidden", mode !== "jigsaw");
+}
+
+function getCurrentPreviewDocument() {
+  const html = document.getElementById("htmlInput")?.value || defaultSandboxHtml();
+  return makeSandboxDocument(html);
+}
+
+function openPreviewInNewTab() {
+  const blob = new Blob([getCurrentPreviewDocument()], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  const previewWindow = window.open(url, "_blank", "noopener,noreferrer");
+  window.setTimeout(() => URL.revokeObjectURL(url), 60000);
+  if (!previewWindow) {
+    alert("The browser blocked the preview tab. Allow pop-ups for this site and try again.");
+  }
+}
+
+function updateFullscreenPreviewButton() {
+  const button = document.getElementById("fullscreenPreviewBtn");
+  if (!button) return;
+  button.textContent = document.fullscreenElement ? "Exit full screen" : "Full screen preview";
+}
+
+async function togglePreviewFullscreen() {
+  const container = document.getElementById("htmlPreviewContainer");
+  const frame = document.getElementById("htmlPreviewFrame");
+  if (!container || !frame) return;
+
+  if (!frame.srcdoc) {
+    frame.srcdoc = getCurrentPreviewDocument();
+  }
+
+  try {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+      return;
+    }
+
+    if (typeof container.requestFullscreen === "function") {
+      await container.requestFullscreen();
+      return;
+    }
+  } catch {
+    // Some tablet browsers do not support element-level fullscreen.
+  }
+
+  openPreviewInNewTab();
+}
+
 function bindInstructorEvents() {
   document.getElementById("newRoomBtn")?.addEventListener("click", async () => {
+    const rosterCount = getRosterStudents(latestRoomState || {}).length;
+    const submissionCount = collectSubmissionRows(latestRoomState || {}).length;
+    const confirmed = window.confirm(
+      `Refresh the room code?\n\n` +
+      `This will boot ${rosterCount} current participant${rosterCount === 1 ? "" : "s"} and permanently delete ` +
+      `${submissionCount} submitted comment${submissionCount === 1 ? "" : "s"} from the current room.\n\n` +
+      `Export the CSV first if you need the roster or comments. This action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
     try {
       currentRoomId = await createRoom();
       listenToRoom(currentRoomId, renderInstructorRoom);
       history.replaceState(null, "", `?room=${currentRoomId}`);
+      setMessage(document.getElementById("exportCsvMessage"), "A new room was created. The prior room data was permanently cleared.", "neutral");
     } catch (error) {
       alert(error.message);
+    }
+  });
+
+  document.getElementById("exportCsvBtn")?.addEventListener("click", () => {
+    const message = document.getElementById("exportCsvMessage");
+    try {
+      const result = downloadRoomCsv(latestRoomState);
+      setMessage(
+        message,
+        `Downloaded ${result.rosterCount} roster member${result.rosterCount === 1 ? "" : "s"} and ${result.submissionCount} submitted comment${result.submissionCount === 1 ? "" : "s"}.`,
+        "success"
+      );
+    } catch (error) {
+      setMessage(message, error.message, "error");
     }
   });
 
@@ -996,7 +1478,7 @@ function bindInstructorEvents() {
 
   document.getElementById("clearRosterBtn")?.addEventListener("click", async () => {
     if (!currentRoomId) return;
-    const confirmed = window.confirm("Clear the roster, group assignments, and submissions for this room?");
+    const confirmed = window.confirm("Clear the roster, group assignments, and all saved comments for this room? Export the CSV first if you need this data. This action cannot be undone.");
     if (!confirmed) return;
     try {
       await clearRoster(currentRoomId);
@@ -1005,10 +1487,10 @@ function bindInstructorEvents() {
     }
   });
 
-  document.getElementById("groupModeSelect")?.addEventListener("change", event => {
-    const mode = event.target.value;
-    document.getElementById("groupSizeBlock")?.classList.toggle("hidden", mode !== "size");
-    document.getElementById("groupCountBlock")?.classList.toggle("hidden", mode !== "count");
+  const groupModeSelect = document.getElementById("groupModeSelect");
+  updateGroupingControlVisibility(groupModeSelect?.value || "size");
+  groupModeSelect?.addEventListener("change", event => {
+    updateGroupingControlVisibility(event.target.value);
   });
 
   document.getElementById("assignGroupsBtn")?.addEventListener("click", async () => {
@@ -1016,7 +1498,11 @@ function bindInstructorEvents() {
     const config = {
       mode: document.getElementById("groupModeSelect")?.value || "auto",
       targetSize: Number(document.getElementById("groupSizeInput")?.value || 4),
-      targetCount: Number(document.getElementById("groupCountInput")?.value || 5)
+      targetCount: Number(document.getElementById("groupCountInput")?.value || 5),
+      jigsawHomeCount: Number(document.getElementById("jigsawHomeCountInput")?.value || 8),
+      jigsawExpertCount: Number(document.getElementById("jigsawExpertCountInput")?.value || 6),
+      jigsawHomeLabelStyle: document.getElementById("jigsawHomeLabelStyle")?.value || "letters",
+      jigsawExpertLabelStyle: document.getElementById("jigsawExpertLabelStyle")?.value || "colors"
     };
     try {
       await assignGroups(currentRoomId, config);
@@ -1055,9 +1541,11 @@ function bindInstructorEvents() {
   });
   document.getElementById("previewHtmlBtn")?.addEventListener("click", () => {
     const frame = document.getElementById("htmlPreviewFrame");
-    const html = document.getElementById("htmlInput")?.value || defaultSandboxHtml();
-    if (frame) frame.srcdoc = makeSandboxDocument(html);
+    if (frame) frame.srcdoc = getCurrentPreviewDocument();
   });
+
+  document.getElementById("fullscreenPreviewBtn")?.addEventListener("click", togglePreviewFullscreen);
+  document.addEventListener("fullscreenchange", updateFullscreenPreviewButton);
 
   document.getElementById("broadcastHtmlBtn")?.addEventListener("click", async () => {
     if (!currentRoomId) return;
@@ -1242,6 +1730,7 @@ function renderStudentGroups(groupState) {
   const assignment = groupState.assignments?.[currentStudentId] || cached.assignedGroup || null;
   const groupNumber = document.getElementById("studentGroupNumber");
   const teammateList = document.getElementById("studentTeammatesList");
+  if (!groupNumber || !teammateList) return;
 
   if (!assignment) {
     groupNumber.textContent = "Not assigned yet";
@@ -1250,6 +1739,34 @@ function renderStudentGroups(groupState) {
   }
 
   patchStore({ assignedGroup: assignment });
+
+  if (assignment.structure === "jigsaw") {
+    const homeGroup = assignment.homeGroup || {};
+    const expertGroup = assignment.expertGroup || {};
+    const homeTeammates = (homeGroup.teammates || []).filter(person => person.id !== currentStudentId);
+    const expertTeammates = (expertGroup.teammates || []).filter(person => person.id !== currentStudentId);
+
+    groupNumber.innerHTML = `
+      <span style="display:block;font-size:.38em;letter-spacing:.08em;text-transform:uppercase;opacity:.82;">Group I · Home Team</span>
+      <span style="display:block;font-size:.7em;margin-bottom:.45rem;">${escapeHtml(homeGroup.label || "Group I")}</span>
+      <span style="display:block;font-size:.38em;letter-spacing:.08em;text-transform:uppercase;opacity:.82;">Group II · Expert Group</span>
+      <span style="display:block;font-size:.7em;">${escapeHtml(expertGroup.label || "Group II")}</span>`;
+
+    const homeItems = homeTeammates.length
+      ? homeTeammates.map(person => `<li>${escapeHtml(person.name)}</li>`).join("")
+      : `<li>You are the only current member.</li>`;
+    const expertItems = expertTeammates.length
+      ? expertTeammates.map(person => `<li>${escapeHtml(person.name)}</li>`).join("")
+      : `<li>You are the only current member.</li>`;
+
+    teammateList.innerHTML = `
+      <li style="list-style:none;margin-left:-1.2rem;margin-top:.25rem;"><strong>${escapeHtml(homeGroup.label || "Group I")} teammates</strong></li>
+      ${homeItems}
+      <li style="list-style:none;margin-left:-1.2rem;margin-top:1rem;"><strong>${escapeHtml(expertGroup.label || "Group II")} teammates</strong></li>
+      ${expertItems}`;
+    return;
+  }
+
   groupNumber.textContent = assignment.label || `Group ${assignment.groupNumber}`;
   const teammates = (assignment.teammates || []).filter(person => person.id !== currentStudentId);
   teammateList.innerHTML = teammates.length
@@ -1276,6 +1793,7 @@ window.RITClassroom = {
   joinRoom,
   submitResponse,
   fisherYatesShuffle,
+  buildJigsawGroups,
   defaultSandboxHtml
 };
 
