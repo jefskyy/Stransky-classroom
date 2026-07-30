@@ -1,6 +1,20 @@
 {
   "title": "Thermodynamics Digital Textbook",
   "pages": [
+
+
+<!--Thermo_Variable_Table.md-->
+    {
+      "slug": "Thermo-var-ytable",
+      "title": "Thermodynamic Variable Table",
+      "description": "...",
+      "file": "Thermo_Variable_Table.md",
+      "keywords": [
+        "units",
+        "variables"
+      ]
+    },
+    
     {
       "slug": "system-boundary-and-surroundings",
       "title": "System, Boundary, and Surroundings",
