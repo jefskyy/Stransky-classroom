@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Muddiest Point</title>
+  <style>
+    :root {
+      --rit-orange: #F76902;
+      --black: #000000;
+      --white: #FFFFFF;
+      --gray-100: #F4F4F4;
+      --gray-300: #D7D2CB;
+      --gray-500: #ACA39A;
+      --gray-700: #5B5F62;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { min-height: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--white);
+      color: var(--black);
+      font-family: Arial, Helvetica, sans-serif;
+      display: grid;
+      place-items: center;
+      padding: clamp(24px, 5vw, 72px);
+    }
+
+    main {
+      width: min(880px, 100%);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 22px;
+      color: var(--gray-700);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 34px;
+      height: 5px;
+      background: var(--rit-orange);
+      display: inline-block;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 760px;
+      font-size: clamp(2.3rem, 6vw, 5.4rem);
+      line-height: 0.98;
+      letter-spacing: -0.045em;
+      font-weight: 800;
+    }
+
+    h1 span { color: var(--rit-orange); }
+
+    .lead {
+      max-width: 700px;
+      margin: 30px 0 0;
+      font-size: clamp(1.1rem, 2vw, 1.42rem);
+      line-height: 1.55;
+      color: #323232;
+    }
+
+    .prompt {
+      margin-top: 42px;
+      border-top: 1px solid var(--gray-300);
+      border-bottom: 1px solid var(--gray-300);
+      padding: 26px 0;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .number {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      background: var(--black);
+      color: var(--white);
+      font-weight: 800;
+      font-size: 0.95rem;
+    }
+
+    .prompt p {
+      margin: 1px 0 0;
+      font-size: clamp(1.05rem, 1.8vw, 1.28rem);
+      line-height: 1.5;
+    }
+
+    .prompt strong { color: var(--rit-orange); }
+
+    .direction {
+      margin-top: 30px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .arrow {
+      color: var(--rit-orange);
+      font-size: 1.65rem;
+      line-height: 1;
+    }
+
+    .note {
+      margin-top: 14px;
+      max-width: 650px;
+      color: var(--gray-700);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 560px) {
+      body { place-items: start center; }
+      .prompt { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main aria-labelledby="page-title">
+    <div class="eyebrow">Quick reflection</div>
+
+    <h1 id="page-title">What is your <span>muddiest point?</span></h1>
+
+    <p class="lead">
+      A muddy point is the idea, step, example, or connection from today that still feels least clear to you. It can be something you partly understand but could not yet explain or use confidently.
+    </p>
+
+    <section class="prompt" aria-label="Muddiest point guidance">
+      <div class="number" aria-hidden="true">01</div>
+      <p>
+        Identify <strong>one specific point</strong> where your understanding became uncertain. A short question, phrase, or sentence is enough.
+      </p>
+    </section>
+
+    <div class="direction">
+      <span class="arrow" aria-hidden="true">↓</span>
+      Enter your muddiest point in the <strong>Submit Observation</strong> box below.
+    </div>
+
+    <p class="note">This reflection helps surface questions worth revisiting and gives the instructor timely feedback about where clarification would be most useful.</p>
+  </main>
+</body>
+</html>
