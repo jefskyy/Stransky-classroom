@@ -1,22 +1,24 @@
 {
   "problems": [
     {
-      "title": "Entropy Control Volume Slider",
-      "file": "entropy-control-volume.html"
-    }, {
-      "title": "Entropy balance demo",
-      "file": "Entropy_Balance.html"
-    },{
       "title": "Chill Out Demo",
       "file": "rit_r134a_chiller_sandbox.html"
-      },{
+    },{
       "title": "Week 2 Day 1",
       "file": "MCET530-LO_6_to_9.html"
 
-      },{
+    },{
       "title": "Week 2 Day 2",
       "file": "MCET530-LO_10_to_12.html"
+
+    },{
+      "title": "Muddiest point",
+      "file": "muddiest_points_prompt.html"
+    },{
+      "title": "Syllabus jigsaw",
+      "file": "jigsaw_syllabus_expert_activity.html"
       
     }
   ]
 }
+
