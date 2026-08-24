@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Syllabus Jigsaw: Research, Explain, Apply</title>
+<style>
+:root{
+  --rit-orange:#F76902; --black:#000; --white:#fff; --dark-beige:#ACA39A;
+  --light-beige:#D7D2CB; --green:#84BD00; --light-green:#C4D600;
+  --blue:#009CBD; --purple:#7D55C7; --red:#DA291C; --yellow:#F6BE00;
+  --ink:#171717; --muted:#616161; --page:#F3F2F0; --line:#D7D2CB;
+  --soft-orange:#FFF1E7; --shadow:0 12px 30px rgba(0,0,0,.09); --radius:18px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:linear-gradient(180deg,var(--black) 0 148px,var(--page) 148px 100%);
+  color:var(--ink);
+}
+.shell{width:min(1040px,calc(100% - 32px));margin:0 auto;padding:42px 0 72px}
+.hero{color:#fff;margin-bottom:28px;padding:2px 4px 10px}
+.eyebrow{color:var(--rit-orange);font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:.76rem;margin-bottom:10px}
+h1{margin:0;max-width:820px;font-size:clamp(2rem,5vw,3.8rem);line-height:.98;letter-spacing:-.045em}
+.hero p{margin:16px 0 0;max-width:760px;color:#D9D9D9;font-size:1rem;line-height:1.55}
+.stack{display:grid;gap:18px}
+.card{background:#fff;border:1px solid #E3E0DC;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.card-head{display:flex;gap:16px;align-items:flex-start;padding:24px 26px 18px}
+.step{flex:0 0 auto;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#000;color:#fff;font-weight:850}
+.card h2{margin:1px 0 5px;font-size:1.25rem;letter-spacing:-.02em}
+.card p{margin:0;color:var(--muted);line-height:1.55}
+.body-pad{padding:0 26px 26px}
+.syllabus-box{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:20px;border:2px solid var(--rit-orange);border-radius:14px;background:var(--soft-orange)}
+.syllabus-box strong{display:block;margin-bottom:4px}
+.syllabus-link{flex:0 0 auto;text-decoration:none;color:#fff;background:var(--rit-orange);font-weight:800;padding:12px 17px;border-radius:10px;transition:.18s ease}
+.syllabus-link:hover{transform:translateY(-1px);filter:brightness(.95)}
+.syllabus-link:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+details{border-top:1px solid #ECE9E5}
+summary{list-style:none;cursor:pointer;user-select:none;padding:18px 26px;font-weight:800;display:flex;align-items:center;justify-content:space-between;gap:16px;background:#FCFCFB}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-size:1.45rem;line-height:1;color:var(--rit-orange)}
+details[open] summary::after{content:"–"}
+details[open] summary{border-bottom:1px solid #ECE9E5}
+.panel-content{padding:22px 26px 26px}
+.control-grid{display:grid;grid-template-columns:minmax(180px,280px) 1fr;gap:22px;align-items:start}
+label{display:block;font-size:.86rem;font-weight:800;color:#3D3D3D;margin-bottom:8px}
+select{width:100%;border:1px solid #BDB8B2;border-radius:11px;background:#fff;color:var(--ink);padding:12px 40px 12px 13px;font:inherit}
+.assignment{min-height:132px;border-left:5px solid var(--rit-orange);background:#F8F7F5;border-radius:0 12px 12px 0;padding:18px 20px}
+.assignment .tag{display:inline-block;font-size:.72rem;font-weight:850;letter-spacing:.08em;text-transform:uppercase;color:var(--rit-orange);margin-bottom:7px}
+.assignment h3{margin:0 0 8px;font-size:1.15rem}
+.assignment ul{margin:10px 0 0 1.1rem;padding:0;color:#454545;line-height:1.5}
+.expert-note{margin-top:18px;padding:15px 17px;background:#F3F3F3;border-radius:11px;font-size:.94rem;line-height:1.5}
+.locked-summary{background:#111;color:#fff}
+.locked-summary::after{color:var(--rit-orange)}
+.warning{display:flex;gap:12px;align-items:flex-start;padding:15px 17px;border-radius:12px;background:#FFF7DF;border:1px solid #F1CF68;margin-bottom:20px}
+.warning-badge{flex:0 0 auto;font-weight:900;background:var(--yellow);color:#111;padding:3px 8px;border-radius:999px;font-size:.72rem;letter-spacing:.04em}
+.scenario{--scenario-color:var(--dark-beige);margin-top:18px;border:1px solid #DEDAD5;border-radius:14px;overflow:hidden;background:#fff}
+.scenario-bar{height:9px;background:var(--scenario-color)}
+.scenario-inner{padding:20px}
+.scenario-title{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.dot{width:13px;height:13px;border-radius:50%;background:var(--scenario-color)}
+.scenario h3{margin:0;font-size:1.16rem}
+.scenario p{color:#333;font-size:1rem;line-height:1.6}
+.scenario .prompt{margin-top:14px;padding-top:14px;border-top:1px solid #E7E4E0}
+.scenario .prompt strong{color:#111}
+.red{--scenario-color:var(--red)} .blue{--scenario-color:var(--blue)}
+.green{--scenario-color:var(--green)} .orange{--scenario-color:var(--rit-orange)}
+.purple{--scenario-color:var(--purple)} .yellow{--scenario-color:var(--yellow)}
+.mini-process{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}
+.mini-process div{background:#F7F6F4;border-radius:10px;padding:12px 13px;font-size:.88rem;line-height:1.35}
+.mini-process b{display:block;margin-bottom:3px}
+footer{color:#777;text-align:center;font-size:.8rem;margin-top:22px}
+@media(max-width:720px){
+  body{background:linear-gradient(180deg,var(--black) 0 186px,var(--page) 186px 100%)}
+  .shell{width:min(100% - 20px,1040px);padding-top:30px}
+  .card-head,.body-pad,.panel-content,summary{padding-left:18px;padding-right:18px}
+  .syllabus-box{align-items:stretch;flex-direction:column}
+  .syllabus-link{text-align:center}
+  .control-grid,.mini-process{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<main class="shell">
+<section class="hero">
+  <div class="eyebrow">Syllabus Jigsaw</div>
+  <h1>Research it. Explain it. Apply it.</h1>
+  <p>Your goal is not to memorize the syllabus. Your group will become responsible for one part of it, teach that part to others, and then use the combined policies to reason through a situation with no perfectly clean answer.</p>
+</section>
+
+<div class="stack">
+
+<section class="card">
+  <div class="card-head">
+    <div class="step">1</div>
+    <div>
+      <h2>Open the syllabus</h2>
+      <p>Use the syllabus as your source. Read closely enough to explain both what a policy says and how you think it should be applied.</p>
+    </div>
+  </div>
+  <div class="body-pad">
+    <div class="syllabus-box">
+      <div>
+        <strong>Course Syllabus</strong>
+        <span>Open this in a second tab so you can move between the syllabus and this activity.</span>
+      </div>
+      <!-- Replace SYLLABUS_LINK_HERE with the real syllabus URL -->
+      <a class="syllabus-link" href="https://docs.google.com/document/d/17_C9Vqj4RYDwbKCPpts3AxByYP4v7xEpH2NVAvEQh9E/edit?usp=sharing" target="_blank" rel="noopener">Open syllabus ↗</a>
+    </div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="card-head">
+    <div class="step">2</div>
+    <div>
+      <h2>Become the expert for your home-group assignment</h2>
+      <p>Select your home-group letter. Investigate only the assigned syllabus section, then prepare to explain what matters to your expertise group.</p>
+    </div>
+  </div>
+  <details open>
+    <summary>Show my research assignment</summary>
+    <div class="panel-content">
+      <div class="control-grid">
+        <div>
+          <label for="homeGroup">Home group</label>
+          <select id="homeGroup">
+            <option value="">Choose A–F</option>
+            <option value="A">Group A</option><option value="B">Group B</option>
+            <option value="C">Group C</option><option value="D">Group D</option>
+            <option value="E">Group E</option><option value="F">Group F</option>
+          </select>
+        </div>
+        <div id="assignment" class="assignment" aria-live="polite">
+          <span class="tag">Waiting for selection</span>
+          <h3>Select your home group</h3>
+          <p>Your assigned syllabus location and research focus will appear here.</p>
+        </div>
+      </div>
+      <div class="expert-note">
+        <strong>Prepare to explain, not recite.</strong>
+        Identify the policy's purpose, what a student is expected to do, what discretion the instructor appears to retain, and at least one situation where applying the policy may require judgment.
+      </div>
+    </div>
+  </details>
+</section>
+
+<section class="card">
+  <div class="card-head">
+    <div class="step">3</div>
+    <div>
+      <h2>Apply the combined expertise</h2>
+      <p>After the expert-group discussion, return to this section and use the syllabus as a system of policies—not a collection of isolated rules.</p>
+    </div>
+  </div>
+  <details id="application">
+    <summary class="locked-summary">Do not open yet — complex application</summary>
+    <div class="panel-content">
+      <div class="warning">
+        <div class="warning-badge">WAIT</div>
+        <div><strong>Open this only after your expert-group discussion.</strong><br>
+        Your color group will receive a situation that intentionally leaves room for interpretation. Multiple policies may matter, and reasonable people may initially read the situation differently.</div>
+      </div>
+
+      <label for="colorGroup">Color group</label>
+      <select id="colorGroup">
+        <option value="">Choose your color</option>
+        <option value="red">Red</option><option value="blue">Blue</option>
+        <option value="green">Green</option><option value="orange">Orange</option>
+        <option value="purple">Purple</option><option value="yellow">Yellow</option>
+      </select>
+
+      <div id="scenario" class="scenario" style="display:none" aria-live="polite">
+        <div class="scenario-bar"></div>
+        <div class="scenario-inner">
+          <div class="scenario-title"><span class="dot"></span><h3 id="scenarioTitle">Scenario</h3></div>
+          <p id="scenarioText"></p>
+          <div class="prompt"><strong>Your task:</strong><p id="scenarioPrompt"></p></div>
+        </div>
+      </div>
+
+      <div class="mini-process">
+        <div><b>1. Interpret</b>Which syllabus policies are relevant—and which are only indirectly relevant?</div>
+        <div><b>2. Reconcile</b>Where do the policies leave ambiguity, competing obligations, or room for judgment?</div>
+        <div><b>3. Recommend</b>What should the student do next, and what evidence from the syllabus supports that recommendation?</div>
+      </div>
+    </div>
+  </details>
+</section>
+
+</div>
+<footer>Use the syllabus as evidence. Your group is responsible for the interpretation.</footer>
+</main>
+
+<script>
+const assignments={
+A:{title:"Instructor Policies",focus:[
+"Identify expectations governing communication, deadlines, attendance, and requests for exceptions.",
+"Distinguish between a stated rule and a process the student is expected to follow.",
+"Notice where instructor judgment or approval appears to matter."
+]},
+B:{title:"MCET530 Overview",focus:[
+"Identify what the course is designed to help students learn and do.",
+"Look for expectations about participation, workload, collaboration, or the nature of course assignments.",
+"Consider how the course purpose might shape interpretation of a policy when the written rule alone is incomplete."
+]},
+C:{title:"Teaching Philosophy",focus:[
+"Identify the instructor's stated assumptions about learning, responsibility, practice, feedback, and student decision-making.",
+"Look for principles that may explain why certain course policies exist.",
+"Prepare to distinguish a teaching value from an enforceable course rule."
+]},
+D:{title:"Instructor Policies",focus:[
+"Identify policies involving academic integrity, technology use, attribution, collaboration, and acceptable assistance.",
+"Look for disclosure requirements and any difference between permitted support and work that must remain the student's own.",
+"Identify situations the policy does not resolve with a simple yes/no answer."
+]},
+E:{title:"MCET530 Overview",focus:[
+"Identify how major assessments, projects, teamwork, and individual responsibility fit together in the course.",
+"Look for places where a group outcome and an individual student's performance may be evaluated differently.",
+"Consider what the overview implies students should do when normal participation breaks down."
+]},
+F:{title:"Teaching Philosophy",focus:[
+"Identify how the course frames challenge, revision, feedback, independence, and professional behavior.",
+"Look for principles that could guide a decision when a policy gives a procedure but not an obvious outcome.",
+"Prepare one example of how a teaching principle could shape—but not override—a written rule."
+]}};
+
+const scenarios={
+red:{
+name:"Red Group — AI, Authorship, and Uneven Boundaries",
+text:"You are working on a major paper. You use an AI chatbot to brainstorm possible section headings, then ask it to rewrite two sentences that you drafted because the wording feels awkward. Later, you paste a paragraph from your draft into the chatbot and ask whether your argument is logically consistent. The syllabus allows some forms of support technology, requires students to submit their own work, and discusses disclosure or citation of outside assistance—but it does not list every possible AI use. A classmate tells you that editing grammar is obviously harmless and that disclosure is only needed when AI generates new content.",
+prompt:"Decide which parts of this workflow are clearly permitted, clearly risky, or genuinely ambiguous. Determine what the student should disclose, what should remain in the student's own authorship, and what action would best protect academic integrity when the policy does not explicitly classify every use."
+},
+blue:{
+name:"Blue Group — Team Responsibility When Participation Breaks Down",
+text:"A four-person project team has worked normally for several weeks. One member then becomes difficult to reach and misses two internal deadlines, but earlier in the project that student completed a substantial technical task that the rest of the team is still using. The remaining members divide the unfinished work, stop assigning new tasks to the absent student, and consider asking the instructor to reduce that student's grade. The syllabus emphasizes shared responsibility, individual accountability, communication before escalation, and the possibility that individual grades may differ from the team's grade.",
+prompt:"Determine what the team should do before requesting an individual-grade adjustment. Consider how prior contribution, current non-responsiveness, documentation, fairness to the rest of the team, and the timing of escalation should affect the recommendation. Identify what the syllabus resolves and what still requires instructor judgment."
+},
+green:{
+name:"Green Group — Emergency, Communication, and Assessment Equity",
+text:"On the morning of an exam, a student experiences an unexpected personal emergency and cannot attend class. The student sends a brief message shortly before the exam but does not provide details. The syllabus expects timely notification, sets conditions for makeup work, and may require documentation, while also indicating that emergencies can be handled differently from foreseeable absences. The student is able to explain the situation more fully two days later but worries that sharing documentation would disclose private information.",
+prompt:"Recommend how the absence should be handled without assuming that either the student or instructor automatically gets the outcome they want. Interpret the notification timeline, documentation expectations, privacy concerns, and the purpose of the makeup policy. Identify what evidence or communication is reasonably necessary and what should remain open to instructor discretion."
+},
+orange:{
+name:"Orange Group — Grade Dispute or Feedback Conversation?",
+text:"A returned assignment includes a rubric score that appears inconsistent with the written feedback. The student initially assumes the difference is minor and waits. After receiving another graded assignment several weeks later, the student realizes the disputed score may meaningfully affect the final course grade. The syllabus establishes a process and deadline for questioning grades, but the course also emphasizes using feedback, asking questions, and resolving misunderstandings before escalating a formal dispute.",
+prompt:"Decide whether this should now be treated as a clarification request, a formal grade challenge, or both. Consider the purpose of the appeal deadline, whether the delay matters, what evidence the student should bring, and whether an apparent grading inconsistency changes how strictly the procedure should be applied."
+},
+purple:{
+name:"Purple Group — Collaboration, Help, and Ownership of Work",
+text:"Two students are stuck on a difficult homework problem. They work together at a whiteboard until they agree on the governing equations and a solution strategy. One student then writes code while the other watches, points out errors, and suggests changes. They leave with nearly identical code structures but enter different numerical values and write their own explanations. The syllabus encourages peer learning and collaboration in some settings, but graded submissions must represent individual understanding and may restrict sharing completed solutions.",
+prompt:"Determine where productive collaboration may have crossed into shared authorship. What aspects of the work should each student be able to explain or reproduce independently? If the policy does not define an exact boundary, recommend what the students should do before submitting and what, if anything, should be disclosed."
+},
+yellow:{
+name:"Yellow Group — Deadline Flexibility, Fairness, and Competing Commitments",
+text:"A student has a major project due at the end of the week. Several days before the deadline, the student learns that a required co-curricular event, job interview, or family obligation will consume much of the remaining work time. None of these circumstances fits neatly into the syllabus examples of an emergency, but the student asks for an extension because completing the project on time would require sacrificing work in another course or submitting work they consider below their normal standard. The syllabus values planning and professional responsibility but also describes procedures for requesting flexibility in legitimate circumstances.",
+prompt:"Decide whether an extension is warranted, what information the student should provide, and how early communication changes the situation. Reconcile fairness to classmates, student responsibility for planning, the educational purpose of the assignment, and the possibility that a reasonable request may still be denied."
+}};
+
+const homeGroup=document.getElementById("homeGroup");
+const assignment=document.getElementById("assignment");
+homeGroup.addEventListener("change",()=>{
+  const key=homeGroup.value;
+  if(!key){
+    assignment.innerHTML='<span class="tag">Waiting for selection</span><h3>Select your home group</h3><p>Your assigned syllabus location and research focus will appear here.</p>';
+    return;
+  }
+  const a=assignments[key];
+  assignment.innerHTML='<span class="tag">Home Group '+key+'</span><h3>'+a.title+'</h3><p>Use this syllabus section as the primary source for your expert-group discussion.</p><ul>'+a.focus.map(x=>'<li>'+x+'</li>').join("")+'</ul>';
+});
+
+const colorGroup=document.getElementById("colorGroup");
+const scenario=document.getElementById("scenario");
+colorGroup.addEventListener("change",()=>{
+  const key=colorGroup.value;
+  if(!key){scenario.style.display="none";return;}
+  const s=scenarios[key];
+  scenario.className="scenario "+key;
+  document.getElementById("scenarioTitle").textContent=s.name;
+  document.getElementById("scenarioText").textContent=s.text;
+  document.getElementById("scenarioPrompt").textContent=s.prompt;
+  scenario.style.display="block";
+});
+</script>
+</body>
+</html>
