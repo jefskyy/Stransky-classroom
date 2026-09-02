@@ -17,7 +17,12 @@
     },{
       "title": "Syllabus jigsaw",
       "file": "jigsaw_syllabus_expert_activity.html"
-      
+      },{
+      "title": "Week 2 Quiz",
+      "file": "thermal_fluid_concept_quiz.html"
+      },{
+      "title": "Carnot Explorer",
+      "file": "carnot_cycle_explorer.html"
     }
   ]
 }
