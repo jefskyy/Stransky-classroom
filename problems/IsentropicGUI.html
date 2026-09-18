@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Air Compressor P-v / T-s Explorer | MCET 530</title>
+<style>
+:root{
+  --orange:#F76902; --light-gray:#D0D3D4; --mid-gray:#A2AAAD; --dark-gray:#7C878E;
+  --dark-beige:#ACA39A; --light-beige:#D7D2CB; --dark-green:#84BD00; --light-green:#C4D600;
+  --blue:#009CBD; --purple:#7D55C7; --red:#DA291C; --yellow:#F6BE00;
+  --ink:#202426; --muted:#5e686d; --paper:#ffffff; --panel:#f7f7f5; --line:#d9dcdd;
+  --shadow:0 2px 10px rgba(32,36,38,.08); --radius:14px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:#f3f4f2;color:var(--ink);font-family:Arial,Helvetica,sans-serif;line-height:1.38}
+button,input,select,textarea{font:inherit}
+button{touch-action:manipulation}
+.app{max-width:1440px;margin:auto;padding:14px clamp(10px,2vw,24px) 40px}
+.header{background:var(--paper);border-top:7px solid var(--orange);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px;margin-bottom:12px}
+.header-grid{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:start}
+h1{font-size:clamp(1.45rem,2.4vw,2.1rem);margin:0 0 4px;line-height:1.1}
+.subtitle{margin:0;color:var(--muted);max-width:900px}
+.badge{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 10px;font-size:.84rem;white-space:nowrap}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--dark-green);display:inline-block}
+.controlbar{display:grid;grid-template-columns:1.1fr .9fr;gap:12px;margin-bottom:12px}
+.card{min-width:0;background:var(--paper);border:1px solid #e4e6e6;border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
+.card h2,.card h3{margin:0 0 9px}.card h2{font-size:1.03rem}.card h3{font-size:.96rem}
+.segmented{display:flex;gap:5px;background:#eceeed;border-radius:11px;padding:4px;flex-wrap:wrap}
+.segmented button{border:0;background:transparent;color:#3e474b;border-radius:8px;padding:9px 12px;min-height:42px;cursor:pointer;font-weight:700;flex:1}
+.segmented button.active{background:white;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.12);outline:2px solid transparent}
+.segmented button:focus-visible,.btn:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid rgba(0,156,189,.3);outline-offset:2px}
+.mode-note,.model-note{font-size:.84rem;color:var(--muted);margin:8px 2px 0}
+.layout{display:grid;grid-template-columns:minmax(0,450px) minmax(0,1fr);gap:12px;align-items:start}
+.sidebar{min-width:0;display:grid;gap:12px;position:sticky;top:8px}
+.field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.field label{display:block;font-size:.78rem;color:var(--muted);font-weight:700;margin-bottom:4px}
+.field input{width:100%;border:1px solid var(--light-gray);border-radius:9px;padding:9px;background:#fff;min-height:42px}
+.help{font-size:.78rem;color:var(--muted);margin-top:7px}
+.state-table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%}
+.state-table th,.state-table td{border-bottom:1px solid #e3e5e5;padding:7px 5px;text-align:right;font-size:.82rem;white-space:nowrap}
+.state-table th:first-child,.state-table td:first-child{text-align:left;position:sticky;left:0;background:white;z-index:1}
+.state-table input{width:72px;min-height:38px;padding:6px;border:1px solid var(--light-gray);border-radius:7px;text-align:right}
+.state-name{font-weight:800}.status-pill{display:inline-block;border-radius:999px;padding:4px 7px;font-size:.72rem;font-weight:800;border:1px solid transparent}
+.status-ok{background:#eff7e7;color:#425f00;border-color:#c9dd99}.status-warn{background:#fff8d5;color:#725900;border-color:#efd25f}.status-bad{background:#fdebea;color:#8a1e17;border-color:#e3a09b}.status-ref{background:#edf7fa;color:#005e70;border-color:#a6d8e3}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.btn{border:1px solid var(--dark-gray);background:white;border-radius:9px;padding:9px 12px;min-height:42px;cursor:pointer;font-weight:700}.btn.primary{background:var(--orange);color:white;border-color:var(--orange)}.btn.secondary{border-color:var(--blue);color:#006b7e}.btn.ghost{border-color:var(--light-gray);color:var(--muted)}
+details{border-top:1px solid #e5e7e7;margin-top:10px;padding-top:8px}summary{cursor:pointer;font-weight:700;font-size:.85rem}.pastebox{margin-top:8px}.pastebox textarea{width:100%;min-height:84px;border:1px solid var(--light-gray);border-radius:8px;padding:8px;font-family:Consolas,monospace;font-size:.78rem}
+.validation{display:grid;gap:7px}.message{border-left:5px solid var(--mid-gray);background:#f5f6f6;padding:8px 10px;border-radius:7px;font-size:.82rem}.message.ok{border-color:var(--dark-green);background:#f4f8ee}.message.warn{border-color:var(--yellow);background:#fffaf0}.message.bad{border-color:var(--red);background:#fff1f0}.message.info{border-color:var(--blue);background:#eef9fb}.message strong{font-weight:900}
+.mobile-tabs{display:none;margin-bottom:8px}
+.plot-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.plot-card{padding:10px 10px 8px;min-width:0}.plot-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:5px}.plot-title{font-weight:900}.plot-sub{color:var(--muted);font-size:.76rem}.plot-wrap{width:100%;aspect-ratio:1.22/1;min-height:300px}.plot-wrap svg{display:block;width:100%;height:100%;overflow:visible;touch-action:pan-y;background:#fff;border-radius:10px}.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.76rem;color:var(--muted);padding:6px 4px 0}.key{display:inline-flex;align-items:center;gap:5px}.linekey{width:24px;height:0;border-top:3px solid var(--blue)}.linekey.actual{border-top-color:var(--purple);border-top-style:dashed}.pointkey{width:10px;height:10px;border:2px solid var(--ink);background:white;border-radius:50%}
+.state-link{margin-top:12px;border:2px solid var(--blue);border-radius:12px;background:#f4fbfc;padding:10px 12px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center}.state-link .link-label{font-weight:900;color:#005d70}.state-link .coords{display:flex;gap:14px;flex-wrap:wrap;font-size:.88rem}.state-link .coords span{white-space:nowrap}
+.state-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.state-buttons button{min-width:64px;border:1px solid var(--light-gray);background:white;border-radius:9px;padding:8px 10px;cursor:pointer;font-weight:800}.state-buttons button.active{border-color:var(--blue);box-shadow:0 0 0 2px rgba(0,156,189,.18)}
+.process-summary{margin-top:12px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.metric{border:1px solid var(--line);border-radius:10px;padding:9px;background:#fafafa}.metric .k{font-size:.72rem;color:var(--muted);font-weight:700}.metric .v{font-size:1.02rem;font-weight:900;margin-top:2px}.metric.impossible{border-color:var(--red);background:#fff1f0}.metric.impossible .v{color:#9b1d16}
+.notes{margin-top:12px}.notes-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.assump-table td{padding:7px 8px;border-bottom:1px solid #e7e8e8;font-size:.84rem}.assump-table td:first-child{font-weight:900;width:40%}.fine{font-size:.79rem;color:var(--muted)}
+.callout{border-left:5px solid var(--orange);background:#fff7f0;border-radius:8px;padding:10px 12px;font-size:.84rem}.asterisk{font-size:.75rem;color:var(--muted);margin-top:7px}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:980px){.layout{grid-template-columns:1fr}.sidebar{position:static}.controlbar{grid-template-columns:1fr 1fr}.plot-wrap{min-height:280px}}
+@media(max-width:760px){
+ .app{padding:8px 8px 30px}.header{padding:13px}.header-grid{grid-template-columns:1fr}.header .badge{justify-self:start}
+ .controlbar{grid-template-columns:1fr}.sidebar{gap:8px}.mobile-tabs{display:flex}.plot-grid{grid-template-columns:1fr}
+ .plot-grid[data-mobile-view="pv"] .plot-card.ts-card{display:none}.plot-grid[data-mobile-view="ts"] .plot-card.pv-card{display:none}.plot-grid[data-mobile-view="split"] .plot-card{display:block}
+ .plot-wrap{min-height:330px;aspect-ratio:1/1}.state-link{grid-template-columns:1fr}.process-summary{grid-template-columns:1fr 1fr}.notes-grid{grid-template-columns:1fr}
+ .state-table th,.state-table td{font-size:.77rem}.state-table input{width:68px}.field-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:430px){.plot-wrap{min-height:300px}.process-summary{grid-template-columns:1fr}.field-grid{grid-template-columns:1fr}.segmented button{padding:8px 7px}.header{border-top-width:5px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="header">
+  <div class="header-grid">
+    <div>
+      <h1>Air Compressor: Synchronized P-v and T-s Explorer</h1>
+      <p class="subtitle">One compressor process, shown as two property projections. Enter State 1, an isentropic comparison state 2s, and an actual outlet state 2a. The viewer checks consistency and plots the states to scale without replacing your inputs.</p>
+    </div>
+    <div class="badge"><span class="dot"></span> SI units only · ideal-gas air</div>
+  </div>
+</header>
+
+<section class="controlbar">
+  <div class="card">
+    <h2>Entry approach</h2>
+    <div class="segmented" role="group" aria-label="Entry approach">
+      <button id="modeData" class="active" type="button" aria-pressed="true">Data Entry</button>
+      <button id="modeSupported" type="button" aria-pressed="false">Supported Entry</button>
+    </div>
+    <p id="modeNote" class="mode-note"><strong>Data Entry:</strong> enter P, T, v, and s for all three states. Values are plotted exactly as entered; the tool only flags inconsistencies.</p>
+  </div>
+  <div class="card">
+    <h2>Air property model</h2>
+    <div class="segmented" role="group" aria-label="Air property model">
+      <button id="modelCSH" class="active" type="button" aria-pressed="true">Constant Specific Heats (CSH)</button>
+      <button id="modelVSH" type="button" aria-pressed="false">Variable Specific Heats (A-21)</button>
+    </div>
+    <p id="modelNote" class="model-note">CSH uses fixed course-reference values. The constants are documented below and are intentionally not editable.</p>
+  </div>
+</section>
+
+<div class="layout">
+<aside class="sidebar">
+  <section class="card" id="dataEntryCard">
+    <h2>State data</h2>
+    <div class="state-table-wrap">
+      <table class="state-table" aria-label="State data entry">
+        <thead><tr><th>State</th><th>P [kPa]</th><th>T [K]</th><th>v [m³/kg]</th><th>s [kJ/kg·K]</th></tr></thead>
+        <tbody>
+          <tr data-state="1"><td><span class="state-name">1</span><br><span id="status1" class="status-pill status-ref">s reference</span></td><td><input id="d_p1" inputmode="decimal" value="100"></td><td><input id="d_t1" inputmode="decimal" value="300"></td><td><input id="d_v1" inputmode="decimal" value="0.8610"></td><td><input id="d_s1" inputmode="decimal" value="1.70203"></td></tr>
+          <tr data-state="2s"><td><span class="state-name">2s</span><br><span id="status2s" class="status-pill status-ok">consistent</span></td><td><input id="d_p2s" inputmode="decimal" value="600"></td><td><input id="d_t2s" inputmode="decimal" value="500.55"></td><td><input id="d_v2s" inputmode="decimal" value="0.23943"></td><td><input id="d_s2s" inputmode="decimal" value="1.70203"></td></tr>
+          <tr data-state="2a"><td><span class="state-name">2a</span><br><span id="status2a" class="status-pill status-ok">consistent</span></td><td><input id="d_p2a" inputmode="decimal" value="600"></td><td><input id="d_t2a" inputmode="decimal" value="560"></td><td><input id="d_v2a" inputmode="decimal" value="0.26787"></td><td><input id="d_s2a" inputmode="decimal" value="1.81507"></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="help">State 1 entropy establishes the plotting reference in Data Entry. States 2s and 2a are checked using entropy <em>differences</em>, so a consistent alternate entropy datum is acceptable.</p>
+    <details>
+      <summary>Paste values from a spreadsheet</summary>
+      <div class="pastebox">
+        <p class="help">Paste three rows in the order 1, 2s, 2a. Each row must contain P, T, v, s separated by tabs or commas.</p>
+        <textarea id="pasteArea" placeholder="100, 300, 0.8610, 1.70203&#10;600, 500.55, 0.23943, 1.70203&#10;600, 560, 0.26787, 1.81507"></textarea>
+        <div class="btnrow"><button class="btn secondary" id="pasteApply" type="button">Apply pasted values</button></div>
+      </div>
+    </details>
+  </section>
+
+  <section class="card" id="supportedCard" hidden>
+    <h2>Supported state entry</h2>
+    <p class="help" style="margin-top:-2px">You still provide State 2s. The explorer derives only the v and s coordinates needed for plotting and checks whether your proposed 2s is isentropic.</p>
+    <div class="field-grid">
+      <div class="field"><label for="g_p1">P₁ [kPa]</label><input id="g_p1" inputmode="decimal" value="100"></div>
+      <div class="field"><label for="g_t1">T₁ [K]</label><input id="g_t1" inputmode="decimal" value="300"></div>
+      <div class="field"><label for="g_p2">Outlet pressure P₂ [kPa]</label><input id="g_p2" inputmode="decimal" value="600"></div>
+      <div class="field"><label for="g_t2s">Your T₂s [K]</label><input id="g_t2s" inputmode="decimal" value="500.55"></div>
+      <div class="field"><label for="g_t2a">Actual T₂a [K]</label><input id="g_t2a" inputmode="decimal" value="560"></div>
+    </div>
+    <div class="state-table-wrap" style="margin-top:10px">
+      <table class="state-table" aria-label="Derived plotting coordinates">
+        <thead><tr><th>State</th><th>P [kPa]</th><th>T [K]</th><th>v [m³/kg]</th><th>s [kJ/kg·K]</th></tr></thead>
+        <tbody id="guidedDerived"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Consistency & process checks</h2>
+    <div id="validation" class="validation" aria-live="polite"></div>
+    <div class="btnrow"><button class="btn primary" id="refreshBtn" type="button">Refresh plots</button><button class="btn ghost" id="resetBtn" type="button">Reset example</button></div>
+  </section>
+</aside>
+
+<main>
+  <div class="mobile-tabs segmented" role="group" aria-label="Mobile plot view">
+    <button class="active" type="button" data-view="pv">P-v</button><button type="button" data-view="ts">T-s</button><button type="button" data-view="split">Split</button>
+  </div>
+  <section id="plotGrid" class="plot-grid" data-mobile-view="pv">
+    <div class="card plot-card pv-card">
+      <div class="plot-head"><div><div class="plot-title">P-v diagram</div><div class="plot-sub">Pressure vs. specific volume</div></div><div class="plot-sub" id="pvScaleNote">autoscaled</div></div>
+      <div class="plot-wrap"><svg id="pvPlot" role="img" aria-label="Pressure specific-volume diagram"></svg></div>
+      <div class="legend"><span class="key"><span class="linekey"></span>isentropic reference</span><span class="key"><span class="linekey actual"></span>actual path*</span><span class="key"><span class="pointkey"></span>entered state</span></div>
+    </div>
+    <div class="card plot-card ts-card">
+      <div class="plot-head"><div><div class="plot-title">T-s diagram</div><div class="plot-sub">Temperature vs. specific entropy</div></div><div class="plot-sub" id="tsScaleNote">autoscaled</div></div>
+      <div class="plot-wrap"><svg id="tsPlot" role="img" aria-label="Temperature entropy diagram"></svg></div>
+      <div class="legend"><span class="key"><span class="linekey"></span>isentropic reference</span><span class="key"><span class="linekey actual"></span>actual path*</span><span class="key"><span class="pointkey"></span>entered state</span></div>
+    </div>
+  </section>
+
+  <section class="state-link" aria-live="polite">
+    <div class="link-label">Same state, two projections</div>
+    <div class="coords" id="linkCoords"></div>
+  </section>
+  <div class="state-buttons" aria-label="Highlight state">
+    <button type="button" data-highlight="1" class="active">State 1</button>
+    <button type="button" data-highlight="2s">State 2s</button>
+    <button type="button" data-highlight="2a">State 2a</button>
+  </div>
+
+  <section class="process-summary">
+    <div class="metric"><div class="k">Isentropic check</div><div class="v" id="isoMetric">—</div></div>
+    <div class="metric" id="sgenMetricCard"><div class="k">Specific entropy generation</div><div class="v" id="sgenMetric">—</div></div>
+    <div class="metric"><div class="k">Outlet pressure comparison</div><div class="v" id="pressureMetric">—</div></div>
+  </section>
+
+  <p class="asterisk">*Actual compressor path is schematic. The dashed curve only connects the supplied endpoint states; a real compressor path is generally not linear and cannot be determined from the endpoints alone.</p>
+
+  <section class="notes notes-grid">
+    <div class="card">
+      <h2>Assumptions used by this explorer</h2>
+      <table class="assump-table">
+        <tr><td>Adiabatic</td><td>Q̇ = 0</td></tr>
+        <tr><td>Working fluid</td><td>Air, treated as an ideal gas</td></tr>
+        <tr><td>Kinetic energy</td><td>ΔKE = 0</td></tr>
+        <tr><td>Potential energy</td><td>ΔPE = 0</td></tr>
+        <tr><td>Flow model</td><td>Steady-state, steady-flow (SSSF)</td></tr>
+        <tr><td>Ports</td><td>Single inlet, single outlet (SISO)</td></tr>
+      </table>
+      <div class="callout" style="margin-top:10px">Under these assumptions, a feasible adiabatic compressor has <strong>s₂a − s₁ = s<sub>gen</sub> ≥ 0</strong>. For the isentropic comparison state, <strong>s₂s = s₁</strong>.</div>
+    </div>
+
+    <div class="card">
+      <h2>Property-model transparency</h2>
+      <p class="fine"><strong>CSH:</strong> fixed values are R = 0.287 kJ/(kg·K), c<sub>p</sub> = 1.005 kJ/(kg·K), c<sub>v</sub> = 0.718 kJ/(kg·K), and k = 1.400. These values are intentionally not editable.</p>
+      <p class="fine"><strong>VSH:</strong> uses linear interpolation of the embedded A-21 ideal-gas air table from 200 K to 2250 K. No extrapolation is performed.</p>
+      <p class="fine"><strong>Specific volume:</strong> both models use the ideal-gas relation v = RT/P.</p>
+      <p class="fine"><strong>Entropy:</strong> consistency is checked from entropy differences. In Supported Entry, the displayed entropy datum is aligned to the A-21 standard-state entropy convention; for CSH, s(300 K, 100 kPa) is anchored at 1.70203 kJ/(kg·K) so CSH and VSH can share one plotting scale.</p>
+      <p class="fine"><strong>Purpose:</strong> this is a visualization/checking tool, not a property-state solver. It does not replace inconsistent student inputs with corrected values.</p>
+    </div>
+  </section>
+</main>
+</div>
+</div>
+
+<script>
+'use strict';
+const A21=[{"T_K":200,"h_kJ_kg":199.97,"Pr":0.3363,"u_kJ_kg":142.56,"v_r":1707.0,"s0_kJ_kg_K":1.29559},{"T_K":210,"h_kJ_kg":209.97,"Pr":0.3987,"u_kJ_kg":149.69,"v_r":1512.0,"s0_kJ_kg_K":1.34444},{"T_K":220,"h_kJ_kg":219.97,"Pr":0.469,"u_kJ_kg":156.82,"v_r":1346.0,"s0_kJ_kg_K":1.39105},{"T_K":230,"h_kJ_kg":230.02,"Pr":0.5477,"u_kJ_kg":164.0,"v_r":1205.0,"s0_kJ_kg_K":1.43557},{"T_K":240,"h_kJ_kg":240.02,"Pr":0.6355,"u_kJ_kg":171.13,"v_r":1084.0,"s0_kJ_kg_K":1.47824},{"T_K":250,"h_kJ_kg":250.05,"Pr":0.7329,"u_kJ_kg":178.28,"v_r":979.0,"s0_kJ_kg_K":1.51917},{"T_K":260,"h_kJ_kg":260.09,"Pr":0.8405,"u_kJ_kg":185.45,"v_r":887.8,"s0_kJ_kg_K":1.55848},{"T_K":270,"h_kJ_kg":270.11,"Pr":0.959,"u_kJ_kg":192.6,"v_r":808.0,"s0_kJ_kg_K":1.59634},{"T_K":280,"h_kJ_kg":280.13,"Pr":1.0889,"u_kJ_kg":199.75,"v_r":738.0,"s0_kJ_kg_K":1.63279},{"T_K":285,"h_kJ_kg":285.14,"Pr":1.1584,"u_kJ_kg":203.33,"v_r":706.1,"s0_kJ_kg_K":1.65055},{"T_K":290,"h_kJ_kg":290.16,"Pr":1.2311,"u_kJ_kg":206.91,"v_r":676.1,"s0_kJ_kg_K":1.66802},{"T_K":295,"h_kJ_kg":295.17,"Pr":1.3068,"u_kJ_kg":210.49,"v_r":647.9,"s0_kJ_kg_K":1.68515},{"T_K":298,"h_kJ_kg":298.18,"Pr":1.3543,"u_kJ_kg":212.64,"v_r":631.9,"s0_kJ_kg_K":1.69528},{"T_K":300,"h_kJ_kg":300.19,"Pr":1.386,"u_kJ_kg":214.07,"v_r":621.2,"s0_kJ_kg_K":1.70203},{"T_K":305,"h_kJ_kg":305.22,"Pr":1.4686,"u_kJ_kg":217.67,"v_r":596.0,"s0_kJ_kg_K":1.71865},{"T_K":310,"h_kJ_kg":310.24,"Pr":1.5546,"u_kJ_kg":221.25,"v_r":572.3,"s0_kJ_kg_K":1.73498},{"T_K":315,"h_kJ_kg":315.27,"Pr":1.6442,"u_kJ_kg":224.85,"v_r":549.8,"s0_kJ_kg_K":1.75106},{"T_K":320,"h_kJ_kg":320.29,"Pr":1.7375,"u_kJ_kg":228.42,"v_r":528.6,"s0_kJ_kg_K":1.7669},{"T_K":325,"h_kJ_kg":325.31,"Pr":1.8345,"u_kJ_kg":232.02,"v_r":508.4,"s0_kJ_kg_K":1.78249},{"T_K":330,"h_kJ_kg":330.34,"Pr":1.9352,"u_kJ_kg":235.61,"v_r":489.4,"s0_kJ_kg_K":1.79783},{"T_K":340,"h_kJ_kg":340.42,"Pr":2.149,"u_kJ_kg":242.82,"v_r":454.1,"s0_kJ_kg_K":1.8279},{"T_K":350,"h_kJ_kg":350.49,"Pr":2.379,"u_kJ_kg":250.02,"v_r":422.2,"s0_kJ_kg_K":1.85708},{"T_K":360,"h_kJ_kg":360.58,"Pr":2.626,"u_kJ_kg":257.24,"v_r":393.4,"s0_kJ_kg_K":1.88543},{"T_K":370,"h_kJ_kg":370.67,"Pr":2.892,"u_kJ_kg":264.46,"v_r":367.2,"s0_kJ_kg_K":1.91313},{"T_K":380,"h_kJ_kg":380.77,"Pr":3.176,"u_kJ_kg":271.69,"v_r":343.4,"s0_kJ_kg_K":1.94001},{"T_K":390,"h_kJ_kg":390.88,"Pr":3.481,"u_kJ_kg":278.93,"v_r":321.5,"s0_kJ_kg_K":1.96633},{"T_K":400,"h_kJ_kg":400.98,"Pr":3.806,"u_kJ_kg":286.16,"v_r":301.6,"s0_kJ_kg_K":1.99194},{"T_K":410,"h_kJ_kg":411.12,"Pr":4.153,"u_kJ_kg":293.43,"v_r":283.3,"s0_kJ_kg_K":2.01699},{"T_K":420,"h_kJ_kg":421.26,"Pr":4.522,"u_kJ_kg":300.69,"v_r":266.6,"s0_kJ_kg_K":2.04142},{"T_K":430,"h_kJ_kg":431.43,"Pr":4.915,"u_kJ_kg":307.99,"v_r":251.1,"s0_kJ_kg_K":2.06533},{"T_K":440,"h_kJ_kg":441.61,"Pr":5.332,"u_kJ_kg":315.3,"v_r":236.8,"s0_kJ_kg_K":2.0887},{"T_K":450,"h_kJ_kg":451.8,"Pr":5.775,"u_kJ_kg":322.62,"v_r":223.6,"s0_kJ_kg_K":2.11161},{"T_K":460,"h_kJ_kg":462.02,"Pr":6.245,"u_kJ_kg":329.97,"v_r":211.4,"s0_kJ_kg_K":2.13407},{"T_K":470,"h_kJ_kg":472.24,"Pr":6.742,"u_kJ_kg":337.32,"v_r":200.1,"s0_kJ_kg_K":2.15604},{"T_K":480,"h_kJ_kg":482.49,"Pr":7.268,"u_kJ_kg":344.7,"v_r":189.5,"s0_kJ_kg_K":2.1776},{"T_K":490,"h_kJ_kg":492.74,"Pr":7.824,"u_kJ_kg":352.08,"v_r":179.7,"s0_kJ_kg_K":2.19876},{"T_K":500,"h_kJ_kg":503.02,"Pr":8.411,"u_kJ_kg":359.49,"v_r":170.6,"s0_kJ_kg_K":2.21952},{"T_K":510,"h_kJ_kg":513.32,"Pr":9.031,"u_kJ_kg":366.92,"v_r":162.1,"s0_kJ_kg_K":2.23993},{"T_K":520,"h_kJ_kg":523.63,"Pr":9.684,"u_kJ_kg":374.36,"v_r":154.1,"s0_kJ_kg_K":2.25997},{"T_K":530,"h_kJ_kg":533.98,"Pr":10.37,"u_kJ_kg":381.84,"v_r":146.7,"s0_kJ_kg_K":2.27967},{"T_K":540,"h_kJ_kg":544.35,"Pr":11.1,"u_kJ_kg":389.34,"v_r":139.7,"s0_kJ_kg_K":2.29906},{"T_K":550,"h_kJ_kg":555.74,"Pr":11.86,"u_kJ_kg":396.86,"v_r":133.1,"s0_kJ_kg_K":2.31809},{"T_K":560,"h_kJ_kg":565.17,"Pr":12.66,"u_kJ_kg":404.42,"v_r":127.0,"s0_kJ_kg_K":2.33685},{"T_K":570,"h_kJ_kg":575.59,"Pr":13.5,"u_kJ_kg":411.97,"v_r":121.2,"s0_kJ_kg_K":2.35531},{"T_K":580,"h_kJ_kg":586.04,"Pr":14.38,"u_kJ_kg":419.55,"v_r":115.7,"s0_kJ_kg_K":2.37348},{"T_K":590,"h_kJ_kg":596.52,"Pr":15.31,"u_kJ_kg":427.15,"v_r":110.6,"s0_kJ_kg_K":2.3914},{"T_K":600,"h_kJ_kg":607.02,"Pr":16.28,"u_kJ_kg":434.78,"v_r":105.8,"s0_kJ_kg_K":2.40902},{"T_K":610,"h_kJ_kg":617.53,"Pr":17.3,"u_kJ_kg":442.42,"v_r":101.2,"s0_kJ_kg_K":2.42644},{"T_K":620,"h_kJ_kg":628.07,"Pr":18.36,"u_kJ_kg":450.09,"v_r":96.92,"s0_kJ_kg_K":2.44356},{"T_K":630,"h_kJ_kg":638.63,"Pr":19.84,"u_kJ_kg":457.78,"v_r":92.84,"s0_kJ_kg_K":2.46048},{"T_K":640,"h_kJ_kg":649.22,"Pr":20.64,"u_kJ_kg":465.5,"v_r":88.99,"s0_kJ_kg_K":2.47716},{"T_K":650,"h_kJ_kg":659.84,"Pr":21.86,"u_kJ_kg":473.25,"v_r":85.34,"s0_kJ_kg_K":2.49364},{"T_K":660,"h_kJ_kg":670.47,"Pr":23.13,"u_kJ_kg":481.01,"v_r":81.89,"s0_kJ_kg_K":2.50985},{"T_K":670,"h_kJ_kg":681.14,"Pr":24.46,"u_kJ_kg":488.81,"v_r":78.61,"s0_kJ_kg_K":2.52589},{"T_K":680,"h_kJ_kg":691.82,"Pr":25.85,"u_kJ_kg":496.62,"v_r":75.5,"s0_kJ_kg_K":2.54175},{"T_K":690,"h_kJ_kg":702.52,"Pr":27.29,"u_kJ_kg":504.45,"v_r":72.56,"s0_kJ_kg_K":2.55731},{"T_K":700,"h_kJ_kg":713.27,"Pr":28.8,"u_kJ_kg":512.33,"v_r":69.76,"s0_kJ_kg_K":2.57277},{"T_K":710,"h_kJ_kg":724.04,"Pr":30.38,"u_kJ_kg":520.23,"v_r":67.07,"s0_kJ_kg_K":2.5881},{"T_K":720,"h_kJ_kg":734.82,"Pr":32.02,"u_kJ_kg":528.14,"v_r":64.53,"s0_kJ_kg_K":2.60319},{"T_K":730,"h_kJ_kg":745.62,"Pr":33.72,"u_kJ_kg":536.07,"v_r":62.13,"s0_kJ_kg_K":2.61803},{"T_K":740,"h_kJ_kg":756.44,"Pr":35.5,"u_kJ_kg":544.02,"v_r":59.82,"s0_kJ_kg_K":2.6328},{"T_K":750,"h_kJ_kg":767.29,"Pr":37.35,"u_kJ_kg":551.99,"v_r":57.63,"s0_kJ_kg_K":2.64737},{"T_K":760,"h_kJ_kg":778.18,"Pr":39.27,"u_kJ_kg":560.01,"v_r":55.54,"s0_kJ_kg_K":2.66176},{"T_K":780,"h_kJ_kg":800.03,"Pr":43.35,"u_kJ_kg":576.12,"v_r":51.64,"s0_kJ_kg_K":2.69013},{"T_K":800,"h_kJ_kg":821.95,"Pr":47.75,"u_kJ_kg":592.3,"v_r":48.08,"s0_kJ_kg_K":2.71787},{"T_K":820,"h_kJ_kg":843.98,"Pr":52.59,"u_kJ_kg":608.59,"v_r":44.84,"s0_kJ_kg_K":2.74504},{"T_K":840,"h_kJ_kg":866.08,"Pr":57.6,"u_kJ_kg":624.95,"v_r":41.85,"s0_kJ_kg_K":2.7717},{"T_K":860,"h_kJ_kg":888.27,"Pr":63.09,"u_kJ_kg":641.4,"v_r":39.12,"s0_kJ_kg_K":2.79783},{"T_K":880,"h_kJ_kg":910.56,"Pr":68.98,"u_kJ_kg":657.95,"v_r":36.61,"s0_kJ_kg_K":2.82344},{"T_K":900,"h_kJ_kg":932.93,"Pr":75.29,"u_kJ_kg":674.58,"v_r":34.31,"s0_kJ_kg_K":2.84856},{"T_K":920,"h_kJ_kg":955.38,"Pr":82.05,"u_kJ_kg":691.28,"v_r":32.18,"s0_kJ_kg_K":2.87324},{"T_K":940,"h_kJ_kg":977.92,"Pr":89.28,"u_kJ_kg":708.08,"v_r":30.22,"s0_kJ_kg_K":2.89748},{"T_K":960,"h_kJ_kg":1000.55,"Pr":97.0,"u_kJ_kg":725.02,"v_r":28.4,"s0_kJ_kg_K":2.92128},{"T_K":980,"h_kJ_kg":1023.25,"Pr":105.2,"u_kJ_kg":741.98,"v_r":26.73,"s0_kJ_kg_K":2.94468},{"T_K":1000,"h_kJ_kg":1046.04,"Pr":114.0,"u_kJ_kg":758.94,"v_r":25.17,"s0_kJ_kg_K":2.9677},{"T_K":1020,"h_kJ_kg":1068.89,"Pr":123.4,"u_kJ_kg":776.1,"v_r":23.72,"s0_kJ_kg_K":2.99034},{"T_K":1040,"h_kJ_kg":1091.85,"Pr":133.3,"u_kJ_kg":793.36,"v_r":23.29,"s0_kJ_kg_K":3.0126},{"T_K":1060,"h_kJ_kg":1114.86,"Pr":143.9,"u_kJ_kg":810.62,"v_r":21.14,"s0_kJ_kg_K":3.03449},{"T_K":1080,"h_kJ_kg":1137.89,"Pr":155.2,"u_kJ_kg":827.88,"v_r":19.98,"s0_kJ_kg_K":3.05608},{"T_K":1100,"h_kJ_kg":1161.07,"Pr":167.1,"u_kJ_kg":845.33,"v_r":18.896,"s0_kJ_kg_K":3.07732},{"T_K":1120,"h_kJ_kg":1184.28,"Pr":179.7,"u_kJ_kg":862.79,"v_r":17.886,"s0_kJ_kg_K":3.09825},{"T_K":1140,"h_kJ_kg":1207.57,"Pr":193.1,"u_kJ_kg":880.35,"v_r":16.946,"s0_kJ_kg_K":3.11883},{"T_K":1160,"h_kJ_kg":1230.92,"Pr":207.2,"u_kJ_kg":897.91,"v_r":16.064,"s0_kJ_kg_K":3.13916},{"T_K":1180,"h_kJ_kg":1254.34,"Pr":222.2,"u_kJ_kg":915.57,"v_r":15.241,"s0_kJ_kg_K":3.15916},{"T_K":1200,"h_kJ_kg":1277.79,"Pr":238.0,"u_kJ_kg":933.33,"v_r":14.47,"s0_kJ_kg_K":3.17888},{"T_K":1220,"h_kJ_kg":1301.31,"Pr":254.7,"u_kJ_kg":951.09,"v_r":13.747,"s0_kJ_kg_K":3.19834},{"T_K":1240,"h_kJ_kg":1324.93,"Pr":272.3,"u_kJ_kg":968.95,"v_r":13.069,"s0_kJ_kg_K":3.21751},{"T_K":1260,"h_kJ_kg":1348.55,"Pr":290.8,"u_kJ_kg":986.9,"v_r":12.435,"s0_kJ_kg_K":3.23638},{"T_K":1280,"h_kJ_kg":1372.24,"Pr":310.4,"u_kJ_kg":1004.76,"v_r":11.835,"s0_kJ_kg_K":3.2551},{"T_K":1300,"h_kJ_kg":1395.97,"Pr":330.9,"u_kJ_kg":1022.82,"v_r":11.275,"s0_kJ_kg_K":3.27345},{"T_K":1320,"h_kJ_kg":1419.76,"Pr":352.5,"u_kJ_kg":1040.88,"v_r":10.747,"s0_kJ_kg_K":3.2916},{"T_K":1340,"h_kJ_kg":1443.6,"Pr":375.3,"u_kJ_kg":1058.94,"v_r":10.247,"s0_kJ_kg_K":3.30959},{"T_K":1360,"h_kJ_kg":1467.49,"Pr":399.1,"u_kJ_kg":1077.1,"v_r":9.78,"s0_kJ_kg_K":3.32724},{"T_K":1380,"h_kJ_kg":1491.44,"Pr":424.2,"u_kJ_kg":1095.26,"v_r":9.337,"s0_kJ_kg_K":3.34474},{"T_K":1400,"h_kJ_kg":1515.42,"Pr":450.5,"u_kJ_kg":1113.52,"v_r":8.919,"s0_kJ_kg_K":3.362},{"T_K":1420,"h_kJ_kg":1539.44,"Pr":478.0,"u_kJ_kg":1131.77,"v_r":8.526,"s0_kJ_kg_K":3.37901},{"T_K":1440,"h_kJ_kg":1563.51,"Pr":506.9,"u_kJ_kg":1150.13,"v_r":8.153,"s0_kJ_kg_K":3.39586},{"T_K":1460,"h_kJ_kg":1587.63,"Pr":537.1,"u_kJ_kg":1168.49,"v_r":7.801,"s0_kJ_kg_K":3.41247},{"T_K":1480,"h_kJ_kg":1611.79,"Pr":568.8,"u_kJ_kg":1186.95,"v_r":7.468,"s0_kJ_kg_K":3.42892},{"T_K":1500,"h_kJ_kg":1635.97,"Pr":601.9,"u_kJ_kg":1205.41,"v_r":7.152,"s0_kJ_kg_K":3.44516},{"T_K":1520,"h_kJ_kg":1660.23,"Pr":636.5,"u_kJ_kg":1223.87,"v_r":6.854,"s0_kJ_kg_K":3.4612},{"T_K":1540,"h_kJ_kg":1684.51,"Pr":672.8,"u_kJ_kg":1242.43,"v_r":6.569,"s0_kJ_kg_K":3.47712},{"T_K":1560,"h_kJ_kg":1708.82,"Pr":710.5,"u_kJ_kg":1260.99,"v_r":6.301,"s0_kJ_kg_K":3.49276},{"T_K":1580,"h_kJ_kg":1733.17,"Pr":750.0,"u_kJ_kg":1279.65,"v_r":6.046,"s0_kJ_kg_K":3.50829},{"T_K":1600,"h_kJ_kg":1757.57,"Pr":791.2,"u_kJ_kg":1298.3,"v_r":5.804,"s0_kJ_kg_K":3.52364},{"T_K":1620,"h_kJ_kg":1782.0,"Pr":834.1,"u_kJ_kg":1316.96,"v_r":5.574,"s0_kJ_kg_K":3.53879},{"T_K":1640,"h_kJ_kg":1806.46,"Pr":878.9,"u_kJ_kg":1335.72,"v_r":5.355,"s0_kJ_kg_K":3.55381},{"T_K":1660,"h_kJ_kg":1830.96,"Pr":925.6,"u_kJ_kg":1354.48,"v_r":5.147,"s0_kJ_kg_K":3.56867},{"T_K":1680,"h_kJ_kg":1855.5,"Pr":974.2,"u_kJ_kg":1373.24,"v_r":4.949,"s0_kJ_kg_K":3.58335},{"T_K":1700,"h_kJ_kg":1880.1,"Pr":1025.0,"u_kJ_kg":1392.7,"v_r":4.761,"s0_kJ_kg_K":3.5979},{"T_K":1750,"h_kJ_kg":1941.6,"Pr":1161.0,"u_kJ_kg":1439.8,"v_r":4.328,"s0_kJ_kg_K":3.6336},{"T_K":1800,"h_kJ_kg":2003.3,"Pr":1310.0,"u_kJ_kg":1487.2,"v_r":3.994,"s0_kJ_kg_K":3.6684},{"T_K":1850,"h_kJ_kg":2065.3,"Pr":1475.0,"u_kJ_kg":1534.9,"v_r":3.601,"s0_kJ_kg_K":3.7023},{"T_K":1900,"h_kJ_kg":2127.4,"Pr":1655.0,"u_kJ_kg":1582.6,"v_r":3.295,"s0_kJ_kg_K":3.7354},{"T_K":1950,"h_kJ_kg":2189.7,"Pr":1852.0,"u_kJ_kg":1630.6,"v_r":3.022,"s0_kJ_kg_K":3.7677},{"T_K":2000,"h_kJ_kg":2252.1,"Pr":2068.0,"u_kJ_kg":1678.7,"v_r":2.776,"s0_kJ_kg_K":3.7994},{"T_K":2050,"h_kJ_kg":2314.6,"Pr":2303.0,"u_kJ_kg":1726.8,"v_r":2.555,"s0_kJ_kg_K":3.8303},{"T_K":2100,"h_kJ_kg":2377.7,"Pr":2559.0,"u_kJ_kg":1775.3,"v_r":2.356,"s0_kJ_kg_K":3.8605},{"T_K":2150,"h_kJ_kg":2440.3,"Pr":2837.0,"u_kJ_kg":1823.8,"v_r":2.175,"s0_kJ_kg_K":3.8901},{"T_K":2200,"h_kJ_kg":2503.2,"Pr":3138.0,"u_kJ_kg":1872.4,"v_r":2.012,"s0_kJ_kg_K":3.9191},{"T_K":2250,"h_kJ_kg":2566.4,"Pr":3464.0,"u_kJ_kg":1921.3,"v_r":1.864,"s0_kJ_kg_K":3.9474}];
+const C={R:0.287,cp:1.005,cv:0.718,k:1.4,sRef:1.70203,TRef:300,PRef:100};
+const COLORS={orange:'#F76902',lightGray:'#D0D3D4',midGray:'#A2AAAD',darkGray:'#7C878E',beige:'#D7D2CB',green:'#84BD00',blue:'#009CBD',purple:'#7D55C7',red:'#DA291C',yellow:'#F6BE00',ink:'#202426'};
+const TEMP_MIN=A21[0].T_K, TEMP_MAX=A21[A21.length-1].T_K;
+let mode='data', model='csh', highlighted='1';
+let lastResult=null;
+const $=id=>document.getElementById(id);
+const fmt=(x,n=4)=>Number.isFinite(x)?Number(x).toLocaleString(undefined,{maximumFractionDigits:n}):'—';
+const val=id=>{const x=parseFloat($(id).value);return Number.isFinite(x)?x:NaN};
+function lerp(a,b,t){return a+(b-a)*t}
+function clamp(x,a,b){return Math.min(b,Math.max(a,x))}
+function relErr(a,b){return Math.abs(a-b)/Math.max(Math.abs(b),1e-12)}
+function interpByT(T,key){
+  if(T<TEMP_MIN||T>TEMP_MAX) return NaN;
+  let lo=0,hi=A21.length-1;
+  while(hi-lo>1){const m=(lo+hi)>>1;if(A21[m].T_K<=T)lo=m;else hi=m}
+  const a=A21[lo],b=A21[hi]; if(T===a.T_K)return a[key]; if(T===b.T_K)return b[key];
+  return lerp(a[key],b[key],(T-a.T_K)/(b.T_K-a.T_K));
+}
+function invertMonotonic(key,target,outKey='T_K'){
+  if(target<A21[0][key]||target>A21[A21.length-1][key]) return NaN;
+  let lo=0,hi=A21.length-1;
+  while(hi-lo>1){const m=(lo+hi)>>1;if(A21[m][key]<=target)lo=m;else hi=m}
+  const a=A21[lo],b=A21[hi];
+  const t=(target-a[key])/(b[key]-a[key]);return lerp(a[outKey],b[outKey],t);
+}
+function modelEntropyAbs(T,P){
+  if(!(T>0&&P>0))return NaN;
+  if(model==='csh') return C.sRef+C.cp*Math.log(T/C.TRef)-C.R*Math.log(P/C.PRef);
+  const s0=interpByT(T,'s0_kJ_kg_K');return Number.isFinite(s0)?s0-C.R*Math.log(P/C.PRef):NaN;
+}
+function modelDeltaS(a,b){
+  if(!(a.T>0&&b.T>0&&a.P>0&&b.P>0))return NaN;
+  if(model==='csh') return C.cp*Math.log(b.T/a.T)-C.R*Math.log(b.P/a.P);
+  const s0a=interpByT(a.T,'s0_kJ_kg_K'),s0b=interpByT(b.T,'s0_kJ_kg_K');
+  return Number.isFinite(s0a)&&Number.isFinite(s0b)?(s0b-s0a)-C.R*Math.log(b.P/a.P):NaN;
+}
+function idealV(T,P){return C.R*T/P}
+function readDataStates(){return {
+ '1':{P:val('d_p1'),T:val('d_t1'),v:val('d_v1'),s:val('d_s1')},
+ '2s':{P:val('d_p2s'),T:val('d_t2s'),v:val('d_v2s'),s:val('d_s2s')},
+ '2a':{P:val('d_p2a'),T:val('d_t2a'),v:val('d_v2a'),s:val('d_s2a')}
+}}
+function readSupportedStates(){
+ const P1=val('g_p1'),T1=val('g_t1'),P2=val('g_p2'),T2s=val('g_t2s'),T2a=val('g_t2a');
+ const states={
+  '1':{P:P1,T:T1,v:idealV(T1,P1),s:modelEntropyAbs(T1,P1)},
+  '2s':{P:P2,T:T2s,v:idealV(T2s,P2),s:modelEntropyAbs(T2s,P2)},
+  '2a':{P:P2,T:T2a,v:idealV(T2a,P2),s:modelEntropyAbs(T2a,P2)}
+ };
+ const tb=$('guidedDerived');tb.innerHTML=['1','2s','2a'].map(k=>`<tr><td class="state-name">${k}</td><td>${fmt(states[k].P,3)}</td><td>${fmt(states[k].T,2)}</td><td>${fmt(states[k].v,5)}</td><td>${fmt(states[k].s,5)}</td></tr>`).join('');
+ return states;
+}
+function validNumbers(st){return ['P','T','v','s'].every(k=>Number.isFinite(st[k]))}
+function validateStatePV(st){
+ if(!validNumbers(st)) return {level:'bad',text:'missing or non-numeric property'};
+ if(st.P<=0||st.T<=0||st.v<=0) return {level:'bad',text:'P, T, and v must be positive'};
+ if(model==='vsh'&&(st.T<TEMP_MIN||st.T>TEMP_MAX)) return {level:'bad',text:`T is outside the A-21 range (${TEMP_MIN}–${TEMP_MAX} K)`};
+ const ev=relErr(st.v,idealV(st.T,st.P));
+ if(ev<=0.015) return {level:'ok',text:'P-T-v consistent'};
+ if(ev<=0.05) return {level:'warn',text:'minor P-T-v mismatch'};
+ return {level:'bad',text:'P-T-v combination is not feasible'};
+}
+function setStatus(id,level,text){const el=$(id);el.className='status-pill '+(level==='ok'?'status-ok':level==='warn'?'status-warn':level==='bad'?'status-bad':'status-ref');el.textContent=text}
+function processValidation(states){
+ const msgs=[]; const status={};
+ for(const k of ['1','2s','2a']) status[k]=validateStatePV(states[k]);
+ if(mode==='data'){
+   setStatus('status1',status['1'].level==='bad'?'bad':status['1'].level==='warn'?'warn':'ref',status['1'].level==='bad'?status['1'].text:status['1'].level==='warn'?status['1'].text:'s reference');
+   for(const k of ['2s','2a']){
+     if(status[k].level==='bad'){setStatus(k==='2s'?'status2s':'status2a','bad',status[k].text);continue}
+     const dsEntered=states[k].s-states['1'].s, dsModel=modelDeltaS(states['1'],states[k]);
+     const e=Math.abs(dsEntered-dsModel);
+     if(!Number.isFinite(dsModel)){status[k]={level:'bad',text:'entropy check unavailable'};setStatus(k==='2s'?'status2s':'status2a','bad',status[k].text)}
+     else if(e<=0.010){setStatus(k==='2s'?'status2s':'status2a',status[k].level,status[k].level==='warn'?status[k].text:'consistent')}
+     else if(e<=0.030){status[k]={level:'warn',text:'minor entropy mismatch'};setStatus(k==='2s'?'status2s':'status2a','warn','rounding?')}
+     else{status[k]={level:'bad',text:'entropy is inconsistent with P and T'};setStatus(k==='2s'?'status2s':'status2a','bad','inconsistent')}
+   }
+ }
+ for(const k of ['1','2s','2a']){
+   if(status[k].level==='bad') msgs.push({level:'bad',html:`<strong>State ${k}:</strong> Variable combination is not feasible under the selected ideal-gas model. ${status[k].text}. Values are not corrected.`});
+   else if(status[k].level==='warn') msgs.push({level:'warn',html:`<strong>State ${k}:</strong> ${status[k].text}. The viewer will plot it, but check rounding/interpolation.`});
+ }
+ const p1=states['1'].P,p2s=states['2s'].P,p2a=states['2a'].P;
+ const pressureComparable=Number.isFinite(p2s)&&Number.isFinite(p2a)&&relErr(p2s,p2a)<=0.02;
+ const pressureNear=Number.isFinite(p2s)&&Number.isFinite(p2a)&&relErr(p2s,p2a)<=0.05;
+ if(!(p1>0&&p2s>0&&p2a>0)){}
+ else if(p2s<=p1||p2a<=p1) msgs.push({level:'warn',html:'<strong>Compressor comparison:</strong> the outlet pressure should exceed the inlet pressure for the process represented here.'});
+ if(!pressureComparable){msgs.push({level:pressureNear?'warn':'bad',html:`<strong>Outlet pressure:</strong> 2s and 2a should be compared at the same discharge pressure. Entered values differ by ${fmt(100*relErr(p2s,p2a),1)}%.`})}
+ const dsIso=states['2s'].s-states['1'].s;
+ const isoAbs=Math.abs(dsIso);
+ let isoLevel='ok';
+ if(!Number.isFinite(dsIso))isoLevel='bad'; else if(isoAbs<=0.010)isoLevel='ok'; else if(isoAbs<=0.030)isoLevel='warn'; else isoLevel='bad';
+ if(isoLevel==='warn')msgs.push({level:'warn',html:`<strong>State 2s:</strong> s₂s differs from s₁ by ${fmt(dsIso,4)} kJ/(kg·K). This may be rounding, but the isentropic reference should have Δs ≈ 0.`});
+ if(isoLevel==='bad')msgs.push({level:'bad',html:`<strong>State 2s is not isentropic:</strong> s₂s − s₁ = ${fmt(dsIso,4)} kJ/(kg·K). The solid isentropic path is suppressed until 2s is consistent.`});
+ const sgen=states['2a'].s-states['1'].s;
+ let impossible=false;
+ if(Number.isFinite(sgen)&&sgen < -0.010){impossible=true;msgs.push({level:'bad',html:`<strong>IMPOSSIBLE PROCESS:</strong> Under the stated adiabatic SSSF/SISO assumptions, s<sub>gen</sub> = s₂a − s₁ = ${fmt(sgen,4)} kJ/(kg·K) is negative. The outlet state may be valid, but this compressor process is <strong>impossible</strong>.`})}
+ else if(Number.isFinite(sgen)&&sgen<0){msgs.push({level:'warn',html:`<strong>Entropy generation:</strong> s₂a − s₁ = ${fmt(sgen,4)} kJ/(kg·K), slightly below zero. The viewer treats this as a possible rounding/interpolation issue; inspect your values.`})}
+ else if(Number.isFinite(sgen)){msgs.push({level:'info',html:`For the listed assumptions, s<sub>gen</sub> = s₂a − s₁ = ${fmt(sgen,4)} kJ/(kg·K).`})}
+ if(!msgs.length)msgs.push({level:'ok',html:'States and process checks are consistent with the selected model and compressor assumptions.'});
+ return {status,msgs,dsIso,isoLevel,sgen,impossible,pressureComparable};
+}
+function makeIsentropicPath(states,check){
+ if(check.isoLevel==='bad'||check.status['1'].level==='bad'||check.status['2s'].level==='bad'||!check.pressureComparable) return [];
+ const a=states['1'],b=states['2s']; if(!(a.P>0&&b.P>0))return[];
+ const N=48,pts=[];
+ if(model==='csh'){
+   for(let i=0;i<=N;i++){const f=i/N,P=a.P*Math.pow(b.P/a.P,f),T=a.T*Math.pow(P/a.P,(C.k-1)/C.k),v=idealV(T,P);pts.push({P,T,v,s:a.s});}
+ }else{
+   const pr1=interpByT(a.T,'Pr'); if(!Number.isFinite(pr1))return[];
+   for(let i=0;i<=N;i++){const f=i/N,P=a.P*Math.pow(b.P/a.P,f),target=pr1*(P/a.P),T=invertMonotonic('Pr',target),v=idealV(T,P);if(!Number.isFinite(T))return[];pts.push({P,T,v,s:a.s});}
+ }
+ return pts;
+}
+function niceTicks(min,max,count=5){
+ const span=max-min;if(!(span>0))return[min];const raw=span/(count-1),pow=Math.pow(10,Math.floor(Math.log10(raw))),r=raw/pow;const step=(r<1.5?1:r<3?2:r<7?5:10)*pow;const start=Math.ceil(min/step)*step;const out=[];for(let x=start;x<=max+1e-10;x+=step)out.push(x);return out.length?out:[min,max]
+}
+function bounds(values,pad=.12){const good=values.filter(Number.isFinite);let mn=Math.min(...good),mx=Math.max(...good);if(!Number.isFinite(mn)||!Number.isFinite(mx)){mn=0;mx=1}if(mn===mx){const d=Math.max(Math.abs(mn)*.1,.1);mn-=d;mx+=d}else{const d=(mx-mn)*pad;mn-=d;mx+=d}return[mn,mx]}
+function svgEl(name,attrs={}){const el=document.createElementNS('http://www.w3.org/2000/svg',name);for(const[k,v]of Object.entries(attrs))el.setAttribute(k,v);return el}
+function drawPlot(svgId,type,states,path,check){
+ const svg=$(svgId);svg.innerHTML='';const W=650,H=500,m={l:78,r:24,t:28,b:64};svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+ const plotW=W-m.l-m.r,plotH=H-m.t-m.b;
+ const validStates=Object.values(states).filter(validNumbers);
+ const pathPts=path;
+ let xs,ys,xLabel,yLabel;
+ if(type==='pv'){xs=validStates.map(s=>s.v).concat(pathPts.map(p=>p.v));ys=validStates.map(s=>s.P).concat(pathPts.map(p=>p.P));xLabel='Specific volume, v [m³/kg]';yLabel='Pressure, P [kPa]'}
+ else{xs=validStates.map(s=>s.s).concat(pathPts.map(p=>p.s));ys=validStates.map(s=>s.T).concat(pathPts.map(p=>p.T));xLabel='Specific entropy, s [kJ/(kg·K)]';yLabel='Temperature, T [K]'}
+ let [xmin,xmax]=bounds(xs,.16),[ymin,ymax]=bounds(ys,.14); if(type==='pv') ymin=Math.max(0,ymin); if(type==='ts')ymin=Math.max(0,ymin);
+ const X=x=>m.l+(x-xmin)/(xmax-xmin)*plotW,Y=y=>m.t+plotH-(y-ymin)/(ymax-ymin)*plotH;
+ const xt=niceTicks(xmin,xmax,5),yt=niceTicks(ymin,ymax,5);
+ for(const x of xt){const xx=X(x);svg.appendChild(svgEl('line',{x1:xx,y1:m.t,x2:xx,y2:m.t+plotH,stroke:'#e7e9e9','stroke-width':1}));const t=svgEl('text',{x:xx,y:H-34,'text-anchor':'middle','font-size':12,fill:'#5e686d'});t.textContent=type==='pv'?fmt(x,4):fmt(x,4);svg.appendChild(t)}
+ for(const y of yt){const yy=Y(y);svg.appendChild(svgEl('line',{x1:m.l,y1:yy,x2:m.l+plotW,y2:yy,stroke:'#e7e9e9','stroke-width':1}));const t=svgEl('text',{x:m.l-10,y:yy+4,'text-anchor':'end','font-size':12,fill:'#5e686d'});t.textContent=fmt(y,type==='pv'?1:0);svg.appendChild(t)}
+ svg.appendChild(svgEl('line',{x1:m.l,y1:m.t+plotH,x2:m.l+plotW,y2:m.t+plotH,stroke:COLORS.ink,'stroke-width':1.5}));svg.appendChild(svgEl('line',{x1:m.l,y1:m.t,x2:m.l,y2:m.t+plotH,stroke:COLORS.ink,'stroke-width':1.5}));
+ let tx=svgEl('text',{x:m.l+plotW/2,y:H-8,'text-anchor':'middle','font-size':13,'font-weight':700,fill:COLORS.ink});tx.textContent=xLabel;svg.appendChild(tx);
+ let ty=svgEl('text',{x:17,y:m.t+plotH/2,'text-anchor':'middle','font-size':13,'font-weight':700,fill:COLORS.ink,transform:`rotate(-90 17 ${m.t+plotH/2})`});ty.textContent=yLabel;svg.appendChild(ty);
+ if(pathPts.length>1){let d='';pathPts.forEach((p,i)=>{const x=type==='pv'?p.v:p.s,y=type==='pv'?p.P:p.T;d+=(i?' L ':'M ')+X(x)+' '+Y(y)});svg.appendChild(svgEl('path',{d,fill:'none',stroke:COLORS.blue,'stroke-width':3,'stroke-linecap':'round','stroke-linejoin':'round'}))}
+ const a=states['1'],b=states['2a'];
+ const aValid=check.status['1'].level!=='bad',bValid=check.status['2a'].level!=='bad';
+ if(aValid&&bValid){const x1=X(type==='pv'?a.v:a.s),y1=Y(type==='pv'?a.P:a.T),x2=X(type==='pv'?b.v:b.s),y2=Y(type==='pv'?b.P:b.T);const dx=x2-x1,dy=y2-y1;const c1x=x1+.25*dx,c1y=y1+.38*dy,c2x=x1+.68*dx,c2y=y1+.76*dy;svg.appendChild(svgEl('path',{d:`M ${x1} ${y1} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${x2} ${y2}`,fill:'none',stroke:check.impossible?COLORS.red:COLORS.purple,'stroke-width':3,'stroke-dasharray':'9 7','stroke-linecap':'round'}));const lab=svgEl('text',{x:(x1+x2)/2+7,y:(y1+y2)/2-7,'font-size':11,'font-weight':800,fill:check.impossible?COLORS.red:COLORS.purple});lab.textContent=check.impossible?'actual* — IMPOSSIBLE':'actual*';svg.appendChild(lab)}
+ if(type==='ts'&&Number.isFinite(check.sgen)&&check.status['2s'].level!=='bad'&&check.status['2a'].level!=='bad'){
+   const sA=states['2s'].s,sB=states['2a'].s,Tbase=Math.min(states['2s'].T,states['2a'].T)-.08*(ymax-ymin);const yy=Y(Tbase),xA=X(sA),xB=X(sB);svg.appendChild(svgEl('line',{x1:xA,y1:yy,x2:xB,y2:yy,stroke:check.impossible?COLORS.red:COLORS.orange,'stroke-width':2}));svg.appendChild(svgEl('line',{x1:xA,y1:yy-5,x2:xA,y2:yy+5,stroke:check.impossible?COLORS.red:COLORS.orange,'stroke-width':2}));svg.appendChild(svgEl('line',{x1:xB,y1:yy-5,x2:xB,y2:yy+5,stroke:check.impossible?COLORS.red:COLORS.orange,'stroke-width':2}));const l=svgEl('text',{x:(xA+xB)/2,y:yy-7,'text-anchor':'middle','font-size':11,'font-weight':900,fill:check.impossible?COLORS.red:COLORS.orange});l.textContent='Δs = sgen';svg.appendChild(l)
+ }
+ for(const key of ['1','2s','2a']){
+  const st=states[key];if(!validNumbers(st))continue;const x=X(type==='pv'?st.v:st.s),y=Y(type==='pv'?st.P:st.T);const invalid=check.status[key].level==='bad';const selected=key===highlighted;const g=svgEl('g',{'data-state':key,tabindex:'0',role:'button','aria-label':`Highlight state ${key}`,style:'cursor:pointer'});if(selected)g.appendChild(svgEl('circle',{cx:x,cy:y,r:12,fill:'none',stroke:COLORS.orange,'stroke-width':4,opacity:.7}));g.appendChild(svgEl('circle',{cx:x,cy:y,r:invalid?7:6,fill:invalid?'#fff1f0':'white',stroke:invalid?COLORS.red:(key==='2a'?COLORS.purple:key==='2s'?COLORS.blue:COLORS.ink),'stroke-width':3}));const t=svgEl('text',{x:x+9,y:y-9,'font-size':12,'font-weight':900,fill:invalid?COLORS.red:COLORS.ink});t.textContent=key+(invalid?' !':'');g.appendChild(t);g.addEventListener('click',()=>setHighlighted(key));g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setHighlighted(key)}});svg.appendChild(g)
+ }
+}
+function renderValidation(check){const box=$('validation');box.innerHTML=check.msgs.map(m=>`<div class="message ${m.level}">${m.html}</div>`).join('')}
+function updateMetrics(states,check){$('isoMetric').textContent=Number.isFinite(check.dsIso)?`Δs = ${fmt(check.dsIso,4)} kJ/(kg·K)`:'—';$('sgenMetric').innerHTML=Number.isFinite(check.sgen)?`${fmt(check.sgen,4)} kJ/(kg·K)${check.impossible?' · <strong>IMPOSSIBLE</strong>':''}`:'—';$('sgenMetricCard').classList.toggle('impossible',check.impossible);const pe=relErr(states['2s'].P,states['2a'].P);$('pressureMetric').textContent=Number.isFinite(pe)?(pe<=.02?'same P₂':`${fmt(pe*100,1)}% mismatch`):'—'}
+function updateLink(states){const st=states[highlighted];if(!st||!validNumbers(st)){$('linkCoords').innerHTML='<span>Selected state is incomplete.</span>';return}$('linkCoords').innerHTML=`<span><strong>State ${highlighted}</strong></span><span>P-v: (v = ${fmt(st.v,5)}, P = ${fmt(st.P,2)})</span><span>T-s: (s = ${fmt(st.s,5)}, T = ${fmt(st.T,2)})</span>`}
+function setHighlighted(key){highlighted=key;document.querySelectorAll('[data-highlight]').forEach(b=>b.classList.toggle('active',b.dataset.highlight===key));if(lastResult){updateLink(lastResult.states);drawPlot('pvPlot','pv',lastResult.states,lastResult.path,lastResult.check);drawPlot('tsPlot','ts',lastResult.states,lastResult.path,lastResult.check)}}
+function refresh(){
+ const states=mode==='data'?readDataStates():readSupportedStates();const check=processValidation(states);const path=makeIsentropicPath(states,check);lastResult={states,check,path};renderValidation(check);updateMetrics(states,check);updateLink(states);drawPlot('pvPlot','pv',states,path,check);drawPlot('tsPlot','ts',states,path,check)
+}
+function setMode(m){mode=m;$('modeData').classList.toggle('active',m==='data');$('modeSupported').classList.toggle('active',m==='supported');$('modeData').setAttribute('aria-pressed',m==='data');$('modeSupported').setAttribute('aria-pressed',m==='supported');$('dataEntryCard').hidden=m!=='data';$('supportedCard').hidden=m!=='supported';$('modeNote').innerHTML=m==='data'?'<strong>Data Entry:</strong> enter P, T, v, and s for all three states. Values are plotted exactly as entered; the tool only flags inconsistencies.':'<strong>Supported Entry:</strong> enter P₁, T₁, outlet pressure P₂, your proposed T₂s, and actual T₂a. The viewer derives only v and s coordinates for plotting and checks your 2s.';refresh()}
+function setModel(m){model=m;$('modelCSH').classList.toggle('active',m==='csh');$('modelVSH').classList.toggle('active',m==='vsh');$('modelCSH').setAttribute('aria-pressed',m==='csh');$('modelVSH').setAttribute('aria-pressed',m==='vsh');$('modelNote').textContent=m==='csh'?'CSH uses fixed course-reference values. The constants are documented below and are intentionally not editable.':`VSH uses linear interpolation of the embedded A-21 air table (${TEMP_MIN}–${TEMP_MAX} K) with no extrapolation.`;refresh()}
+function resetExample(){
+ const defaults={d_p1:100,d_t1:300,d_v1:.8610,d_s1:1.70203,d_p2s:600,d_t2s:500.55,d_v2s:.23943,d_s2s:1.70203,d_p2a:600,d_t2a:560,d_v2a:.26787,d_s2a:1.81507,g_p1:100,g_t1:300,g_p2:600,g_t2s:500.55,g_t2a:560};for(const[k,v]of Object.entries(defaults))$(k).value=v;refresh()}
+$('modeData').addEventListener('click',()=>setMode('data'));$('modeSupported').addEventListener('click',()=>setMode('supported'));$('modelCSH').addEventListener('click',()=>setModel('csh'));$('modelVSH').addEventListener('click',()=>setModel('vsh'));$('refreshBtn').addEventListener('click',refresh);$('resetBtn').addEventListener('click',resetExample);
+document.querySelectorAll('input').forEach(el=>el.addEventListener('change',refresh));
+document.querySelectorAll('[data-highlight]').forEach(b=>b.addEventListener('click',()=>setHighlighted(b.dataset.highlight)));
+document.querySelectorAll('.mobile-tabs button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.mobile-tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('plotGrid').dataset.mobileView=b.dataset.view}));
+$('pasteApply').addEventListener('click',()=>{const rows=$('pasteArea').value.trim().split(/\n+/).map(r=>r.trim()).filter(Boolean);if(rows.length!==3){alert('Paste exactly three rows: State 1, State 2s, State 2a.');return}const ids=[['d_p1','d_t1','d_v1','d_s1'],['d_p2s','d_t2s','d_v2s','d_s2s'],['d_p2a','d_t2a','d_v2a','d_s2a']];for(let i=0;i<3;i++){const vals=rows[i].split(/[\t,]+/).map(x=>x.trim());if(vals.length<4||vals.slice(0,4).some(x=>!Number.isFinite(parseFloat(x)))){alert(`Row ${i+1} must contain four numeric values: P, T, v, s.`);return}ids[i].forEach((id,j)=>$(id).value=parseFloat(vals[j]))}refresh()});
+window.addEventListener('resize',()=>{if(lastResult){drawPlot('pvPlot','pv',lastResult.states,lastResult.path,lastResult.check);drawPlot('tsPlot','ts',lastResult.states,lastResult.path,lastResult.check)}});
+refresh();
+</script>
+</body>
+</html>
