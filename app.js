@@ -37,6 +37,9 @@ let currentRoomId = "";
 let currentStudentId = "";
 let currentStudentName = "";
 let lastStudentHtmlVersion = null;
+let currentBroadcastHtml = "";
+let currentBroadcastTitle = "classroom-broadcast";
+let studentHtmlPseudoFullscreen = false;
 let authReadyPromise = Promise.resolve(null);
 
 function isFirebaseConfigured(config) {
@@ -1619,6 +1622,13 @@ function bindStudentEvents() {
     } catch (error) {
       setMessage(document.getElementById("joinMessage"), error.message, "error");
     }
+    document.getElementById("downloadBroadcastBtn")?.addEventListener("click", () => {
+  downloadCurrentBroadcast();
+});
+
+document.getElementById("fullscreenBroadcastBtn")?.addEventListener("click", async () => {
+  await toggleStudentHtmlFullscreen();
+});
   });
 
   document.getElementById("submitAiAnswerBtn")?.addEventListener("click", async () => {
@@ -1775,14 +1785,156 @@ function renderStudentGroups(groupState) {
 }
 
 function renderStudentHtml(htmlState) {
-  document.getElementById("htmlStudentTitle").textContent = htmlState.title || "Interactive HTML Sandbox";
+  currentBroadcastTitle = htmlState.title || "Interactive HTML Sandbox";
+  currentBroadcastHtml = htmlState.content || defaultSandboxHtml();
+
+  document.getElementById("htmlStudentTitle").textContent = currentBroadcastTitle;
+
   const frame = document.getElementById("studentHtmlFrame");
   const version = htmlState.version || 0;
+
   if (frame && lastStudentHtmlVersion !== version) {
-    frame.srcdoc = makeSandboxDocument(htmlState.content || defaultSandboxHtml());
+    frame.srcdoc = makeSandboxDocument(currentBroadcastHtml);
     lastStudentHtmlVersion = version;
   }
 }
+
+function makeDownloadFilename(title) {
+  const safeTitle = String(title || "classroom-broadcast")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return `${safeTitle || "classroom-broadcast"}.html`;
+}
+
+function downloadCurrentBroadcast() {
+  if (!currentBroadcastHtml) {
+    alert("There is no active broadcast to download.");
+    return;
+  }
+
+  const blob = new Blob(
+    [currentBroadcastHtml],
+    { type: "text/html;charset=utf-8" }
+  );
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = makeDownloadFilename(currentBroadcastTitle);
+
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  window.setTimeout(() => {
+    URL.revokeObjectURL(url);
+  }, 0);
+}
+
+async function toggleStudentHtmlFullscreen() {
+  const viewer = document.getElementById("studentHtmlViewer");
+  if (!viewer) return;
+
+  const fullscreenElement =
+    document.fullscreenElement ||
+    document.webkitFullscreenElement ||
+    null;
+
+  /*
+   * Prefer the browser's real Fullscreen API.
+   * Fall back to a fixed-position fullscreen presentation on devices
+   * or browsers where element fullscreen is unavailable.
+   */
+  if (fullscreenElement === viewer) {
+    await exitNativeFullscreen();
+    return;
+  }
+
+  if (studentHtmlPseudoFullscreen) {
+    exitPseudoFullscreen();
+    return;
+  }
+
+  const requestFullscreen =
+    viewer.requestFullscreen ||
+    viewer.webkitRequestFullscreen;
+
+  if (requestFullscreen) {
+    try {
+      await requestFullscreen.call(viewer);
+      syncStudentHtmlFullscreenUi();
+      return;
+    } catch {
+      // Fall through to the cross-device CSS fallback.
+    }
+  }
+
+  enterPseudoFullscreen();
+}
+
+async function exitNativeFullscreen() {
+  const exitFullscreen =
+    document.exitFullscreen ||
+    document.webkitExitFullscreen;
+
+  if (exitFullscreen) {
+    try {
+      await exitFullscreen.call(document);
+    } catch {
+      // Browser may already have exited fullscreen.
+    }
+  }
+
+  syncStudentHtmlFullscreenUi();
+}
+
+function enterPseudoFullscreen() {
+  const viewer = document.getElementById("studentHtmlViewer");
+  if (!viewer) return;
+
+  studentHtmlPseudoFullscreen = true;
+  viewer.classList.add("student-html-pseudo-fullscreen");
+  document.body.classList.add("student-html-pseudo-fullscreen-active");
+
+  syncStudentHtmlFullscreenUi();
+}
+
+function exitPseudoFullscreen() {
+  const viewer = document.getElementById("studentHtmlViewer");
+  if (!viewer) return;
+
+  studentHtmlPseudoFullscreen = false;
+  viewer.classList.remove("student-html-pseudo-fullscreen");
+  document.body.classList.remove("student-html-pseudo-fullscreen-active");
+
+  syncStudentHtmlFullscreenUi();
+}
+
+function syncStudentHtmlFullscreenUi() {
+  const viewer = document.getElementById("studentHtmlViewer");
+  const button = document.getElementById("fullscreenBroadcastBtn");
+
+  if (!viewer || !button) return;
+
+  const nativeFullscreen =
+    document.fullscreenElement === viewer ||
+    document.webkitFullscreenElement === viewer;
+
+  const active = nativeFullscreen || studentHtmlPseudoFullscreen;
+
+  button.textContent = active ? "Exit full screen" : "Full screen";
+  button.setAttribute("aria-pressed", String(active));
+  button.title = active
+    ? "Return the broadcast to the student page"
+    : "Open the broadcast fullscreen";
+}
+
+document.addEventListener("fullscreenchange", syncStudentHtmlFullscreenUi);
+document.addEventListener("webkitfullscreenchange", syncStudentHtmlFullscreenUi);
 
 window.RITClassroom = {
   createRoom,
